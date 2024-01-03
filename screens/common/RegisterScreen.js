@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Button, StatusBar } from 'react-native';
-import firebase from './firebaseConfig'; // Adjust the path as necessary
+import firebase from '../../services/api/firebaseService'; // Adjust the path as necessary
 
-export default function App() {
+export default function RegisterScreen() { // Rename the function to RegisterScreen
   // State hooks for user email and password
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -37,7 +37,7 @@ export default function App() {
       <StatusBar style="auto" />
     </View>
   );
-} 
+}
 
 const styles = StyleSheet.create({
   container: {

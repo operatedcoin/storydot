@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity, Keyboard } from 'react-native';
 import { useAuth } from '../../hooks/useAuth'; // Import useAuth hook
+import { secondStyles } from '../../themes/secondStyles'; // Import global styles
+
 
 const RegisterScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -14,60 +16,38 @@ const RegisterScreen = ({ navigation }) => {
   };
 
   const navigateToLogin = () => {
-    navigation.navigate('Login');
+    navigation.navigate('LOGIN');
   };
 
   return (
-    <View style={styles.container}>
+    <View style={secondStyles.container}>
       <TextInput
-        style={styles.input}
+        style={secondStyles.input}
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
       />
       <TextInput
-        style={styles.input}
+        style={secondStyles.input}
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Sign Up" onPress={handleSignUp} />
+        <TouchableOpacity style={secondStyles.button} onPress={handleSignUp}>
+        <Text style={secondStyles.buttonText}>Register</Text>
+      </TouchableOpacity>
       
       {/* Display error message if there is one */}
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {error ? <Text style={secondStyles.errorText}>{error}</Text> : null}
 
       {/* Link to Login Screen */}
       <TouchableOpacity onPress={navigateToLogin}>
-        <Text style={styles.registerLink}>Already have an account? Log in</Text>
+        <Text style={secondStyles.subLink}>Already have an account? Log in</Text>
       </TouchableOpacity>
     </View>
   );
 };
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  input: {
-    height: 40,
-    marginBottom: 10,
-    borderWidth: 1,
-    padding: 10,
-  },
-  registerLink: {
-    marginTop: 15,
-    color: 'blue', // Feel free to change the color
-    textAlign: 'center'
-  },
-  errorText: { // Style for error message
-    color: 'red',
-    marginTop: 10,
-    marginBottom: 10,
-    textAlign: 'center'
-  }
-});
 
 
 export default RegisterScreen;

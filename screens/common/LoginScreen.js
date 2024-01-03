@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity, Keyboard } from 'react-native';
 import { useAuth } from '../../hooks/useAuth'; // Import useAuth hook
+import { globalStyles } from '../../themes/globalStyles'; // Import global styles
+
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -14,60 +16,38 @@ const LoginScreen = ({ navigation }) => {
   };
 
   const navigateToRegister = () => {
-    navigation.navigate('Register');
+    navigation.navigate('REGISTER');
   };
 
   return (
-    <View style={styles.container}>
+    <View style={globalStyles.container}>
       <TextInput
-        style={styles.input}
+        style={globalStyles.input}
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
       />
       <TextInput
-        style={styles.input}
+        style={globalStyles.input}
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Log In" onPress={handleLogin} />
+        <TouchableOpacity style={globalStyles.button} onPress={handleLogin}>
+        <Text style={globalStyles.buttonText}>Log In</Text>
+      </TouchableOpacity>
 
       {/* Error message */}
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {error ? <Text style={globalStyles.errorText}>{error}</Text> : null}
 
       {/* Link to Register Screen */}
       <TouchableOpacity onPress={navigateToRegister}>
-        <Text style={styles.registerLink}>Don't have an account? Register</Text>
+        <Text style={globalStyles.subLink}>Don't have an account? Register</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  input: {
-    height: 40,
-    marginBottom: 10,
-    borderWidth: 1,
-    padding: 10,
-  },
-  registerLink: {
-    marginTop: 15,
-    color: 'blue', // Feel free to change the color
-    textAlign: 'center'
-  },
-  errorText: { // Style for error message
-    color: 'red',
-    marginTop: 10,
-    marginBottom: 10,
-    textAlign: 'center'
-  }
-});
 
 export default LoginScreen;

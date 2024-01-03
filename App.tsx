@@ -32,12 +32,12 @@ export default function App() {
       <Stack.Navigator>
         {user ? (
           // User is signed in
-          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="HOME" component={HomeScreen} />
         ) : (
           // No user is signed in
           <>
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Register" component={RegisterScreen} />
+            <Stack.Screen name="LOGIN" component={LoginScreen} />
+            <Stack.Screen name="REGISTER" component={RegisterScreen} />
           </>
         )}
       </Stack.Navigator>

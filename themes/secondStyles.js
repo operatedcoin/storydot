@@ -7,7 +7,7 @@ export const secondStyles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#c7259c',
+    backgroundColor: 'white',
     
   },
   input: {
@@ -16,7 +16,7 @@ export const secondStyles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     backgroundColor: '#c0fc91',
-    color: '#fff',
+    color: 'black',
   },
   button: {
     backgroundColor: '#15231a', // Example button color

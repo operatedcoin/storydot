@@ -5,9 +5,10 @@ import { StyleSheet } from 'react-native';
 export const globalStyles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'center', // Keeps the boxes centered vertically
+    alignItems: 'center', // Center the content horizontally
     padding: 20,
-    backgroundColor: '#c0fc91',
+    backgroundColor: 'white',
   },
   input: {
     height: 40,
@@ -38,5 +39,23 @@ export const globalStyles = StyleSheet.create({
     marginTop: 15,
     color: '#15231a', // Feel free to change the color
     textAlign: 'center'
+  },  
+  header: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  box: {
+    width: '90%', // Adjust width as necessary, 90% makes it a bit wider
+    padding: 20,
+    marginVertical: 10, // Adds space between boxes
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    alignItems: 'center', // Ensures content in the box is centered
+  },
+  boxHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });

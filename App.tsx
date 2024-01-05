@@ -1,46 +1,30 @@
+// App.js
 import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import firebase from './firebaseConfig'; // Adjust the path as necessary
-
-// Import your screens
-import LoginScreen from './screens/common/LoginScreen';
-import RegisterScreen from './screens/common/RegisterScreen';
-import HomeScreen from './screens/common/HomeScreen';
-
-const Stack = createStackNavigator();
+import AuthNavigator from './navigation/AuthNavigator';
+import HomeNavigator from './navigation/HomeNavigator';
+import firebase from './firebaseConfig'; // Adjust path as necessary
 
 export default function App() {
   const [user, setUser] = useState(null);
 
-  // Listen for authentication state to change.
   useEffect(() => {
+    // Listen for authentication state to change.
     const unsubscribe = firebase.auth().onAuthStateChanged(user => {
       if (user) {
+        // User is signed in
         setUser(user);
       } else {
+        // User is signed out
         setUser(null);
       }
     });
-
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
+    return () => unsubscribe(); // Cleanup subscription on unmount
   }, []);
 
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        {user ? (
-          // User is signed in
-          <Stack.Screen name="HOME" component={HomeScreen} />
-        ) : (
-          // No user is signed in
-          <>
-            <Stack.Screen name="LOGIN" component={LoginScreen} />
-            <Stack.Screen name="REGISTER" component={RegisterScreen} />
-          </>
-        )}
-      </Stack.Navigator>
+      {user ? <HomeNavigator /> : <AuthNavigator />}
     </NavigationContainer>
   );
 }

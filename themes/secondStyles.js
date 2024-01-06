@@ -16,6 +16,7 @@ export const secondStyles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     backgroundColor: '#c0fc91',
+    width: '100%', // Set width to 100% of the parent container
     color: 'black',
   },
   button: {

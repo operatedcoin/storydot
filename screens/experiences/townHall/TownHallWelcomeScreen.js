@@ -1,24 +1,25 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { globalStyles } from '../../../themes/globalStyles'; // Import global styles
 
 const TownHallWelcomeScreen = ({ navigation }) => {
   return (
-    <View style={globalstyles.container}>
-      <Text>Welcome to TownHall!</Text>
+    <View style={globalStyles.container}>
+    {/* Adjusting header with inline style */}
+      <ScrollView style={{width: '100%'}}>
+          {/* Button to navigate to the Town Hall Settings */}
+          <TouchableOpacity style={globalStyles.moduleButton} onPress={() => navigation.navigate('Begin')}>
+          <Text style={globalStyles.buttonText}>Begin</Text>
+        </TouchableOpacity>
+        {/* Button to navigate to the Town Hall Dashboard */}
+        <TouchableOpacity style={globalStyles.moduleButton} onPress={() => navigation.navigate('Dashboard')}>
+          <Text style={globalStyles.buttonText}>Dashboard</Text>
+        </TouchableOpacity>
+
       
-      {/* Button to navigate to the TownHall Dashboard */}
-      <Button
-        title="Go to Dashboard"
-        onPress={() => navigation.navigate('TownHallDashboardScreen')}
-      />
 
-      {/* Button to navigate to the TownHall Start */}
-      <Button
-        title="Go to Start"
-        onPress={() => navigation.navigate('TownHallStartScreen')}
-      />
-
-      {/* Include other navigational elements as needed */}
+        {/* Include other navigational elements as needed */}
+      </ScrollView>
     </View>
   );
 };

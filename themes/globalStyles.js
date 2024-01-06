@@ -2,6 +2,8 @@
 
 import { StyleSheet } from 'react-native';
 
+
+
 export const globalStyles = StyleSheet.create({
   container: {
     flex: 1,
@@ -16,7 +18,9 @@ export const globalStyles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     backgroundColor: '#c7259c', // Your existing background color
+    width: '100%', // Set width to 100% of the parent container
     color: '#fff',
+    
   },
   button: {
     backgroundColor: '#15231a', // Example button color
@@ -44,6 +48,7 @@ export const globalStyles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    marginTop: 150, // Add top margin to lower the welcome text
   },
   box: {
     width: '90%', // Adjust width as necessary, 90% makes it a bit wider
@@ -57,5 +62,28 @@ export const globalStyles = StyleSheet.create({
   boxHeader: {
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  moduleButton: {
+    width: '100%',
+    aspectRatio: 16 / 9,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#15231a', // Example button color
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10, // Add space between button
+  },
+  logoutButton: {
+    position: 'absolute',
+    top: 50, // Adjust as needed to fit within the screen
+    right: 10,
+    padding: 10,
+    zIndex: 1,
+    backgroundColor: '#e63946', // Set a background color for the button
+    borderRadius: 5, // Optional: if you want rounded corners
+  },
+  logoutButtonText: {
+    color: '#fff', // Set text color
+    fontSize: 14, // Make text smaller
   },
 });

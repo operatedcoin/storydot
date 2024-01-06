@@ -10,9 +10,9 @@ const DemoStack = createStackNavigator();
 const DemoNavigator = () => {
   return (
     <DemoStack.Navigator >
-      <DemoStack.Screen name="DemoWelcome" component={DemoWelcomeScreen} />
-      <DemoStack.Screen name="DemoStartScreen" component={DemoStartScreen} />
-      <DemoStack.Screen name="DemoDashboardScreen" component={DemoDashboardScreen} />
+      <DemoStack.Screen name="Demo" component={DemoWelcomeScreen} />
+      <DemoStack.Screen name="Begin" component={DemoStartScreen} />
+      <DemoStack.Screen name="Dashboard" component={DemoDashboardScreen} />
       {/* Add other screens in the Demo experience as needed */}
     </DemoStack.Navigator>
   );

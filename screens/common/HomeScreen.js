@@ -1,10 +1,8 @@
 // screens/common/HomeScreen.js
 import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import firebase from '../../firebaseConfig'; // Adjust path as necessary
-
-import DemoWelcomeScreen from '../experiences/demo/DemoWelcomeScreen';
-import TownHallWelcomeScreen from '../experiences/townHall/TownHallWelcomeScreen';
+import { globalStyles } from '../../themes/globalStyles'; // Import global styles
 
 const HomeScreen = ({ navigation }) => {
   const handleLogout = () => {
@@ -16,23 +14,24 @@ const HomeScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text>Welcome</Text>
-      <Button title="Demo" onPress={() => navigation.navigate('DemoWelcomeScreen')} />
-
-      <Button title="Town Hall" onPress={() => navigation.navigate('TownHallWelcomeScreen')} />
-      {/* Add buttons or links for other experiences */}
-      <Button title="Logout" onPress={handleLogout} />
+    <View style={globalStyles.container}>
+      <TouchableOpacity onPress={handleLogout} style={globalStyles.logoutButton}>
+        <Text style={globalStyles.logoutButtonText}>Logout</Text>
+      </TouchableOpacity>
+      <Text style={globalStyles.header}>Welcome</Text>
+      <ScrollView style={{width: '100%'}}>
+        <TouchableOpacity onPress={() => navigation.navigate('DemoWelcomeScreen')} style={globalStyles.moduleButton}>
+          <Text style={globalStyles.buttonText}>Demo</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('TownHallWelcomeScreen')} style={globalStyles.moduleButton}>
+          <Text style={globalStyles.buttonText}>Parramatta Town Hall</Text>
+        </TouchableOpacity>
+        {/* Add buttons or links for other experiences */}
+      </ScrollView>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
+
 
 export default HomeScreen;

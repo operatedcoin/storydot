@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import useBleRssiScanner from './pathToYourHook/useBleRssiScanner'; // adjust the path as necessary
+import useBleRssiScanner from '../../hooks/useBleRssiScanner'; // adjust the path as necessary
 
 const BleDashboard = () => {
   const devicesRSSI = useBleRssiScanner(); // Retrieves RSSI values

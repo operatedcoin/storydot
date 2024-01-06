@@ -7,6 +7,7 @@ import firebase from './firebaseConfig'; // Adjust path as necessary
 
 export default function App() {
   const [user, setUser] = useState(null);
+  
 
   useEffect(() => {
     // Listen for authentication state to change.

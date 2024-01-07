@@ -2,48 +2,40 @@ import { useState, useEffect } from 'react';
 import { BleManager } from 'react-native-ble-plx';
 
 const useBleRssiScanner = () => {
-    const [devicesRSSI, setDevicesRSSI] = useState({});
-    const manager = new BleManager();
-  
-    const deviceNames = ["green", "blue", "red", "yellow", "purple"];
-  
-    useEffect(() => {
-        const subscription = manager.onStateChange((state) => {
-          if (state === 'PoweredOn') {
-            scanAndConnect();
-          }
-        }, true);
+  const [devices, setDevices] = useState([
+    { name: 'MsgSix', rssi: 0 },
+    { name: 'Blue', rssi: 0 },
+    { name: 'Green', rssi: 0 },
+    { name: 'Yellow', rssi: 0 },
+    { name: 'Purple', rssi: 0 },
+  ]);
 
-        const scanInterval = setInterval(() => {
-          manager.stopDeviceScan();
-          scanAndConnect();
-        }, 1000); // Scan every second
+  const manager = new BleManager();
 
-        return () => {
-          subscription.remove();
-          clearInterval(scanInterval);
-          manager.destroy();
-        };
-      }, [manager]);
-      
-      const scanAndConnect = () => {
-        manager.startDeviceScan(null, null, (error, device) => {
-          if (error) {
-            // Handle error (scanning will be stopped automatically)
-            console.log(error); // Consider more robust error handling
-            return;
-          }
-      
-          if (device.name && deviceNames.includes(device.name)) {
-            setDevicesRSSI(prevState => ({
-              ...prevState,
-              [device.name]: device.rssi,
-            }));
-          }
-        });
-      };
+  const scanDevices = () => {
+    manager.startDeviceScan(null, null, (error, device) => {
+      if (device) {
+        setDevices((currentDevices) =>
+          currentDevices.map((d) =>
+            d.name === device.localName ? { ...d, rssi: device.rssi } : d
+          )
+        );
+      }
+    });
+  };
 
-      return devicesRSSI;
+  useEffect(() => {
+    scanDevices(); // Initial scan
+    const interval = setInterval(scanDevices, 500); // Scan every 0.5 seconds
+
+    return () => {
+      clearInterval(interval);
+      manager.stopDeviceScan();
+      manager.destroy();
+    };
+  }, []);
+
+  return { devices, scanDevices };
 };
 
 export default useBleRssiScanner;

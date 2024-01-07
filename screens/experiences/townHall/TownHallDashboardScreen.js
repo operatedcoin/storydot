@@ -1,53 +1,57 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { BleManager } from 'react-native-ble-plx';
-import { globalStyles } from '../../../themes/globalStyles'; // Import global styles
+import React from 'react';
+import { View, Text, SafeAreaView, Dimensions } from 'react-native';
+import bleDashboardComponent from '../../../components/ble/bleDashboardComponent'; // Adjust the path as necessary
+import useBleRssiScanner from '../../../hooks/useBleRssiScanner';
+import { circleDashboardStyles } from '../../../themes/circleDashboardStyles'; // Adjust the path as necessary
 
-const TownHallDashboardScreen = () => {
-  const [devices, setDevices] = useState([]);
-  const manager = new BleManager();
-
-  useEffect(() => {
-      const scanDevices = () => {
-          manager.startDeviceScan(null, null, (error, device) => {
-              if (device && (device.localName === 'green' || device.localName === 'Yellow')) {
-                  setDevices(prevDevices => [...prevDevices, { name: device.localName, rssi: device.rssi }]);
-              }
-          });
-
-          setTimeout(() => {
-              manager.stopDeviceScan();
-          }, 2000); // Stop scanning after 2 seconds
-      };
-
-      const interval = setInterval(scanDevices, 2000); // Scan every 2 seconds
-
-      return () => {
-          clearInterval(interval);
-          manager.destroy();
-      };
-  }, []);
-
-  return (
-    <View style={styles.container}>
-        {devices.map((device, index) => (
-            <Text key={index} style={styles.deviceText}>{device.name}: RSSI {device.rssi}</Text>
-        ))}
-    </View>
-);
+const colors = {
+  MsgSix: 'red',
+  Blue: 'blue',
+  Green: 'green',
+  Yellow: 'black',
+  Purple: 'purple',
 };
 
-const styles = StyleSheet.create({
-  container: {
-      flex: 1, // This ensures that the view takes up the full space
-      alignItems: 'center',
-      justifyContent: 'center',
-  },
-  deviceText: {
-      // Any additional styling for text goes here
-  }
-});
+const TownHallDashboardScreen = () => {
+  const { devices } = useBleRssiScanner(); // Use the hook to get devices
+  // ...rest of your component logic remains the same...
 
+    // Calculate circle positions for the smaller circle
+    const windowWidth = Dimensions.get('window').width;
+    const windowHeight = Dimensions.get('window').height;
+    const centerX = windowWidth / 2;
+    const centerY = windowHeight / 2;
+    const smallerCircleRadius = 40; // Smaller circle radius
+    const biggerCircleRadius = smallerCircleRadius * 3; // Bigger circle radius
+  
+    // Recalculate circle positions
+    const circlePositions = devices.map((_, index) => {
+      const angle = (2 * Math.PI * index) / devices.length;
+      const x = centerX + biggerCircleRadius * Math.cos(angle);
+      const y = centerY + biggerCircleRadius * Math.sin(angle);
+      return { x, y };
+    });
+  
 
+  return (
+    <SafeAreaView style={{flex: 1}}>
+      <View style={circleDashboardStyles.container}>
+        <View style={circleDashboardStyles.bigCircle}></View>
+        {devices.map((device, index) => {
+          const { x, y } = circlePositions[index];
+          return (
+            <View
+              key={index}
+              style={circleDashboardStyles.smallCircle(colors[device.name], x, y)}
+            >
+              <Text style={circleDashboardStyles.deviceText}>{device.name}</Text>
+              <Text style={circleDashboardStyles.rssiText}>RSSI {device.rssi}</Text>
+            </View>
+          );
+        })}
+      </View>
+    </SafeAreaView>
+  );
+};
 
 export default TownHallDashboardScreen;

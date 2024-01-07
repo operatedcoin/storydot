@@ -1,6 +1,11 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { globalStyles } from '../../../themes/globalStyles'; // Import global styles
+import {BleManager} from 'react-native-ble-plx'
+
+const _BleManager = new BleManager();
+
+
 
 const TownHallWelcomeScreen = ({ navigation }) => {
   return (

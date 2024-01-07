@@ -9,7 +9,7 @@ export const globalStyles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center', // Keeps the boxes centered vertically
     alignItems: 'center', // Center the content horizontally
-    padding: 20,
+    padding: 3,
     backgroundColor: 'white',
   },
   input: {
@@ -49,11 +49,12 @@ export const globalStyles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     marginTop: 150, // Add top margin to lower the welcome text
+    textAlign: 'left',
   },
   box: {
     width: '90%', // Adjust width as necessary, 90% makes it a bit wider
     padding: 20,
-    marginVertical: 10, // Adds space between boxes
+    marginVertical: 0, // Adds space between boxes
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 10,
@@ -64,15 +65,16 @@ export const globalStyles = StyleSheet.create({
     fontWeight: 'bold',
   },
   moduleButton: {
-    width: '100%',
-    aspectRatio: 16 / 9,
+    width: 250, // Set a fixed width or use a percentage of the screen width
+    height: 150, // Increased the height from 100 to 120
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#15231a', // Example button color
     padding: 10,
     borderRadius: 5,
-    marginBottom: 10, // Add space between button
+    marginHorizontal: 2, // Reduced horizontal margin for smaller padding between items
   },
+
   logoutButton: {
     position: 'absolute',
     top: 50, // Adjust as needed to fit within the screen

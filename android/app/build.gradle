@@ -81,7 +81,7 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.storydot"
+    namespace 'com.operatedcoin.storydot'
     defaultConfig {
         applicationId 'com.operatedcoin.storydot'
         minSdkVersion rootProject.ext.minSdkVersion

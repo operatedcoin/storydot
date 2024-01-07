@@ -5,6 +5,8 @@ import AccelerometerComponent from '../../../components/sensors/AccelerometerCom
 import CompassComponent from '../../../components/sensors/CompassComponent'; // Adjust the import path
 import GyroAudioPlayerComponent from '../../../components/audioPlayers/GyroAudioPlayerComponent';
 import { globalStyles } from '../../../themes/globalStyles'; // Import global styles
+import BleDashboardComponent from '../../../components/ble/bleDashboardComponent'; // Ensure correct path
+import { SafeAreaView } from 'react-native';
 
 const audioFilePath = '../../../assets/audioAssets/testAudio.mp3';
 
@@ -15,6 +17,9 @@ const DemoDashboardScreen = () => {
   return (
     <View style={globalStyles.container}>
       <Text style={globalStyles.header}>Demo Dashboard Screen</Text>
+      <SafeAreaView style={{flex: 1}}>
+      <BleDashboardComponent />
+    </SafeAreaView>
       <View style={globalStyles.box}>
         <Text style={globalStyles.boxHeader}>BLE</Text>
         {/* BLE data will be displayed here */}

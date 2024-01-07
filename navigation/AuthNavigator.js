@@ -7,8 +7,8 @@ const Stack = createStackNavigator();
 
 const AuthNavigator = () => (
   <Stack.Navigator>
-    <Stack.Screen name="LOGIN" component={LoginScreen} />
-    <Stack.Screen name="REGISTER" component={RegisterScreen} />
+    <Stack.Screen name="Log In" component={LoginScreen} />
+    <Stack.Screen name="Register" component={RegisterScreen} />
   </Stack.Navigator>
 );
 

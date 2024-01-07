@@ -5,10 +5,12 @@ import { StyleSheet } from 'react-native';
 export const secondStyles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    padding: 20,
+    justifyContent: 'flex-start', // Changed from 'center' to 'flex-start'
+    alignItems: 'center', // Center the content horizontally
+    paddingTop: 50, // Adjust the padding to push content down from the top as needed
     backgroundColor: 'white',
-    
+    paddingHorizontal: 20, // Adds space to the sides inside the container
+
   },
   input: {
     height: 40,

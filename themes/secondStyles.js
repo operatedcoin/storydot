@@ -7,7 +7,7 @@ export const secondStyles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start', // Changed from 'center' to 'flex-start'
     alignItems: 'center', // Center the content horizontally
-    paddingTop: 50, // Adjust the padding to push content down from the top as needed
+    paddingTop: 0, // Adjust the padding to push content down from the top as needed
     backgroundColor: 'white',
     paddingHorizontal: 20, // Adds space to the sides inside the container
 
@@ -18,7 +18,7 @@ export const secondStyles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     backgroundColor: '#c0fc91',
-    width: '100%', // Set width to 100% of the parent container
+    width: '90%', // Set width to 100% of the parent container
     color: 'black',
   },
   button: {

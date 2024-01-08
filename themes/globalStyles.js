@@ -25,7 +25,7 @@ export const globalStyles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     backgroundColor: '#c7259c', // Your existing background color
-    width: '100%', // Set width to 100% of the parent container
+    width: '90%', // Set width to 100% of the parent container
     color: '#fff',
     
   },
@@ -77,7 +77,7 @@ export const globalStyles = StyleSheet.create({
   },
   moduleButton: {
     width: 250,
-    height: 150,
+    height: 140,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#15231a',

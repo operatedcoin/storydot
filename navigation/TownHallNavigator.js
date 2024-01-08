@@ -13,7 +13,6 @@ const TownHallNavigator = () => {
       <TownHallStack.Screen name="Parramatta Town Hall" component={TownHallWelcomeScreen} />
       <TownHallStack.Screen name="Begin" component={TownHallStartScreen} />
       <TownHallStack.Screen name="Dashboard" component={TownHallDashboardScreen} />
-      <TownHallStack.Screen name="Dashboard" component={TownHallDashboardScreen} />
       {/* Add other screens in the Demo experience as needed */}
     </TownHallStack.Navigator>
   );

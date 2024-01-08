@@ -7,10 +7,12 @@ import GyroAudioPlayerComponent from '../../../components/audioPlayers/GyroAudio
 import { globalStyles } from '../../../themes/globalStyles'; // Import global styles
 import BleDashboardComponent from '../../../components/ble/bleDashboardComponent'; // Ensure correct path
 import { SafeAreaView } from 'react-native';
+import AudioPlayerComponent from '../../../components/audioPlayers/AudioPlayerComponent';
 
-const audioFilePath = '../../../assets/audioAssets/testAudio.mp3';
 
 const DemoDashboardScreen = () => {
+
+  const audioFilePath = require('../../../assets/audio/Mayhap.mp3');
 
   const [volume, setVolume] = useState(0.5); // Default volume
 
@@ -21,8 +23,18 @@ const DemoDashboardScreen = () => {
       <BleDashboardComponent />
     </SafeAreaView>
       <View style={globalStyles.box}>
-        <Text style={globalStyles.boxHeader}>BLE</Text>
+        <Text style={globalStyles.boxHeader}>Simple Audio Player</Text>
+        <AudioPlayerComponent 
+        audioFile={audioFilePath} 
+        onPlaybackStatusChange={(isPlaying) => console.log(isPlaying ? 'Playing' : 'Paused')}
+        volume={1.0} // Adjust as necessary
+      />
         {/* BLE data will be displayed here */}
+      </View>
+      <View style={globalStyles.box}>
+        <Text style={globalStyles.boxHeader}>Gyro</Text>
+        {/* Gyro data will be displayed here */}
+        <GyroscopeComponent />
       </View>
       <View style={globalStyles.box}>
         <Text style={globalStyles.boxHeader}>Gyro</Text>
@@ -42,15 +54,7 @@ const DemoDashboardScreen = () => {
         <CompassComponent />
       </View>
          {/* Implementing Gyro-Audio Player with UI controls */}
-       <View style={globalStyles.box}>
-        <Text style={globalStyles.boxHeader}>Gyro-Audio Player</Text>
-        <GyroAudioPlayerComponent
-          audioFile={audioFilePath}
-          onVolumeChange={setVolume} // Pass setVolume to the component
-        />
-        {/* Display the volume */}
-        <Text>Volume: {volume.toFixed(2)}</Text>
-      </View>
+       
     </View>
   );
 };

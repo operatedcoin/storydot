@@ -27,7 +27,7 @@ const HomeScreen = ({ navigation }) => {
 
         <View style={globalStyles.scrollModule}>
           <View style={{alignSelf: 'stretch', alignItems: 'flex-start', marginVertical: 0}}>
-            <Text style={globalStyles.header}>Playable experiences</Text>
+            <Text style={globalStyles.header}>Play Now</Text>
           </View>
 
           <ScrollView 
@@ -60,11 +60,9 @@ const HomeScreen = ({ navigation }) => {
             <Text style={globalStyles.buttonText}>How does it work?</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => { /* Handle navigation */ }} style={globalStyles.moduleButton}>
-            <Text style={globalStyles.buttonText}>About</Text>
+            <Text style={globalStyles.buttonText}>About Operated Coin</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => { /* Handle navigation */ }} style={globalStyles.moduleButton}>
-            <Text style={globalStyles.buttonText}>Operated Coin</Text>
-          </TouchableOpacity>
+
           {/* Add more buttons or links for other experiences as needed */}
         </ScrollView>
         </View>

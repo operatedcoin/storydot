@@ -5,10 +5,9 @@ import AccelerometerComponent from '../../../components/sensors/AccelerometerCom
 import CompassComponent from '../../../components/sensors/CompassComponent'; // Adjust the import path
 import GyroAudioPlayerComponent from '../../../components/audioPlayers/GyroAudioPlayerComponent';
 import { globalStyles } from '../../../themes/globalStyles'; // Import global styles
-import BleDashboardComponent from '../../../components/ble/bleDashboardComponent'; // Ensure correct path
 import { SafeAreaView } from 'react-native';
 import AudioPlayerComponent from '../../../components/audioPlayers/AudioPlayerComponent';
-
+import BleRssiComponent from '../../../components/ble/BleRSSIComponent';
 
 const DemoDashboardScreen = () => {
 
@@ -19,11 +18,15 @@ const DemoDashboardScreen = () => {
   return (
     <View style={globalStyles.container}>
       <Text style={globalStyles.header}>Demo Dashboard Screen</Text>
-      <SafeAreaView style={{flex: 1}}>
-      <BleDashboardComponent />
-    </SafeAreaView>
+      <ScrollView contentContainerStyle={globalStyles.scrollViewContent}>
+
       <View style={globalStyles.box}>
-        <Text style={globalStyles.boxHeader}>Simple Audio Player</Text>
+          <Text style={globalStyles.boxHeader}>BLE</Text>
+          <BleRssiComponent/>
+          
+        </View>
+      <View style={globalStyles.box}>
+        <Text style={globalStyles.boxHeader}>Simple Audio </Text>
         <AudioPlayerComponent 
         audioFile={audioFilePath} 
         onPlaybackStatusChange={(isPlaying) => console.log(isPlaying ? 'Playing' : 'Paused')}
@@ -54,7 +57,8 @@ const DemoDashboardScreen = () => {
         <CompassComponent />
       </View>
          {/* Implementing Gyro-Audio Player with UI controls */}
-       
+         </ScrollView>
+
     </View>
   );
 };

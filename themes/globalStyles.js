@@ -63,13 +63,14 @@ export const globalStyles = StyleSheet.create({
     borderWidth: 5,
   },
   box: {
-    width: '90%', // Adjust width as necessary, 90% makes it a bit wider
+    width: '90%', // Adjust width as necessary
     padding: 20,
-    marginVertical: 0, // Adds space between boxes
+    marginVertical: 10, // Adjusted space between boxes
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#ddd', // Adjust as necessary for your app's theme
     borderRadius: 10,
-    alignItems: 'center', // Ensures content in the box is centered
+    alignItems: 'center',
+    backgroundColor: '#f9f9f9', // Light background for each box
   },
   boxHeader: {
     fontSize: 18,
@@ -131,5 +132,14 @@ export const globalStyles = StyleSheet.create({
     marginBottom: 0, // Minimize margin
     padding: 0, // Reset padding
   },
+  scrollViewContent: {
+    
+    alignItems: 'center', // Moves from the children to here
+    paddingVertical: 5,
+    marginHorizontal: 0,
+    width: '100%', // Add some vertical padding
+    // Add any other styles that affect the layout of children globally
+  },
+
 
 });

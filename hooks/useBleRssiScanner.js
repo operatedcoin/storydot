@@ -3,11 +3,11 @@ import { BleManager } from 'react-native-ble-plx';
 
 const useBleRssiScanner = () => {
   const [devices, setDevices] = useState([
-    { name: 'MsgSix', rssi: 0 },
-    { name: 'Blue', rssi: 0 },
-    { name: 'Green', rssi: 0 },
-    { name: 'Yellow', rssi: 0 },
-    { name: 'Purple', rssi: 0 },
+    { name: 'MsgSix', rssi: -100 },
+    { name: 'Blue', rssi: -100 },
+    { name: 'Green', rssi: -100 },
+    { name: 'Yellow', rssi: -100 },
+    { name: 'Purple', rssi: -100 },
   ]);
 
   const manager = new BleManager();

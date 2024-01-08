@@ -8,6 +8,7 @@ import { globalStyles } from '../../../themes/globalStyles'; // Import global st
 import { SafeAreaView } from 'react-native';
 import AudioPlayerComponent from '../../../components/audioPlayers/AudioPlayerComponent';
 import BleRssiComponent from '../../../components/ble/BleRSSIComponent';
+import BleAudioPlayer from '../../../components/audioPlayers/BleAudioPlayer';
 
 const DemoDashboardScreen = () => {
 
@@ -19,6 +20,11 @@ const DemoDashboardScreen = () => {
     <View style={globalStyles.container}>
       <Text style={globalStyles.header}>Demo Dashboard Screen</Text>
       <ScrollView contentContainerStyle={globalStyles.scrollViewContent}>
+      <View style={globalStyles.box}>
+          <Text style={globalStyles.boxHeader}>BLE Audio</Text>
+          <BleAudioPlayer/>
+          
+        </View>
 
       <View style={globalStyles.box}>
           <Text style={globalStyles.boxHeader}>BLE</Text>

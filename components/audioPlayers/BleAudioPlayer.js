@@ -3,73 +3,86 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { Audio } from 'expo-av';
 import { bleAudioComponentStyles } from '../../themes/bleAudioComponentStyles'; // Assuming this is the correct path
 import useBleRssiScanner from '../../hooks/useBleRssiScanner'; // Assuming this is the correct path
+import { useIsFocused } from '@react-navigation/native';
 
-// Use require for local assets
-const audioFile = require('../../assets/audio/Mayhap.mp3'); // Update with the actual file path
+
+const audioFile = require('../../assets/audio/Mayhap.mp3');
 
 const BleAudioPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const { devices } = useBleRssiScanner();
-  const sound = useRef(new Audio.Sound());
+  const [sound, setSound] = useState(null);
+  const fadeOutTimeout = useRef(null);
+  // Clearing the timeout
+if (fadeOutTimeout.current) {
+  clearTimeout(fadeOutTimeout.current);
+  fadeOutTimeout.current = null; // Reset after clearing
+}
+  const isFocused = useIsFocused(); // React Navigation hook to check if the screen is focused
+
 
   useEffect(() => {
-    const loadSound = async () => {
-      try {
-        // Unload any previously loaded sound
-        await sound.current.unloadAsync();
-        // Load the sound file
-        await sound.current.loadAsync(audioFile);
-      } catch (error) {
-        console.error('Error loading sound: ', error);
-      }
+    const initSound = async () => {
+      const { sound: newSound } = await Audio.Sound.createAsync(audioFile);
+      setSound(newSound);
+      console.log('Sound loaded successfully');
     };
 
-    loadSound();
-
+    initSound();
     return () => {
-      sound.current.unloadAsync(); // Unload the sound when the component is unmounted
+      sound?.unloadAsync();
     };
   }, []);
 
+ 
   useEffect(() => {
     const playPauseSound = async () => {
-      const targetDevice = devices.find(device => device.id === 'your_device_id');
-      if (targetDevice && targetDevice.rssi > -55 && !isPlaying) {
+      const isAnyDeviceClose = devices.some(device => device.rssi > -55);
+
+      if (isAnyDeviceClose && !isPlaying && sound) {
+        if (fadeOutTimeout.current) {
+          clearTimeout(fadeOutTimeout.current);
+          fadeOutTimeout.current = null;
+        }
         try {
-          await sound.current.playAsync();
+          await sound.setVolumeAsync(1);
+          await sound.playAsync();
           setIsPlaying(true);
         } catch (error) {
           console.error('Error playing sound: ', error);
         }
-      } else if ((targetDevice && targetDevice.rssi <= -55) || (!targetDevice && isPlaying)) {
-        try {
-          await sound.current.stopAsync();
-          setIsPlaying(false);
-        } catch (error) {
-          console.error('Error stopping sound: ', error);
+      } else if (!isAnyDeviceClose && isPlaying && sound) {
+        if (!fadeOutTimeout.current) {
+          fadeOutTimeout.current = setTimeout(async () => {
+            // ...fade out logic, ideally decreasing volume over time...
+            setIsPlaying(false);
+          }, 5000); // After 5 seconds of being away
         }
       }
-    };
+    }; 
 
     playPauseSound();
-  }, [devices, isPlaying]);
+    return () => {
+      if (fadeOutTimeout) {
+        clearTimeout(fadeOutTimeout);
+      }
+    };
+  }, [devices, isPlaying, sound, isFocused]);
 
   const togglePlayback = async () => {
+    if (!sound) return;
     if (isPlaying) {
-      await sound.current.pauseAsync();
+      await sound.pauseAsync();
       setIsPlaying(false);
     } else {
-      await sound.current.playAsync();
+      await sound.playAsync();
       setIsPlaying(true);
     }
   };
 
   return (
     <View style={bleAudioComponentStyles.container}>
-      <TouchableOpacity
-        style={bleAudioComponentStyles.button}
-        onPress={togglePlayback}
-      >
+      <TouchableOpacity style={bleAudioComponentStyles.button} onPress={togglePlayback}>
         <Text>{isPlaying ? 'Playing' : 'Not Playing'}</Text>
       </TouchableOpacity>
     </View>

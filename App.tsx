@@ -23,9 +23,16 @@ export default function App() {
     return () => unsubscribe(); // Cleanup subscription on unmount
   }, []);
 
-  return (
+    return (
     <NavigationContainer>
-      {user ? <HomeNavigator /> : <AuthNavigator />}
+      <HomeNavigator />
     </NavigationContainer>
   );
 }
+
+//   return (
+//     <NavigationContainer>
+//       {user ? <HomeNavigator /> : <AuthNavigator />}
+//     </NavigationContainer>
+//   );
+// }

@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Audio } from 'expo-av';
-import { bleAudioComponentStyles } from '../../themes/bleAudioComponentStyles'; // Assuming this is the correct path
-import useBleRssiScanner from '../../hooks/useBleRssiScanner'; // Assuming this is the correct path
+import useBleRssiScanner from '../../hooks/useBleRssiScanner';
+import { bleAudioComponentStyles } from '../../themes/bleAudioComponentStyles';
 import { useIsFocused } from '@react-navigation/native';
-
 
 const audioFile = require('../../assets/audio/Mayhap.mp3');
 
@@ -13,13 +12,7 @@ const BleAudioPlayer = () => {
   const { devices } = useBleRssiScanner();
   const [sound, setSound] = useState(null);
   const fadeOutTimeout = useRef(null);
-  // Clearing the timeout
-if (fadeOutTimeout.current) {
-  clearTimeout(fadeOutTimeout.current);
-  fadeOutTimeout.current = null; // Reset after clearing
-}
-  const isFocused = useIsFocused(); // React Navigation hook to check if the screen is focused
-
+  const isFocused = useIsFocused();
 
   useEffect(() => {
     const initSound = async () => {
@@ -34,7 +27,6 @@ if (fadeOutTimeout.current) {
     };
   }, []);
 
- 
   useEffect(() => {
     const playPauseSound = async () => {
       const isAnyDeviceClose = devices.some(device => device.rssi > -55);
@@ -54,20 +46,41 @@ if (fadeOutTimeout.current) {
       } else if (!isAnyDeviceClose && isPlaying && sound) {
         if (!fadeOutTimeout.current) {
           fadeOutTimeout.current = setTimeout(async () => {
-            // ...fade out logic, ideally decreasing volume over time...
-            setIsPlaying(false);
-          }, 5000); // After 5 seconds of being away
+            if (isPlaying && sound) {
+              try {
+                await sound.setVolumeAsync(0);
+                await sound.pauseAsync();
+                setIsPlaying(false);
+              } catch (error) {
+                console.error('Error stopping sound: ', error);
+              }
+            }
+          }, 0); // After 5 seconds of being away
         }
       }
-    }; 
+    };
 
     playPauseSound();
     return () => {
-      if (fadeOutTimeout) {
-        clearTimeout(fadeOutTimeout);
+      if (fadeOutTimeout.current) {
+        clearTimeout(fadeOutTimeout.current);
       }
     };
-  }, [devices, isPlaying, sound, isFocused]);
+  }, [devices, isPlaying, sound]);
+
+  useEffect(() => {
+    if (!isFocused && isPlaying && sound) {
+      (async () => {
+        await sound.pauseAsync();
+        setIsPlaying(false);
+      })();
+    }
+    return () => {
+      if (fadeOutTimeout.current) {
+        clearTimeout(fadeOutTimeout.current);
+      }
+    };
+  }, [isFocused, isPlaying, sound]);
 
   const togglePlayback = async () => {
     if (!sound) return;

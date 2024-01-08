@@ -40,11 +40,7 @@ const DemoDashboardScreen = () => {
       />
         {/* BLE data will be displayed here */}
       </View>
-      <View style={globalStyles.box}>
-        <Text style={globalStyles.boxHeader}>Gyro</Text>
-        {/* Gyro data will be displayed here */}
-        <GyroscopeComponent />
-      </View>
+  
       <View style={globalStyles.box}>
         <Text style={globalStyles.boxHeader}>Gyro</Text>
         {/* Gyro data will be displayed here */}

@@ -1,20 +1,18 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import AudioPlayerComponent from '../../../components/audioPlayers/AudioPlayerComponent';
+import BleAudioPlayer from '../../../components/audioPlayers/BleAudioPlayer';
+import { globalStyles } from '../../../themes/globalStyles';
 
 const DemoStartScreen = () => {
   // Ensure this path is correct and accessible. Using require for local assets
   const audioFilePath = require('../../../assets/audio/Mayhap.mp3');
   
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Demo Start Screen</Text>
-      <AudioPlayerComponent 
-        audioFile={audioFilePath} 
-        onPlaybackStatusChange={(isPlaying) => console.log(isPlaying ? 'Playing' : 'Paused')}
-        volume={1.0} // Adjust as necessary
-      />
-    </View>
+    <View style={globalStyles.box}>
+    <Text style={globalStyles.boxHeader}>BLE Audio</Text>
+    <BleAudioPlayer/>
+    
+  </View>
   );
 };
 

@@ -13,79 +13,75 @@ const BleAudioPlayer = () => {
   const [sound, setSound] = useState(null);
   const isFocused = useIsFocused();
 
+  // Load and unload the sound
   useEffect(() => {
+    let isCancelled = false;
+
     const initSound = async () => {
       const { sound: newSound } = await Audio.Sound.createAsync(audioFile);
-      setSound(newSound);
-      console.log('Sound loaded successfully');
+      if (!isCancelled) {
+        setSound(newSound);
+        console.log('Sound loaded successfully');
+      }
     };
 
     initSound();
+
     return () => {
+      isCancelled = true;
       sound?.unloadAsync();
     };
   }, []);
 
+  // Handle RSSI check and play/pause sound
   useEffect(() => {
-    const checkRssiAndPlayPauseSound = () => {
+    let isMounted = true;
+    let intervalId;
+
+  
+    const checkRssiAndPlayPauseSound = async () => {
+      if (!isMounted) return;
+  
       const isAnyDeviceClose = devices.some(device => device.rssi > -55);
-
       if (isAnyDeviceClose && !isPlaying && sound) {
-        try {
-          sound.setVolumeAsync(1);
-          sound.playAsync();
-          setIsPlaying(true);
-        } catch (error) {
-          console.error('Error playing sound: ', error);
-        }
+        await sound.setVolumeAsync(1);
+        await sound.playAsync();
+        setIsPlaying(true);
       } else if (!isAnyDeviceClose && isPlaying && sound) {
-        try {
-          sound.setVolumeAsync(0);
-          sound.pauseAsync();
-          setIsPlaying(false);
-        } catch (error) {
-          console.error('Error stopping sound: ', error);
-        }
+        await sound.setVolumeAsync(0);
+        await sound.pauseAsync();
+        setIsPlaying(false);
       }
+  
+      setTimeout(checkRssiAndPlayPauseSound, 1000); // Scheduling next check
     };
-
-    // Start checking RSSI and audio playback state every 100 milliseconds
-    const intervalId = setInterval(checkRssiAndPlayPauseSound, 100);
-
+  
+    checkRssiAndPlayPauseSound(); // Initial call
+  
     return () => {
-      clearInterval(intervalId); // Clean up the interval
+      isMounted = false;
+      clearInterval(intervalId); // Clearing the interval
     };
   }, [devices, isPlaying, sound]);
+  
 
+  // Handle un-focus
   useEffect(() => {
     if (!isFocused && isPlaying && sound) {
-      (async () => {
-        try {
-          await sound.pauseAsync();
-          setIsPlaying(false);
-        } catch (error) {
-          console.error('Error pausing sound: ', error);
-        }
-      })();
+      sound.pauseAsync();
+      setIsPlaying(false);
     }
   }, [isFocused, isPlaying, sound]);
 
   const togglePlayback = async () => {
     if (!sound) return;
+
     if (isPlaying) {
-      try {
-        await sound.pauseAsync();
-        setIsPlaying(false);
-      } catch (error) {
-        console.error('Error pausing sound: ', error);
-      }
+      await sound.pauseAsync();
+      setIsPlaying(false);
     } else {
-      try {
-        await sound.playAsync();
-        setIsPlaying(true);
-      } catch (error) {
-        console.error('Error playing sound: ', error);
-      }
+      await sound.playAsync();
+      setIsPlaying(true);
     }
   };
 

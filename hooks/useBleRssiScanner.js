@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { BleManager } from 'react-native-ble-plx';
 
 const useBleRssiScanner = () => {
@@ -10,28 +10,36 @@ const useBleRssiScanner = () => {
     { name: 'Purple', rssi: -100 },
   ]);
 
-  const manager = new BleManager();
+  const managerRef = useRef(new BleManager());
+
+  const updateDeviceRssi = (device) => {
+    setDevices((currentDevices) => {
+      const deviceIndex = currentDevices.findIndex(d => d.name === device.localName);
+      if (deviceIndex !== -1 && currentDevices[deviceIndex].rssi !== device.rssi) {
+        const updatedDevices = [...currentDevices];
+        updatedDevices[deviceIndex] = { ...updatedDevices[deviceIndex], rssi: device.rssi };
+        return updatedDevices;
+      }
+      return currentDevices;
+    });
+  };
 
   const scanDevices = () => {
-    manager.startDeviceScan(null, null, (error, device) => {
+    managerRef.current.startDeviceScan(null, null, (error, device) => {
       if (device) {
-        setDevices((currentDevices) =>
-          currentDevices.map((d) =>
-            d.name === device.localName ? { ...d, rssi: device.rssi } : d
-          )
-        );
+        updateDeviceRssi(device);
       }
     });
   };
 
   useEffect(() => {
     scanDevices(); // Initial scan
-    const interval = setInterval(scanDevices, 100); // Scan every 0.5 seconds
+    const interval = setInterval(scanDevices, 1000); // Adjusted scan frequency
 
     return () => {
       clearInterval(interval);
-      manager.stopDeviceScan();
-      manager.destroy();
+      managerRef.current.stopDeviceScan();
+      managerRef.current.destroy();
     };
   }, []);
 

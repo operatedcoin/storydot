@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Audio } from 'expo-av';
 import useBleRssiScanner from '../../hooks/useBleRssiScanner';
@@ -11,7 +11,6 @@ const BleAudioPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const { devices } = useBleRssiScanner();
   const [sound, setSound] = useState(null);
-  const fadeOutTimeout = useRef(null);
   const isFocused = useIsFocused();
 
   useEffect(() => {
@@ -28,68 +27,65 @@ const BleAudioPlayer = () => {
   }, []);
 
   useEffect(() => {
-    const playPauseSound = async () => {
+    const checkRssiAndPlayPauseSound = () => {
       const isAnyDeviceClose = devices.some(device => device.rssi > -55);
 
       if (isAnyDeviceClose && !isPlaying && sound) {
-        if (fadeOutTimeout.current) {
-          clearTimeout(fadeOutTimeout.current);
-          fadeOutTimeout.current = null;
-        }
         try {
-          await sound.setVolumeAsync(1);
-          await sound.playAsync();
+          sound.setVolumeAsync(1);
+          sound.playAsync();
           setIsPlaying(true);
         } catch (error) {
           console.error('Error playing sound: ', error);
         }
       } else if (!isAnyDeviceClose && isPlaying && sound) {
-        if (!fadeOutTimeout.current) {
-          fadeOutTimeout.current = setTimeout(async () => {
-            if (isPlaying && sound) {
-              try {
-                await sound.setVolumeAsync(0);
-                await sound.pauseAsync();
-                setIsPlaying(false);
-              } catch (error) {
-                console.error('Error stopping sound: ', error);
-              }
-            }
-          }, 0); // After 5 seconds of being away
+        try {
+          sound.setVolumeAsync(0);
+          sound.pauseAsync();
+          setIsPlaying(false);
+        } catch (error) {
+          console.error('Error stopping sound: ', error);
         }
       }
     };
 
-    playPauseSound();
+    // Start checking RSSI and audio playback state every 100 milliseconds
+    const intervalId = setInterval(checkRssiAndPlayPauseSound, 100);
+
     return () => {
-      if (fadeOutTimeout.current) {
-        clearTimeout(fadeOutTimeout.current);
-      }
+      clearInterval(intervalId); // Clean up the interval
     };
   }, [devices, isPlaying, sound]);
 
   useEffect(() => {
     if (!isFocused && isPlaying && sound) {
       (async () => {
-        await sound.pauseAsync();
-        setIsPlaying(false);
+        try {
+          await sound.pauseAsync();
+          setIsPlaying(false);
+        } catch (error) {
+          console.error('Error pausing sound: ', error);
+        }
       })();
     }
-    return () => {
-      if (fadeOutTimeout.current) {
-        clearTimeout(fadeOutTimeout.current);
-      }
-    };
   }, [isFocused, isPlaying, sound]);
 
   const togglePlayback = async () => {
     if (!sound) return;
     if (isPlaying) {
-      await sound.pauseAsync();
-      setIsPlaying(false);
+      try {
+        await sound.pauseAsync();
+        setIsPlaying(false);
+      } catch (error) {
+        console.error('Error pausing sound: ', error);
+      }
     } else {
-      await sound.playAsync();
-      setIsPlaying(true);
+      try {
+        await sound.playAsync();
+        setIsPlaying(true);
+      } catch (error) {
+        console.error('Error playing sound: ', error);
+      }
     }
   };
 

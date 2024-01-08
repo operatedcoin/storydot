@@ -3,7 +3,7 @@ import { BleManager } from 'react-native-ble-plx';
 
 const useBleRssiScanner = () => {
   const [devices, setDevices] = useState([
-    { name: 'MsgSix', rssi: -100 },
+    { name: 'MsgSix', rssi: -55 },
     { name: 'Blue', rssi: -100 },
     { name: 'Green', rssi: -100 },
     { name: 'Yellow', rssi: -100 },
@@ -26,7 +26,7 @@ const useBleRssiScanner = () => {
 
   useEffect(() => {
     scanDevices(); // Initial scan
-    const interval = setInterval(scanDevices, 500); // Scan every 0.5 seconds
+    const interval = setInterval(scanDevices, 100); // Scan every 0.5 seconds
 
     return () => {
       clearInterval(interval);

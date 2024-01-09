@@ -1,27 +1,25 @@
 import { useState, useEffect, useRef } from 'react';
 import { BleManager } from 'react-native-ble-plx';
+import { colorBeaconDevices, processDevices } from '../utils/colourBeacons';
+
 
 const useBleRssiScanner = () => {
-  const [devices, setDevices] = useState([
-    { name: 'MsgSix', rssi: -55 },
-    { name: 'Blue', rssi: -100 },
-    { name: 'Green', rssi: -100 },
-    { name: 'Yellow', rssi: -100 },
-    { name: 'Purple', rssi: -100 },
-  ]);
-
+  const [devices, setDevices] = useState(processDevices(colorBeaconDevices));
   const managerRef = useRef(new BleManager());
 
   const updateDeviceRssi = (device) => {
-    setDevices((currentDevices) => {
-      const deviceIndex = currentDevices.findIndex(d => d.name === device.localName);
-      if (deviceIndex !== -1 && currentDevices[deviceIndex].rssi !== device.rssi) {
-        const updatedDevices = [...currentDevices];
-        updatedDevices[deviceIndex] = { ...updatedDevices[deviceIndex], rssi: device.rssi };
-        return updatedDevices;
-      }
-      return currentDevices;
-    });
+      setDevices((currentDevices) => {
+          const deviceIndex = currentDevices.findIndex(d => d.name === device.localName);
+          if (deviceIndex !== -1 && currentDevices[deviceIndex].rssi !== device.rssi) {
+              const updatedDevices = [...currentDevices];
+              updatedDevices[deviceIndex] = { 
+                  ...updatedDevices[deviceIndex], 
+                  rssi: device.rssi 
+              };
+              return updatedDevices;
+          }
+          return currentDevices;
+      });
   };
 
   const scanDevices = () => {

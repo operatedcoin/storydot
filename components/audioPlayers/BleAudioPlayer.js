@@ -5,8 +5,6 @@ import useBleRssiScanner from '../../hooks/useBleRssiScanner';
 import { bleAudioComponentStyles } from '../../themes/bleAudioComponentStyles';
 import { useIsFocused } from '@react-navigation/native';
 
-const audioFile = require('../../assets/audio/Mayhap.mp3');
-
 const BleAudioPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const { devices } = useBleRssiScanner();
@@ -18,8 +16,8 @@ const BleAudioPlayer = () => {
     let isCancelled = false;
 
     const initSound = async () => {
-      const { sound: newSound } = await Audio.Sound.createAsync(audioFile);
-      if (!isCancelled) {
+      const { sound: newSound } = await Audio.Sound.createAsync(devices[0]?.audioFile);
+      ;     if (!isCancelled) {
         setSound(newSound);
         console.log('Sound loaded successfully');
       }
@@ -31,8 +29,8 @@ const BleAudioPlayer = () => {
       isCancelled = true;
       sound?.unloadAsync();
     };
-  }, []);
-
+  }, [devices[0]?.audioFile]);
+  
   // Handle RSSI check and play/pause sound
   useEffect(() => {
     let isMounted = true;

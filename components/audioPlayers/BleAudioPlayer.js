@@ -11,56 +11,54 @@ const BleAudioPlayer = () => {
   const [sound, setSound] = useState(null);
   const isFocused = useIsFocused();
 
-  // Load and unload the sound
   useEffect(() => {
     let isCancelled = false;
-
-    const initSound = async () => {
-      const { sound: newSound } = await Audio.Sound.createAsync(devices[0]?.audioFile);
-      ;     if (!isCancelled) {
-        setSound(newSound);
-        console.log('Sound loaded successfully');
+    const loadAndPlaySound = async (audioFile) => {
+      try {
+        if (sound) {
+          console.log('Unloading previous sound');
+          await sound.unloadAsync();
+        }
+    
+        console.log('Loading new sound');
+        const { sound: newSound } = await Audio.Sound.createAsync(audioFile);
+    
+        if (!isCancelled) {
+          setSound(newSound);
+          console.log('Playing sound');
+          await newSound.playAsync();
+          setIsPlaying(true);
+        }
+      } catch (error) {
+        console.error('Error loading or playing sound:', error);
       }
     };
-
-    initSound();
-
+  
+    const checkRssiAndPlayPauseSound = async () => {
+      const closestDevice = devices.find(device => device.rssi > -55);
+      console.log('Closest Device:', closestDevice);
+  
+      if (closestDevice) {
+        console.log('Loading sound for closest device');
+        await loadAndPlaySound(closestDevice.audioFile);
+      } else if (isPlaying) {
+        console.log('No close device. Pausing sound.');
+        sound?.pauseAsync();
+        setIsPlaying(false);
+      }
+  
+      if (!isCancelled) {
+        setTimeout(checkRssiAndPlayPauseSound, 1000);
+      }
+    };
+  
+    checkRssiAndPlayPauseSound();
+  
     return () => {
       isCancelled = true;
       sound?.unloadAsync();
     };
-  }, [devices[0]?.audioFile]);
-  
-  // Handle RSSI check and play/pause sound
-  useEffect(() => {
-    let isMounted = true;
-    let intervalId;
-
-  
-    const checkRssiAndPlayPauseSound = async () => {
-      if (!isMounted) return;
-  
-      const isAnyDeviceClose = devices.some(device => device.rssi > -55);
-      if (isAnyDeviceClose && !isPlaying && sound) {
-        await sound.setVolumeAsync(1);
-        await sound.playAsync();
-        setIsPlaying(true);
-      } else if (!isAnyDeviceClose && isPlaying && sound) {
-        await sound.setVolumeAsync(0);
-        await sound.pauseAsync();
-        setIsPlaying(false);
-      }
-  
-      setTimeout(checkRssiAndPlayPauseSound, 1000); // Scheduling next check
-    };
-  
-    checkRssiAndPlayPauseSound(); // Initial call
-  
-    return () => {
-      isMounted = false;
-      clearInterval(intervalId); // Clearing the interval
-    };
-  }, [devices, isPlaying, sound]);
+  }, [devices, isPlaying]);
   
 
   // Handle un-focus

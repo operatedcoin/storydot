@@ -21,7 +21,7 @@ export const devices = [
         name: 'Green',
         rssi: -100,
         title: 'Ghost #3',
-        audioFile: require('../assets/audio/MysteryTheme.wav'),
+        audioFile: require('../assets/audio/Mayhap.mp3'),
         subTitle: "I am Ghost #1",
         description: "This is Ghost #1",
         image: '../../assets/images.coin.jpeg'

@@ -36,6 +36,9 @@ const HomeScreen = ({ navigation }) => {
             style={{width: '100%', height: globalStyles.moduleButton.height, marginVertical: 0}} 
           >
           {/* Add your module buttons here */}
+          <TouchableOpacity onPress={() => navigation.navigate('GhostWelcomeScreen')} style={globalStyles.moduleButton}>
+            <Text style={globalStyles.buttonText}>Ghost</Text>
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('DemoWelcomeScreen')} style={globalStyles.moduleButton}>
             <Text style={globalStyles.buttonText}>Demo</Text>
           </TouchableOpacity>

@@ -77,14 +77,14 @@ export const globalStyles = StyleSheet.create({
     fontWeight: 'bold',
   },
   moduleButton: {
-    width: 250,
-    height: 140,
+    width: 200,
+    height: 200,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#15231a',
     padding: 10,
     borderRadius: 5,
-    marginHorizontal: 2,
+    marginRight: 8,
     marginBottom: 5, // Added or adjust as needed to control gap below buttons
   },
   logoutButton: {

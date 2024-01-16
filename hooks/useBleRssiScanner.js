@@ -2,24 +2,25 @@ import { useState, useEffect, useRef } from 'react';
 import { BleManager } from 'react-native-ble-plx';
 import { colorBeaconDevices, processDevices } from '../utils/colourBeacons';
 
-
 const useBleRssiScanner = () => {
   const [devices, setDevices] = useState(processDevices(colorBeaconDevices));
   const managerRef = useRef(new BleManager());
+  const scanIntervalRef = useRef();
+  const scanPauseTimeoutRef = useRef();
 
   const updateDeviceRssi = (device) => {
-      setDevices((currentDevices) => {
-          const deviceIndex = currentDevices.findIndex(d => d.name === device.localName);
-          if (deviceIndex !== -1 && currentDevices[deviceIndex].rssi !== device.rssi) {
-              const updatedDevices = [...currentDevices];
-              updatedDevices[deviceIndex] = { 
-                  ...updatedDevices[deviceIndex], 
-                  rssi: device.rssi 
-              };
-              return updatedDevices;
-          }
-          return currentDevices;
-      });
+    setDevices((currentDevices) => {
+      const deviceIndex = currentDevices.findIndex(d => d.name === device.localName);
+      if (deviceIndex !== -1 && currentDevices[deviceIndex].rssi !== device.rssi) {
+        const updatedDevices = [...currentDevices];
+        updatedDevices[deviceIndex] = { 
+          ...updatedDevices[deviceIndex], 
+          rssi: device.rssi 
+        };
+        return updatedDevices;
+      }
+      return currentDevices;
+    });
   };
 
   const scanDevices = () => {
@@ -30,12 +31,24 @@ const useBleRssiScanner = () => {
     });
   };
 
+  const startScanCycle = () => {
+    scanDevices();
+    scanIntervalRef.current = setInterval(scanDevices, 250); // Restart scan every second
+
+    // Stop scanning after 10 seconds and set pause
+    scanPauseTimeoutRef.current = setTimeout(() => {
+      clearInterval(scanIntervalRef.current);
+      managerRef.current.stopDeviceScan();
+      setTimeout(startScanCycle, 2000); // Restart the whole cycle after 5 seconds pause
+    }, 4000);
+  };
+
   useEffect(() => {
-    scanDevices(); // Initial scan
-    const interval = setInterval(scanDevices, 1000); // Adjusted scan frequency
+    startScanCycle(); // Start the scan cycle
 
     return () => {
-      clearInterval(interval);
+      clearInterval(scanIntervalRef.current);
+      clearTimeout(scanPauseTimeoutRef.current);
       managerRef.current.stopDeviceScan();
       managerRef.current.destroy();
     };

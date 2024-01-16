@@ -42,9 +42,9 @@ const GhostStartScreen = () => {
         try {
           const status = await sound.getStatusAsync();
           if (status.isLoaded) {
-            if (device.rssi > -35 && !status.isPlaying) {
+            if (device.rssi > -45 && !status.isPlaying) {
               await sound.playAsync().catch(() => {/* Handle or log specific play error */});
-            } else if (device.rssi <= -35 && status.isPlaying) {
+            } else if (device.rssi <= -45 && status.isPlaying) {
               await sound.stopAsync().catch(() => {/* Handle or log specific stop error */});
             }
           }
@@ -59,7 +59,7 @@ const GhostStartScreen = () => {
   return (
     <View style={styles.container}>
       {devices.map((device) => (
-        <DeviceCircle key={device.name} device={device} inRange={device.rssi > -35} />
+        <DeviceCircle key={device.name} device={device} inRange={device.rssi > -45} />
       ))}
     </View>
   );

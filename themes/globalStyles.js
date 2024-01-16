@@ -80,7 +80,7 @@ export const globalStyles = StyleSheet.create({
     width: 200,
     height: 200,
     justifyContent: 'center',
-    alignItems: 'center',
+    // alignItems: 'center',
     backgroundColor: '#15231a',
     padding: 10,
     borderRadius: 5,

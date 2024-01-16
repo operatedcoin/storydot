@@ -3,7 +3,7 @@ export const devices = [
       name: 'Red',
       rssi: -55,
       title: 'Ghost #1',
-      audioFile: require('../assets/audio/Mayhap.mp3'),
+      audioFile: require('../assets/audio/MysteryTheme.wav'),
       subTitle: "I am Ghost #1",
       description: "This is Ghost #1",
       image: '../../assets/images.coin.jpeg'
@@ -21,7 +21,7 @@ export const devices = [
         name: 'Green',
         rssi: -100,
         title: 'Ghost #3',
-        audioFile: require('../assets/audio/Mayhap.mp3'),
+        audioFile: require('../assets/audio/MysteryTheme.wav'),
         subTitle: "I am Ghost #1",
         description: "This is Ghost #1",
         image: '../../assets/images.coin.jpeg'
@@ -39,7 +39,7 @@ export const devices = [
         name: 'Yellow',
         rssi: -100,
         title: 'Ghost #5',
-        audioFile: require('../assets/audio/Mayhap.mp3'),
+        audioFile: require('../assets/audio/MysteryTheme.wav'),
         subTitle: "I am Ghost #5",
         description: "This is Ghost #5",
         image: '../../assets/images.coin.jpeg'

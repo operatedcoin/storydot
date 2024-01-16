@@ -1,32 +1,85 @@
-// GyroAudioPlayerComponent.js
-import React, { useState, useEffect } from 'react';
-import { View } from 'react-native';
-import GyroscopeComponent from '../sensors/GyroscopeComponent';
-import AudioPlayerComponent from './AudioPlayerComponent';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, TouchableOpacity, Text } from 'react-native';
+import { Audio } from 'expo-av';
+import { gyroscope } from 'react-native-sensors';
 
-const GyroAudioPlayerComponent = ({ audioFile, onVolumeChange }) => {
-  const [volume, setVolume] = useState(0.5);
-  
-  const handleGyroData = ({ x, y, z }) => {
-    const movement = Math.sqrt(x*x + y*y + z*z); 
-    const newVolume = Math.min(movement / 10, 1);
-    setVolume(newVolume);
-    onVolumeChange && onVolumeChange(newVolume); // Update volume in parent component
-  };
+const GyroAudioPlayerComponent = ({ audioFile }) => {
+  const [volume, setVolume] = useState(0.01);
+  const isLoaded = useRef(false);
+  const soundInstance = useRef(null);
 
   useEffect(() => {
-    // Start playing the audio when component mounts
-    // handlePlay();
-    // You might also want to handle stopping the audio when component unmounts
-  }, []);
+    console.log('Initializing sound instance');
+    soundInstance.current = new Audio.Sound();
 
-  return (
-    <View>
-      <GyroscopeComponent onDataReceived={handleGyroData} />
-      <AudioPlayerComponent audioFile={audioFile} volume={volume} />
-      {/* Now controls are external, no buttons here */}
-    </View>
-  );
+    const loadSound = async () => {
+      try {
+        console.log('Loading sound');
+        await soundInstance.current.unloadAsync();
+        const result = await soundInstance.current.loadAsync(audioFile, { shouldPlay: true, isLooping: true });
+        console.log('Sound load result:', result);
+        if (result.isLoaded) {
+        isLoaded.current = true;
+        await soundInstance.current.setVolumeAsync(volume);
+        }
+        } catch (error) {
+        console.error('Failed to load and play the sound', error);
+        }
+        };
+        loadSound();
+
+return () => {
+  if (soundInstance.current) {
+    soundInstance.current.unloadAsync();
+  }
+};
+}, [audioFile]);
+
+useEffect(() => {
+let gyroSubscription;
+const maxGyroValue = 1.0; // Adjust this value based on the gyroscope's range
+if (isLoaded.current) {
+  gyroSubscription = gyroscope.subscribe(({ x, y, z }) => {
+    const avg = (Math.abs(x) + Math.abs(y) + Math.abs(z)) / 3;
+    const scaledAvg = Math.min(avg / maxGyroValue, 1);
+    const newVolume = scaledAvg;
+    setVolume(newVolume);
+    soundInstance.current.setVolumeAsync(newVolume).catch(console.error);
+  });
+}
+
+return () => {
+  if (gyroSubscription) {
+    gyroSubscription.unsubscribe();
+  }
+};
+}, [isLoaded.current]);
+
+const togglePlayback = async () => {
+if (!isLoaded.current) {
+console.log('Audio is not loaded yet');
+return;
+}
+try {
+  const status = await soundInstance.current.getStatusAsync();
+  if (status.isPlaying) {
+    await soundInstance.current.pauseAsync();
+  } else {
+    await soundInstance.current.playAsync();
+  }
+} catch (error) {
+  console.error('Error during toggle playback', error);
+}
+};
+
+return (
+<View>
+<TouchableOpacity onPress={togglePlayback}>
+<Text>Toggle Playback</Text>
+</TouchableOpacity>
+</View>
+);
 };
 
 export default GyroAudioPlayerComponent;
+

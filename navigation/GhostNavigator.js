@@ -18,7 +18,7 @@ const GhostStack = createStackNavigator();
 const GhostNavigator = () => {
   return (
     <GhostStack.Navigator >
-      <GhostStack.Screen name="Demo" component={GhostWelcomeScreen} />
+      <GhostStack.Screen name="Welcome" component={GhostWelcomeScreen} />
       <GhostStack.Screen name="Begin" component={GhostStartScreen} />
       <GhostStack.Screen name="ChapterOne" component={GhostChapterOne} />
       <GhostStack.Screen name="ChapterTwo" component={GhostChapterTwo} />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
 import { Audio } from 'expo-av';
 import { gyroscope } from 'react-native-sensors';
@@ -8,56 +8,56 @@ const GyroAudioPlayerComponent = ({ audioFile }) => {
   const [gyroData, setGyroData] = useState({ x: 0, y: 0, z: 0 });
   const [sound, setSound] = useState(null);
   const [normalizedAverage, setNormalizedAverage] = useState(0);
-  const minVolume = 0.0;
-  const maxVolume = 1.0;
-  const maxGyroValue = 2.5; // Adjust this value based on the gyroscope's range
   const isFocused = useIsFocused();
 
-  const loadSound = async () => {
-    const { sound: soundObject } = await Audio.Sound.createAsync(
-      audioFile,
-      { shouldPlay: true, isLooping: true, volume: minVolume } // Start with a default volume
-    );
-    setSound(soundObject);
-  };
-
+  // Load sound only once
   useEffect(() => {
-    let gyroSubscription;
+    let soundObject;
 
-    const setupGyroscope = async () => {
-      await loadSound(); // Ensure sound is loaded before setting up the gyroscope
-
-      gyroSubscription = gyroscope.subscribe(({ x, y, z }) => {
-        setGyroData({ x, y, z });
-
-        const avg = (Math.abs(x) + Math.abs(y) + Math.abs(z)) / 3;
-        const scaledAvg = Math.min(avg / maxGyroValue, 1);
-        setNormalizedAverage(scaledAvg);
-      });
+    const loadSound = async () => {
+      ({ sound: soundObject } = await Audio.Sound.createAsync(
+        audioFile,
+        { shouldPlay: false, isLooping: true, volume: 0.1 } // Initial configuration
+      ));
+      setSound(soundObject);
     };
 
-    setupGyroscope();
+    loadSound();
 
     return () => {
-      if (gyroSubscription) {
-        gyroSubscription.unsubscribe();
-      }
-      if (sound) {
-        sound.stopAsync(); // Stop the sound
-        sound.unloadAsync();
-      }
+      soundObject?.unloadAsync();
     };
   }, []);
 
+  // Gyroscope subscription
   useEffect(() => {
-    if (sound) {
-      const newVolume = minVolume + (maxVolume - minVolume) * normalizedAverage;
-      sound.setVolumeAsync(newVolume);
-    }
-  }, [normalizedAverage, sound]);
+    const gyroSubscription = gyroscope.subscribe(({ x, y, z }) => {
+      // Debounce or throttle this update if needed
+      setGyroData({ x, y, z });
+    });
 
+    return () => {
+      gyroSubscription.unsubscribe();
+    };
+  }, []);
+
+  // Update volume based on gyroscope
   useEffect(() => {
-    // New useEffect for handling focus changes
+    const updateVolume = async () => {
+      if (sound) {
+        const avg = (Math.abs(gyroData.x) + Math.abs(gyroData.y) + Math.abs(gyroData.z)) / 3;
+        const scaledAvg = Math.min(avg / 2.5, 1);
+        const newVolume = 0.1 + (0.9 - 0.1) * scaledAvg;
+        await sound.setVolumeAsync(newVolume);
+        setNormalizedAverage(scaledAvg);
+      }
+    };
+
+    updateVolume();
+  }, [gyroData, sound]);
+
+  // Manage playback based on focus
+  useEffect(() => {
     const managePlayback = async () => {
       if (sound) {
         if (isFocused) {
@@ -90,17 +90,18 @@ const GyroAudioPlayerComponent = ({ audioFile }) => {
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <TouchableOpacity onPress={togglePlayback}><Text>Toggle Playback</Text>
-</TouchableOpacity>
-<Text>Gyroscope Data:</Text>
-<Text>X: {gyroData.x.toFixed(2)}</Text>
-<Text>Y: {gyroData.y.toFixed(2)}</Text>
-<Text>Z: {gyroData.z.toFixed(2)}</Text>
-<Text>Normalized Average: {normalizedAverage.toFixed(2)}</Text>
-<Text>Current Volume: {(minVolume + (maxVolume - minVolume) * normalizedAverage).toFixed(2)}</Text>
-</View>
-);
+      <TouchableOpacity onPress={togglePlayback}>
+        <Text>Toggle Playback</Text>
+      </TouchableOpacity>
+      <Text>Gyroscope Data:</Text>
+      {/* Optionally, reduce the frequency of these updates */}
+      <Text>X: {gyroData.x.toFixed(2)}</Text>
+      <Text>Y: {gyroData.y.toFixed(2)}</Text>
+      <Text>Z: {gyroData.z.toFixed(2)}</Text>
+      <Text>Normalized Average: {normalizedAverage.toFixed(2)}</Text>
+      <Text>Current Volume: {(0.1 + (0.9 - 0.1) * normalizedAverage).toFixed(2)}</Text>
+    </View>
+  );
 };
 
 export default GyroAudioPlayerComponent;
-       

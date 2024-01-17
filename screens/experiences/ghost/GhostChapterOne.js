@@ -1,11 +1,21 @@
+// GhostChapterOne.js
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { globalStyles } from '../../../themes/globalStyles'; // Import global styles
-import GyroAudioPlayerComponent from '../../../components/audioPlayers/GyroAudioPlayerComponent';
-import audioFile from '../../../assets/audio/Mayhap.mp3';
+import { View, Text, ScrollView } from 'react-native';
+import GhostHeader from '../../../components/modules/GhostHeader';
+import audioFile from '../../../assets/audio/drone.mp3';
+import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
 
-const GhostChapterOne = () => <View><Text>Test Screen</Text>
-<GyroAudioPlayerComponent audioFile={audioFile} /></View>;
 
+// ... other imports
+
+const GhostChapterOne = () => (
+  <ScrollView>
+    <GhostHeader />
+    <View>
+      <Text>Gryo Sensor Active</Text>
+      <GyroAudioPlayerComponentBasic audioFile={audioFile} />
+    </View>
+  </ScrollView>
+);
 
 export default GhostChapterOne;

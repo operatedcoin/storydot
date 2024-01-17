@@ -3,23 +3,38 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Audio } from 'expo-av';
 import useBleRssiScanner from '../../hooks/useBleRssiScanner';
 
-const DeviceCircle = ({ device, inRange }) => {
+const DeviceCircle = ({ device, inRange, isBlue }) => {
+  const circleColor = isBlue ? styles.lightBlue : (inRange ? styles.inRange : styles.outOfRange);
+
   return (
-    <View style={[styles.circle, inRange ? styles.inRange : styles.outOfRange]}>
+    <View style={[styles.circle, circleColor]}>
       <Text>{device.name}</Text>
       <Text>{device.rssi}</Text>
     </View>
   );
 };
 
+
 const GhostBeacon = () => {
   const { devices } = useBleRssiScanner();
   const soundObjectsRef = useRef({});
+  const [resetColor, setResetColor] = useState(false); // New state for resetting color
+
+  const handleRefresh = () => {
+    setResetColor(true);
+  };
+
+  useEffect(() => {
+    if (resetColor) {
+      setResetColor(false);
+    }
+  }, [resetColor]);
+
+
 
   useEffect(() => {
     // Asynchronously load sound objects for each device
     const loadSounds = async () => {
-        console.log(devices.map(device => ({ name: device.name, audioFile: device.audioFile })));
       const loadSoundPromises = devices.map(async (device) => {
         try {
           const { sound } = await Audio.Sound.createAsync(device.audioFile);
@@ -35,19 +50,42 @@ const GhostBeacon = () => {
     loadSounds();
 
     return () => {
-        // Stop and unload all sounds on unmount
-        Object.values(soundObjectsRef.current).forEach((sound) => {
-          if (sound) {
-            sound.stopAsync();
-            sound.unloadAsync();
-            // Set the reference to null or undefined after unloading
-            const key = Object.keys(soundObjectsRef.current).find(key => soundObjectsRef.current[key] === sound);
-            if (key) soundObjectsRef.current[key] = null;
-          }
-        });
-      };
-    }, [devices]);
+      // Stop and unload all sounds on unmount
+      Object.values(soundObjectsRef.current).forEach((sound) => {
+        if (sound) {
+          sound.stopAsync();
+          sound.unloadAsync();
+        }
+      });
+    };
+  }, [devices]);
 
+  useEffect(() => {
+    const manageSounds = async () => {
+      await Promise.all(devices.map(async (device) => {
+        // Ignore devices with RSSI of 0 or greater
+        if (device.rssi >= 0) return;
+
+        const sound = soundObjectsRef.current[device.name];
+        if (sound) {
+          try {
+            const status = await sound.getStatusAsync();
+            if (status.isLoaded) {
+              if (device.rssi > -45 && !status.isPlaying) {
+                await sound.playAsync();
+              } else if (device.rssi <= -45 && status.isPlaying) {
+                await sound.stopAsync();
+              }
+            }
+          } catch (error) {
+            console.error(`Error managing sound for device ${device.name}:`, error);
+          }
+        }
+      }));
+    };
+
+    manageSounds();
+  }, [devices]);
   useEffect(() => {
     const manageSounds = async () => {
       await Promise.all(devices.map(async (device) => {
@@ -72,15 +110,21 @@ const GhostBeacon = () => {
     manageSounds();
   }, [devices]);
   
-
   return (
-    <View style={styles.container}>
-      {devices.map((device) => (
-        <DeviceCircle key={device.name} device={device} inRange={device.rssi > -45} />
-        ))}
-        </View>
-        );
-        };
+
+  <View style={styles.container}>
+  {devices.map((device) => (
+    <DeviceCircle 
+      key={device.name} 
+      device={device} 
+      inRange={device.rssi > -45} 
+      isBlue={!resetColor && device.rssi > -45} // Use isBlue prop
+    />
+  ))}
+  <Button title="Refresh" onPress={handleRefresh} /> {/* Refresh button */}
+</View>
+);
+};
         
         const styles = StyleSheet.create({
         container: {
@@ -101,6 +145,9 @@ const GhostBeacon = () => {
         },
         outOfRange: {
         backgroundColor: 'grey',
+        },
+        lightBlue: {
+          backgroundColor: 'lightblue',
         },
         });
         

@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Audio } from 'expo-av';
 import useBleRssiScanner from '../../../hooks/useBleRssiScanner';
-import audioFile from '../../../assets/audio/drone.mp3';
+import gyroAudioFile from '../../../assets/audio/drone.mp3';
 import GyroAudioPlayerComponent from '../../../components/audioPlayers/GyroAudioPlayerComponent';
+import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
+
 
 
 const DeviceCircle = ({ device, inRange }) => {
@@ -67,7 +69,7 @@ const DeviceCircle = ({ device, inRange }) => {
           <DeviceCircle key={device.name} device={device} inRange={device.rssi > -45} />
         ))}
         <Text>Gryo Sensor Active</Text>
-<GyroAudioPlayerComponent audioFile={audioFile} />
+        <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} />
       </View>
     );
   };

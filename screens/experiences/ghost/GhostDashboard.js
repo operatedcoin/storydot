@@ -21,7 +21,7 @@ const GhostDashboard = ({ navigation }) => {
         </TouchableOpacity>
 
         {/* Button to navigate to Chapter Three */}
-        <TouchableOpacity style={globalStyles.moduleButton} onPress={() => navigation.navigate('ChapterThree')}>
+        <TouchableOpacity style={globalStyles.moduleButton} onPress={() => navigation.navigate('GHOST')}>
           <Text style={globalStyles.buttonText}>Chapter Three</Text>
         </TouchableOpacity>
 

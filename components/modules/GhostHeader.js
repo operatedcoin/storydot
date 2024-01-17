@@ -22,7 +22,7 @@ const GhostHeader = () => {
   return (
     <View style={styles.header}>
       <View style={styles.blueDot} />
-      <Text style={styles.title}>Ghost</Text>
+      <Text style={styles.blueDot} />
       <Text style={styles.timer}>{formatTime()}</Text>
     </View>
   );

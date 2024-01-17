@@ -4,7 +4,7 @@ import { Audio } from 'expo-av';
 import { gyroscope } from 'react-native-sensors';
 import { useIsFocused } from '@react-navigation/native';
 
-const GyroAudioPlayerComponentBasic = ({ audioFile }) => {
+const GyroAudioPlayerComponentBasic = ({ gyroAudioFile }) => {
   const [sound, setSound] = useState(null);
   const gyroDataRef = useRef({ x: 0, y: 0, z: 0 });
   const targetVolumeRef = useRef(0.1); // Start with initial volume
@@ -15,7 +15,7 @@ const GyroAudioPlayerComponentBasic = ({ audioFile }) => {
 
     const loadSound = async () => {
       ({ sound: soundObject } = await Audio.Sound.createAsync(
-        audioFile,
+        gyroAudioFile,
         { shouldPlay: false, isLooping: true, volume: 0.1 }
       ));
       setSound(soundObject);

@@ -50,14 +50,15 @@ const HomeScreen = ({ navigation }) => {
             contentContainerStyle={{paddingHorizontal: 15}}
           >
           {/* Add your module buttons here */}
+          <TouchableOpacity onPress={() => navigation.navigate('TownHallWelcomeScreen')} style={globalStyles.moduleButton}>
+          <Text className="text-white font-bold">Parramatta Town Hall</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity onPress={() => navigation.navigate('GhostWelcomeScreen')} style={globalStyles.moduleButton}>
             <Text className="text-white font-bold">Ghost</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('DemoWelcomeScreen')} style={globalStyles.moduleButton}>
             <Text className="text-white font-bold">Demo</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('TownHallWelcomeScreen')} style={globalStyles.moduleButton}>
-          <Text className="text-white font-bold">Parramatta Town Hall</Text>
           </TouchableOpacity>
 
         </ScrollView>

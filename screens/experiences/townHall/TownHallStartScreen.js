@@ -1,18 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, Button, Modal, Image } from 'react-native';
 import { Audio } from 'expo-av';
-import useBleRssiScanner from '../../../hooks/useBleRssiScanner';
 import gyroAudioFile from '../../../assets/audio/drone.mp3';
-import GyroAudioPlayerComponent from '../../../components/audioPlayers/GyroAudioPlayerComponent';
 import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
 import TownHallHeader from '../../../components/modules/TownHallHeader.js';
+import useBleRssiScannerTownHall from '../../../hooks/useBleRssiScannerTownHall';
 
 const DeviceCircle = ({ device, inRange, stayPink }) => { // Changed stayBlue to stayPink
   const circleColor = stayPink ? styles.lightPink : (inRange ? styles.inRange : styles.initialCircle);
 
   return (
     <View style={[styles.circle, circleColor]}>
-      <Text>{device.name}</Text>
+      <Text>{device.title}</Text>
       <Text>{device.rssi}</Text>
     </View>
   );
@@ -20,7 +19,7 @@ const DeviceCircle = ({ device, inRange, stayPink }) => { // Changed stayBlue to
 
 const TownHallStartScreen = () => {
 
-  const { devices } = useBleRssiScanner();
+  const { devices, startScanCycle, stopScanCycle } = useBleRssiScannerTownHall();
   const soundObjectsRef = useRef({});
   const halfLength = Math.ceil(devices.length / 2);
   const firstRowDevices = devices.slice(0, halfLength);
@@ -32,7 +31,18 @@ const TownHallStartScreen = () => {
   const [activeDevice, setActiveDevice] = useState(null); // State to track the active device for the pop-up
   const closeModal = () => {
     setActiveDevice(null);
+    startScanCycle();
+    if (activeDevice && soundObjectsRef.current[activeDevice.name]) {
+      soundObjectsRef.current[activeDevice.name].stopAsync();
+    }
   };
+  const [shownModals, setShownModals] = useState({});
+  const [playedAudios, setPlayedAudios] = useState({});
+
+
+  
+
+  
 
   useEffect(() => {
     const newStayPink = { ...stayPink }; // Start with the current state
@@ -46,10 +56,12 @@ const TownHallStartScreen = () => {
     setStayPink(newStayPink);
   }, [devices]);
 
-  const handleRefresh = () => {
-    setStayPink({}); // Reset the state to allow color change again
-  };
-
+const handleRefresh = () => {
+  setStayPink({});
+  setShownModals({});
+  setPlayedAudios({}); // Reset the played audios state
+  // ... other reset actions if needed
+};
   const updateTitle = () => {
     setTitle("Collect the B3acons"); // Update this to change the title dynamically
   };
@@ -79,28 +91,46 @@ const TownHallStartScreen = () => {
   }, []);
 
   useEffect(() => {
+    // If there is an active device (meaning the modal is open), stop scanning.
+    if (activeDevice) {
+      stopScanCycle();
+    } else {
+      // When there is no active device (modal is closed), restart scanning.
+      startScanCycle();
+    }
+  }, [activeDevice, stopScanCycle, startScanCycle]);
+
+  useEffect(() => {
     devices.forEach(async (device) => {
       const sound = soundObjectsRef.current[device.name];
-      if (sound) {
+      if (sound && !playedAudios[device.name]) { // Check if the audio has not been played
         try {
           const status = await sound.getStatusAsync();
-          if (status.isLoaded) {
-            if (device.rssi < 0 && device.rssi > -45 && !status.isPlaying) {
-              await sound.playAsync().catch(() => {/* Handle error */});
-              // Set stayPink here to ensure it remains set regardless of RSSI changes
-              setStayPink(prev => ({ ...prev, [device.name]: true }));
-            } else if ((device.rssi <= -45 || device.rssi >= 0) && status.isPlaying) {
-              await sound.stopAsync().catch(() => {/* Handle error */});
-            }
+          if (status.isLoaded && device.rssi < 0 && device.rssi > -45 && !status.isPlaying) {
+            await sound.playAsync().catch(() => {/* Handle error */});
+            setPlayedAudios(prev => ({ ...prev, [device.name]: true })); // Mark as played
+            setStayPink(prev => ({ ...prev, [device.name]: true }));
           }
         } catch (error) {
           console.error(`Error with sound for device ${device.name}:`, error);
         }
       }
     });
-    const inRangeDevice = devices.find(device => device.rssi < 0 && device.rssi > -45);
-    setActiveDevice(inRangeDevice || null);
-  }, [devices]);
+  
+    if (!activeDevice) {
+      const inRangeDevice = devices.find(device => 
+        device.rssi < 0 && 
+        device.rssi > -45 && 
+        !shownModals[device.name]
+      );
+      if (inRangeDevice) {
+        setActiveDevice(inRangeDevice);
+        setShownModals(prev => ({ ...prev, [inRangeDevice.name]: true }));
+      }
+    }
+  }, [devices, activeDevice, shownModals], playedAudios);
+  
+  
 
   return (
     <ScrollView>
@@ -109,7 +139,7 @@ const TownHallStartScreen = () => {
       <View style={styles.rowContainer}>
         {firstRowDevices.map((device) => (
           <DeviceCircle
-            key={device.name}
+            key={device.title}
             device={device}
             inRange={device.rssi > -45}
             stayPink={stayPink[device.name]} // Changed stayBlue to stayPink
@@ -140,7 +170,7 @@ const TownHallStartScreen = () => {
     <View style={styles.modalView}>
       {activeDevice && (
         <>
-          <Text style={styles.modalTitle}>{activeDevice.name}</Text>
+          <Text style={styles.modalTitle}>{activeDevice.title}</Text>
           <Text>RSSI: {activeDevice.rssi}</Text>
           {/* Additional details about the active device */}
           <Button title="Close" onPress={closeModal} />
@@ -188,6 +218,20 @@ const styles = StyleSheet.create({
   lightPink: {
     backgroundColor: 'lightpink',
     },
+    modalContainer: {
+      flex: 1,
+      justifyContent: 'flex-end', // Aligns the modal to the bottom
+      backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background for the rest of the screen
+    },
+    modalView: {
+      backgroundColor: 'white', // Solid background for the modal
+      padding: 20,
+      borderTopLeftRadius: 20, // Optional, for rounded corners at the top
+      borderTopRightRadius: 20, // Optional, for rounded corners at the top
+      height: '50%', // Adjust this value as needed
+      // You can also use a specific value like height: 300
+    },
+  
   });
 
 export default TownHallStartScreen;

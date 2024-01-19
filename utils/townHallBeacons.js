@@ -6,7 +6,7 @@ export const devices = [
   audioFile: require('../assets/audio/MysteryTheme.wav'),
   subTitle: "I am Ghost #1",
   description: "Blibbering bloopers bumbled through the zibberish zoo, zonking zany zippers with zibber-zabber zest. Flibber-flopping fudgelumps flibbered while flibberjibbing flibberish frogs flapped furiously. Gobbledygook gizmos giggled, gobbling gobbledygibberish gumdrops greedily. Splibber-splabber splish-splashed, spluttering splendiferous splunkers splorked and splackled. Whibber-whobber whoopee cushions whizzed, whirling wildly in whibberjabbity whirlwinds. Zibber-zabber zootopia zigzagged, zipping zany zeppelins zestfully. Rambunctious razzle-dazzle roared, ricocheting rickety raccoons riotously. Higgledy-piggledy haggled with hibberjibber hobgoblins, hilariously hootin' and hollerin'.",
-  image: '../../assets/images.coin.jpeg'
+  image: require('../assets/images/ocoin.jpeg')
 },
   {
     name: 'Blue',
@@ -15,7 +15,7 @@ export const devices = [
     audioFile: require('../assets/audio/testAudio.mp3'),
     subTitle: "I am Ghost #1",
     description: "Blibbering bloopers bumbled through the zibberish zoo, zonking zany zippers with zibber-zabber zest. Flibber-flopping fudgelumps flibbered while flibberjibbing flibberish frogs flapped furiously. Gobbledygook gizmos giggled, gobbling gobbledygibberish gumdrops greedily. Splibber-splabber splish-splashed, spluttering splendiferous splunkers splorked and splackled. Whibber-whobber whoopee cushions whizzed, whirling wildly in whibberjabbity whirlwinds. Zibber-zabber zootopia zigzagged, zipping zany zeppelins zestfully. Rambunctious razzle-dazzle roared, ricocheting rickety raccoons riotously. Higgledy-piggledy haggled with hibberjibber hobgoblins, hilariously hootin' and hollerin'.",
-    image: '../../assets/images.coin.jpeg'
+    image: require('../assets/images/ocoin.jpeg')
   },
   {
     name: 'Green',
@@ -24,7 +24,7 @@ export const devices = [
     audioFile: require('../assets/audio/MysteryTheme.wav'),
     subTitle: "I am Ghost #1",
     description: "Blibbering bloopers bumbled through the zibberish zoo, zonking zany zippers with zibber-zabber zest. Flibber-flopping fudgelumps flibbered while flibberjibbing flibberish frogs flapped furiously. Gobbledygook gizmos giggled, gobbling gobbledygibberish gumdrops greedily. Splibber-splabber splish-splashed, spluttering splendiferous splunkers splorked and splackled. Whibber-whobber whoopee cushions whizzed, whirling wildly in whibberjabbity whirlwinds. Zibber-zabber zootopia zigzagged, zipping zany zeppelins zestfully. Rambunctious razzle-dazzle roared, ricocheting rickety raccoons riotously. Higgledy-piggledy haggled with hibberjibber hobgoblins, hilariously hootin' and hollerin'.",
-    image: '../../assets/images.coin.jpeg'
+    image: require('../assets/images/ocoin.jpeg')
   },
   {
     name: 'Purple',
@@ -33,7 +33,7 @@ export const devices = [
     audioFile: require('../assets/audio/testAudio.mp3'),
     subTitle: "I am Ghost #4",
     description: "Blibbering bloopers bumbled through the zibberish zoo, zonking zany zippers with zibber-zabber zest. Flibber-flopping fudgelumps flibbered while flibberjibbing flibberish frogs flapped furiously. Gobbledygook gizmos giggled, gobbling gobbledygibberish gumdrops greedily. Splibber-splabber splish-splashed, spluttering splendiferous splunkers splorked and splackled. Whibber-whobber whoopee cushions whizzed, whirling wildly in whibberjabbity whirlwinds. Zibber-zabber zootopia zigzagged, zipping zany zeppelins zestfully. Rambunctious razzle-dazzle roared, ricocheting rickety raccoons riotously. Higgledy-piggledy haggled with hibberjibber hobgoblins, hilariously hootin' and hollerin'.",
-    image: '../assets/images.coin.jpeg'
+    image: require('../assets/images/ocoin.jpeg')
   },
   {
     name: 'Yellow',
@@ -42,7 +42,7 @@ export const devices = [
     audioFile: require('../assets/audio/MysteryTheme.wav'),
     subTitle: "I am Ghost #5",
     description: "Blibbering bloopers bumbled through the zibberish zoo, zonking zany zippers with zibber-zabber zest. Flibber-flopping fudgelumps flibbered while flibberjibbing flibberish frogs flapped furiously. Gobbledygook gizmos giggled, gobbling gobbledygibberish gumdrops greedily. Splibber-splabber splish-splashed, spluttering splendiferous splunkers splorked and splackled. Whibber-whobber whoopee cushions whizzed, whirling wildly in whibberjabbity whirlwinds. Zibber-zabber zootopia zigzagged, zipping zany zeppelins zestfully. Rambunctious razzle-dazzle roared, ricocheting rickety raccoons riotously. Higgledy-piggledy haggled with hibberjibber hobgoblins, hilariously hootin' and hollerin'.",
-    image: '../../assets/images.coin.jpeg'
+    image: require('../assets/images/ocoin.jpeg')
   },
 // Add more devices here with different titles and audio files
 ];

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { BleManager } from 'react-native-ble-plx';
+import { BleManager, ScanMode } from 'react-native-ble-plx';
 import { townHallBeaconDevices, processDevices } from '../utils/townHallBeacons';
 
 const useBleRssiScannerTownHall = () => {
@@ -24,7 +24,10 @@ const useBleRssiScannerTownHall = () => {
   };
 
   const scanDevices = () => {
-    managerRef.current.startDeviceScan(null, null, (error, device) => {
+    managerRef.current.startDeviceScan(null, {
+      allowDuplicates: true,
+      scanMode: ScanMode.Balanced,
+    },(error, device) => {
       if (device) {
         updateDeviceRssi(device);
       }
@@ -33,7 +36,7 @@ const useBleRssiScannerTownHall = () => {
 
   const startScanCycle = () => {
     scanDevices();
-    scanIntervalRef.current = setInterval(scanDevices, 250); // Restart scan every second
+    // scanIntervalRef.current = setInterval(scanDevices, 250); // Restart scan every second
 
     // Stop scanning after 10 seconds and set pause
     scanPauseTimeoutRef.current = setTimeout(() => {
@@ -50,16 +53,16 @@ const useBleRssiScannerTownHall = () => {
   };
   
 
-  useEffect(() => {
-    startScanCycle(); // Start the scan cycle
+  // useEffect(() => {
+  //   startScanCycle(); // Start the scan cycle
 
-    return () => {
-      clearInterval(scanIntervalRef.current);
-      clearTimeout(scanPauseTimeoutRef.current);
-      managerRef.current.stopDeviceScan();
-      managerRef.current.destroy();
-    };
-  }, []);
+  //   return () => {
+  //     clearInterval(scanIntervalRef.current);
+  //     clearTimeout(scanPauseTimeoutRef.current);
+  //     managerRef.current.stopDeviceScan();
+  //     managerRef.current.destroy();
+  //   };
+  // }, []);
 
   return { devices, scanDevices , startScanCycle, stopScanCycle};
 };

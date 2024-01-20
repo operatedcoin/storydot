@@ -21,21 +21,22 @@ const TownHallStartScreen = () => {
 
   const { devices, startScanCycle, stopScanCycle } = useBleRssiScannerTownHall();
   const soundObjectsRef = useRef({});
+  const [playedAudios, setPlayedAudios] = useState({});
   const [title, setTitle] = useState("Collect the Beacons");
   const [stayPink, setStayPink] = useState({}); 
   const [allCollected, setAllCollected] = useState(false);
   const beaconsCollectedCount = Object.values(stayPink).filter(status => status).length;
-  const [activeDevice, setActiveDevice] = useState(null); // State to track the active device for the pop-up
-  const closeModal = () => {
-    setActiveDevice(null);
-    startScanCycle();
-    if (activeDevice && soundObjectsRef.current[activeDevice.name]) {
-      soundObjectsRef.current[activeDevice.name].stopAsync();
-    }
-  };
+  const [activeDevice, setActiveDevice] = useState(null); // State to track the active device for the pop-up  
   const [shownModals, setShownModals] = useState({});
-  const [playedAudios, setPlayedAudios] = useState({});
 
+  const closeModal = async () => {
+    console.log('Closing Modal'); // Debugging line
+    if (activeDevice && soundObjectsRef.current[activeDevice.name]) {
+      await soundObjectsRef.current[activeDevice.name].stopAsync(); // Stop the audio
+    }
+    setActiveDevice(null); // Close the modal by setting modalDevice to null
+    startScanCycle(); // Resume scanning
+  };
 
   useEffect(() => {
     const newStayPink = { ...stayPink }; // Start with the current state
@@ -55,6 +56,7 @@ const handleRefresh = () => {
   setPlayedAudios({}); // Reset the played audios state
   // ... other reset actions if needed
 };
+
   const updateTitle = () => {
     setTitle("Collect the B3acons"); // Update this to change the title dynamically
   };
@@ -84,45 +86,34 @@ const handleRefresh = () => {
   }, []);
 
   useEffect(() => {
-    // If there is an active device (meaning the modal is open), stop scanning.
-    if (activeDevice) {
-      stopScanCycle();
-    } else {
-      // When there is no active device (modal is closed), restart scanning.
-      startScanCycle();
-    }
-  }, [activeDevice, stopScanCycle, startScanCycle]);
+    startScanCycle();
+    return () => stopScanCycle(); // Stop scanning when component unmounts
+  }, []);
 
+  
   useEffect(() => {
-    devices.forEach(async (device) => {
-      const sound = soundObjectsRef.current[device.name];
-      if (sound && !playedAudios[device.name]) { // Check if the audio has not been played
-        try {
-          const status = await sound.getStatusAsync();
-          if (status.isLoaded && device.rssi < 0 && device.rssi > -45 && !status.isPlaying) {
-            await sound.playAsync().catch(() => {/* Handle error */});
-            setPlayedAudios(prev => ({ ...prev, [device.name]: true })); // Mark as played
-            setStayPink(prev => ({ ...prev, [device.name]: true }));
+    const handleDevices = async () => {
+      for (const device of devices) {
+        const sound = soundObjectsRef.current[device.name];
+        if (sound && !playedAudios[device.name]) {
+          try {
+            const status = await sound.getStatusAsync();
+            if (status.isLoaded && device.rssi < 0 && device.rssi > -45 && !status.isPlaying) {
+              await sound.playAsync().catch(() => {/* Handle error */});
+              setPlayedAudios(prev => ({ ...prev, [device.name]: true }));
+              setStayPink(prev => ({ ...prev, [device.name]: true }));
+              setActiveDevice(device); // Show the modal for this device
+              stopScanCycle(); // Stop scanning when a device is in range
+            }
+          } catch (error) {
+            console.error(`Error with sound for device ${device.name}:`, error);
           }
-        } catch (error) {
-          console.error(`Error with sound for device ${device.name}:`, error);
         }
       }
-    });
+    };
   
-    if (!activeDevice) {
-      const inRangeDevice = devices.find(device => 
-        device.rssi < 0 && 
-        device.rssi > -45 && 
-        !shownModals[device.name]
-      );
-      if (inRangeDevice) {
-        setActiveDevice(inRangeDevice);
-        setShownModals(prev => ({ ...prev, [inRangeDevice.name]: true }));
-      }
-    }
-  }, [devices, activeDevice, shownModals], playedAudios);
-  
+    handleDevices();
+  }, [devices, shownModals, playedAudios, soundObjectsRef, startScanCycle, stopScanCycle]);
   
 
   return (
@@ -145,28 +136,31 @@ const handleRefresh = () => {
       <Text>{beaconsCollectedCount} out of 5 beacons collected</Text>
       {allCollected && <Text>All devices collected!</Text>}
       <Modal
-        animationType="slide"
-        transparent={true}
-        visible={activeDevice !== null}
-      >
-
-        <View style={styles.modalContainer}>
-          <View style={styles.modalView}>
-            {activeDevice && (
-              <>
-                <View className="flex-row justify-between">
-                <Text className="text-2xl font-bold pb-4">{activeDevice.title}</Text>
-                <Button title="Close" onPress={closeModal} />
-                </View>
-                <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-                <Image className="rounded-lg mb-4 " source={activeDevice.image} resizeMode="contain" style={{ width: '100%', height: undefined, aspectRatio: 1 }}/>
-                <Text>Description: {activeDevice.description}</Text>
-                
-                </ScrollView>
-              </>
-            )}
+  animationType="slide"
+  transparent={true}
+  visible={activeDevice !== null}
+>
+  {activeDevice && (
+    <View style={styles.modalContainer}>
+      <View style={styles.modalView}>
+        <>
+          <View className="flex-row justify-between">
+            <Text className="text-2xl font-bold pb-4">{activeDevice.title}</Text>
+            <Button title="Close" onPress={closeModal} />
           </View>
-        </View>
+          <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+            <Image
+              className="rounded-lg mb-4"
+              source={activeDevice.image}
+              resizeMode="contain"
+              style={{ width: '100%', height: undefined, aspectRatio: 1 }}
+            />
+            <Text>Description: {activeDevice.description}</Text>
+          </ScrollView>
+        </>
+      </View>
+    </View>
+  )}
 </Modal>
     </View>
   </ScrollView>
@@ -217,7 +211,7 @@ const styles = StyleSheet.create({
       padding: 30,
       borderTopLeftRadius: 10, // Optional, for rounded corners at the top
       borderTopRightRadius: 10, // Optional, for rounded corners at the top
-      height: '80%', // Adjust this value as needed
+      height: '50%', // Adjust this value as needed
       // You can also use a specific value like height: 300
     },
   

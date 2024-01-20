@@ -36,7 +36,7 @@ const useBleRssiScannerTownHall = () => {
 
   const startScanCycle = () => {
     scanDevices();
-    // scanIntervalRef.current = setInterval(scanDevices, 250); // Restart scan every second
+    scanIntervalRef.current = setInterval(scanDevices, 250); // Restart scan every second
 
     // Stop scanning after 10 seconds and set pause
     scanPauseTimeoutRef.current = setTimeout(() => {
@@ -50,6 +50,8 @@ const useBleRssiScannerTownHall = () => {
     clearInterval(scanIntervalRef.current);
     clearTimeout(scanPauseTimeoutRef.current);
     managerRef.current.stopDeviceScan();
+    console.log('BLE scanning stopped.'); // Optional: log for verification
+
   };
   
 

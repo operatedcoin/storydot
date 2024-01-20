@@ -1,4 +1,3 @@
-// GhostHeader.js
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
@@ -7,7 +6,7 @@ const GhostHeader = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setTimer(prevTimer => prevTimer - 1);
+      setTimer(prevTimer => prevTimer > 0 ? prevTimer - 1 : 0);
     }, 1000);
 
     return () => clearInterval(interval);
@@ -21,8 +20,6 @@ const GhostHeader = () => {
 
   return (
     <View style={styles.header}>
-      <View style={styles.blueDot} />
-      <Text style={styles.blueDot} />
       <Text style={styles.timer}>{formatTime()}</Text>
     </View>
   );
@@ -31,24 +28,23 @@ const GhostHeader = () => {
 const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     alignItems: 'center',
+    paddingTop: Platform.OS === 'ios' ? 20 : 0, // Add top padding for iOS
     padding: 10,
     // ... other styles
   },
-  blueDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: 'blue',
-    // ... other styles
-  },
-  title: {
-    fontSize: 20,
-    // ... other styles
+  countdownCircle: {
+    width: 40,  // Adjust size as needed
+    height: 40,  // Adjust size as needed
+    borderRadius: 20,  // Half of width and height
+    borderColor: 'grey',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   timer: {
     fontSize: 16,
+    color: 'grey',
     // ... other styles
   },
 });

@@ -1,90 +1,124 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Audio } from 'expo-av';
-import useBleRssiScanner from '../../../hooks/useBleRssiScanner';
-
-const DeviceCircle = ({ device, inRange }) => {
-  return (
-    <View style={[styles.circle, inRange ? styles.inRange : styles.outOfRange]}>
-      <Text>{device.name}</Text>
-      <Text>{device.rssi}</Text>
-    </View>
-  );
-};
+import { Animated, View, ScrollView, TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
+import GhostHeader from '../../../components/modules/GhostHeader';
+import gyroAudioFile from '../../../assets/audio/drone.mp3';
+import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
+import React, { useState, useEffect } from 'react';
+import HauntedText from '../../../components/text/HauntedText';
+import { useNavigation } from '@react-navigation/native';
 
 const GhostStartScreen = () => {
-  const { devices } = useBleRssiScanner();
-  const soundObjectsRef = useRef({});
+  const [showContinue, setShowContinue] = useState(false);
+  const fadeAnim = useState(new Animated.Value(0))[0]; // Initial opacity for button
+  const navigation = useNavigation();
 
   useEffect(() => {
-    // Initialize sound objects for each device
-    devices.forEach(async (device) => {
-      const { sound } = await Audio.Sound.createAsync(device.audioFile);
-      // Assign the sound objects to the ref's current property
-      soundObjectsRef.current[device.name] = sound;
+    navigation.setOptions({
+      title: '', // Hides the title
+      headerStyle: {
+        backgroundColor: 'black', // Sets header background color
+      },
+      headerTintColor: 'white', // Sets the color of the back button and title (if any)
+      headerBackTitleVisible: false, // Hides the back button title (iOS)
     });
+  }, [navigation]);
 
-    return () => {
-      // Stop and unload all sounds on unmount
-      // Access the sound objects from the ref
-      Object.values(soundObjectsRef.current).forEach((sound) => {
-        sound.stopAsync();
-        sound.unloadAsync();
-      });
-    };
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowContinue(true);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 2000,
+        useNativeDriver: true,
+      }).start();
+    }, 22000); // 3 seconds after the last HauntedText appears
+
+    return () => clearTimeout(timer);
   }, []);
-
-  useEffect(() => {
-    devices.forEach(async (device) => {
-      // Access the sound objects from the ref
-      const sound = soundObjectsRef.current[device.name];
-      if (sound) {
-        try {
-          const status = await sound.getStatusAsync();
-          if (status.isLoaded) {
-            if (device.rssi > -45 && !status.isPlaying) {
-              await sound.playAsync().catch(() => {/* Handle or log specific play error */});
-            } else if (device.rssi <= -45 && status.isPlaying) {
-              await sound.stopAsync().catch(() => {/* Handle or log specific stop error */});
-            }
-          }
-        } catch (error) {
-          console.error(`Error with sound for device ${device.name}:`, error);
-        }
-      }
-    });
-  }, [devices]);
-  
-  
   return (
-    <View style={styles.container}>
-      {devices.map((device) => (
-        <DeviceCircle key={device.name} device={device} inRange={device.rssi > -45} />
-      ))}
-    </View>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+    >
+      <GhostHeader />
+      <View style={styles.content}>
+      <HauntedText
+  text="A strange presence has been detected in this area."
+  startDelay={5000}
+  blockStyle={styles.blockStyle}
+  letterStyle={styles.letterStyle}
+/><HauntedText
+  text="Blue indicator lights have been installed at points of abnormal activity."
+  startDelay={12000}
+  blockStyle={styles.blockStyle}
+  letterStyle={styles.letterStyle}
+/><HauntedText
+  text="Hover this device by the indicator lights to scan for irregular signals."
+  startDelay={17000}
+  blockStyle={styles.blockStyle}
+  letterStyle={styles.letterStyle}
+/>  
+   <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} />
+
+        {showContinue && (
+          <Animated.View style={{...styles.continueButton, opacity: fadeAnim}}>
+          <TouchableOpacity onPress={() => console.log('Continue pressed')}>
+            <Text style={styles.continueButtonText}>Continue</Text>
+          </TouchableOpacity>
+        </Animated.View>
+        )}
+      </View>
+    </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'black',
+    paddingHorizontal: 20,
+  },
+  contentContainer: {
+    paddingTop: Platform.OS === 'ios' ? 44 : 56, // Adjust this based on the nav bar height
     justifyContent: 'center',
     alignItems: 'center',
   },
-  circle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    justifyContent: 'center',
+  content: {
     alignItems: 'center',
-    margin: 10,
   },
-  inRange: {
-    backgroundColor: 'green',
+  hauntedText: {
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 0,
+    marginBottom: 0, // Increase this value for a larger gap
+    color: 'white',
+    paddingHorizontal: 20,
+    lineHeight: 20,
   },
-  outOfRange: {
-    backgroundColor: 'grey',
+  blockStyle: {
+    marginTop: 20,
+    marginBottom: 10,
+    paddingHorizontal: 20,
+  },
+  letterStyle: {
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
+    fontSize: 24,
+    color: 'white',
+    lineHeight: 30,
+  },
+  continueButton: {
+    marginTop: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: 'white',
+    borderRadius: 5,
+  },
+  continueButtonText: {
+    color: 'black',
+    textAlign: 'center',
+    fontSize: 10,
   },
 });
+
 
 export default GhostStartScreen;

@@ -1,24 +1,24 @@
 import { Animated, View, ScrollView, TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
 import GhostHeader from '../../../components/modules/GhostHeader';
-import gyroAudioFile from '../../../assets/audio/drone.mp3';
-import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
 import React, { useState, useEffect } from 'react';
 import HauntedText from '../../../components/text/HauntedText';
 import { useNavigation } from '@react-navigation/native';
+import twentyMinutes from '../../../components/timers/twentyMinutes';
+
 
 const GhostStartScreen = () => {
   const [showContinue, setShowContinue] = useState(false);
-  const fadeAnim = useState(new Animated.Value(0))[0]; // Initial opacity for button
+  const fadeAnim = useState(new Animated.Value(0))[0];
   const navigation = useNavigation();
 
   useEffect(() => {
     navigation.setOptions({
-      title: '', // Hides the title
+      title: '',
       headerStyle: {
-        backgroundColor: 'black', // Sets header background color
+        backgroundColor: 'black',
       },
-      headerTintColor: 'white', // Sets the color of the back button and title (if any)
-      headerBackTitleVisible: false, // Hides the back button title (iOS)
+      headerTintColor: 'white',
+      headerBackTitleVisible: false,
     });
   }, [navigation]);
 
@@ -27,13 +27,32 @@ const GhostStartScreen = () => {
       setShowContinue(true);
       Animated.timing(fadeAnim, {
         toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }).start();
+    }, 11000); // Set this to the desired time in milliseconds (22000ms = 22 seconds)
+  
+    return () => clearTimeout(timer); // Clear the timer on component unmount
+  }, []);
+  
+
+  useEffect(() => {
+    twentyMinutes.startTimer(() => {
+      setShowContinue(true);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
         duration: 2000,
         useNativeDriver: true,
       }).start();
-    }, 22000); // 3 seconds after the last HauntedText appears
+    });
 
-    return () => clearTimeout(timer);
+    return () => {
+      twentyMinutes.pauseTimer();
+    };
   }, []);
+
+  
+
   return (
     <ScrollView
       style={styles.container}
@@ -41,30 +60,32 @@ const GhostStartScreen = () => {
     >
       <GhostHeader />
       <View style={styles.content}>
-      <HauntedText
-  text="A strange presence has been detected in this area."
-  startDelay={5000}
-  blockStyle={styles.blockStyle}
-  letterStyle={styles.letterStyle}
-/><HauntedText
-  text="Blue indicator lights have been installed at points of abnormal activity."
-  startDelay={12000}
-  blockStyle={styles.blockStyle}
-  letterStyle={styles.letterStyle}
-/><HauntedText
-  text="Hover this device by the indicator lights to scan for irregular signals."
-  startDelay={17000}
-  blockStyle={styles.blockStyle}
-  letterStyle={styles.letterStyle}
-/>  
-   <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} />
+        <HauntedText
+          text="A strange presence has been detected in this area."
+          startDelay={1000}
+          blockStyle={styles.blockStyle}
+          letterStyle={styles.letterStyle}
+        />
+        <HauntedText
+          text="Blue indicator lights have been installed at points of abnormal activity."
+          startDelay={3000}
+          blockStyle={styles.blockStyle}
+          letterStyle={styles.letterStyle}
+        />
+        <HauntedText
+          text="Hover this device by the indicator lights to scan for irregular signals."
+          startDelay={5000}
+          blockStyle={styles.blockStyle}
+          letterStyle={styles.letterStyle}
+        />
+        {/* <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} /> */}
 
         {showContinue && (
-          <Animated.View style={{...styles.continueButton, opacity: fadeAnim}}>
-          <TouchableOpacity onPress={() => console.log('Continue pressed')}>
-            <Text style={styles.continueButtonText}>Continue</Text>
-          </TouchableOpacity>
-        </Animated.View>
+          <Animated.View style={{ ...styles.continueButton, opacity: fadeAnim }}>
+            <TouchableOpacity onPress={() => navigation.navigate('ChapterOne')}>
+              <Text style={styles.continueButtonText}>Continue</Text>
+            </TouchableOpacity>
+          </Animated.View>
         )}
       </View>
     </ScrollView>
@@ -107,18 +128,19 @@ const styles = StyleSheet.create({
     lineHeight: 30,
   },
   continueButton: {
-    marginTop: 5,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    backgroundColor: 'white',
+    marginTop: 20, // Increase the margin to move it closer to the text
+    paddingVertical: 15, // Increase the vertical padding to make it taller
+    paddingHorizontal: 30, // Increase the horizontal padding to make it wider
+    backgroundColor: 'gray',
     borderRadius: 5,
   },
   continueButtonText: {
     color: 'black',
     textAlign: 'center',
-    fontSize: 10,
+    fontSize: 16, // Increase the font size to make it bigger
   },
 });
+
 
 
 export default GhostStartScreen;

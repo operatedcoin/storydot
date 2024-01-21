@@ -1,21 +1,117 @@
-// GhostChapterOne.js
-import React from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Animated, View, ScrollView, TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
 import GhostHeader from '../../../components/modules/GhostHeader';
-import audioFile from '../../../assets/audio/drone.mp3';
-import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
+import HauntedText from '../../../components/text/HauntedText';
+import { useNavigation } from '@react-navigation/native';
+import twentyMinutes from '../../../components/timers/twentyMinutes';
 
+const GhostChapterOne = () => {
+  const [showContinue, setShowContinue] = useState(false);
+  const fadeAnim = useState(new Animated.Value(0))[0];
+  const navigation = useNavigation();
 
-// ... other imports
+  useEffect(() => {
+    navigation.setOptions({
+      title: '',
+      headerStyle: {
+        backgroundColor: 'black',
+      },
+      headerTintColor: 'white',
+      headerBackTitleVisible: false,
+    });
+  }, [navigation]);
 
-const GhostChapterOne = () => (
-  <ScrollView>
-    <GhostHeader />
-    <View>
-      <Text>Gryo Sensor Active</Text>
-      <GyroAudioPlayerComponentBasic audioFile={audioFile} />
-    </View>
-  </ScrollView>
-);
+  useEffect(() => {
+    // Only resume the timer if it was previously running
+    if (twentyMinutes.isTimerRunning()) {
+      twentyMinutes.resumeTimer();
+    }
+
+    // Set up the animation for the continue button
+    const timer = setTimeout(() => {
+      setShowContinue(true);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }).start();
+    }, 11000);
+
+    return () => {
+      // Optionally pause the timer when the component unmounts
+      twentyMinutes.pauseTimer();
+      clearTimeout(timer);
+    };
+  }, []);
+
+  return (
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <GhostHeader />
+      <View style={styles.content}>
+        <HauntedText
+          text="Your journey into the unknown continues."
+          startDelay={1000}
+          blockStyle={styles.blockStyle}
+          letterStyle={styles.letterStyle}
+        />
+        <HauntedText
+          text="Collect the flashes."
+          startDelay={3000}
+          blockStyle={styles.blockStyle}
+          letterStyle={styles.letterStyle}
+        />
+        {/* Add more HauntedText components as needed */}
+        {showContinue && (
+          <Animated.View style={{ ...styles.continueButton, opacity: fadeAnim }}>
+            <TouchableOpacity onPress={() => navigation.navigate('ChapterTwo')}>
+              <Text style={styles.continueButtonText}>Continue</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        )}
+      </View>
+    </ScrollView>
+  );
+};
+
+const styles = StyleSheet.create({
+  // Define styles here, similar to those in GhostStartScreen
+  // You can copy styles from GhostStartScreen or make new ones as needed
+  container: {
+    flex: 1,
+    backgroundColor: 'black',
+    paddingHorizontal: 20,
+  },
+  contentContainer: {
+    paddingTop: Platform.OS === 'ios' ? 44 : 56,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  content: {
+    alignItems: 'center',
+  },
+  blockStyle: {
+    marginTop: 20,
+    marginBottom: 10,
+    paddingHorizontal: 20,
+  },
+  letterStyle: {
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
+    fontSize: 24,
+    color: 'white',
+    lineHeight: 30,
+  },
+  continueButton: {
+    marginTop: 20,
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    backgroundColor: 'gray',
+    borderRadius: 5,
+  },
+  continueButtonText: {
+    color: 'black',
+    textAlign: 'center',
+    fontSize: 16,
+  },
+});
 
 export default GhostChapterOne;

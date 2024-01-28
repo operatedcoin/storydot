@@ -3,11 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import AuthNavigator from './navigation/AuthNavigator';
 import HomeNavigator from './navigation/HomeNavigator';
+import AboutScreen from './screens/common/AboutScreen';
 import firebase from './firebaseConfig'; // Adjust path as necessary
+import HomeScreen from './screens/common/HomeScreen';
 
 export default function App() {
   const [user, setUser] = useState(null);
-  
 
   useEffect(() => {
     // Listen for authentication state to change.

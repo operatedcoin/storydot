@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 
-const howItWorksScreen = () => {
+const AboutScreen = () => {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Text>Demo Start Screen</Text>
@@ -9,4 +9,4 @@ const howItWorksScreen = () => {
   );
 };
 
-export default howItWorksScreen;
+export default AboutScreen;

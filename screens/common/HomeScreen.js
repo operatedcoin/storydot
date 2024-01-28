@@ -8,7 +8,8 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  ImageBackground
+  ImageBackground,
+  Dimensions
 } from 'react-native';
 import ParallaxScrollView from '../../components/visual/ParallaxScrollView';
 import firebase from '../../firebaseConfig';
@@ -18,6 +19,7 @@ import experiencesData from '../experiences/experiencesData';
 import { BlurView } from "@react-native-community/blur";
 
 const ios = Platform.OS === 'ios';
+const { height } = Dimensions.get('window');
 
 const uri =
   'https://images.unsplash.com/photo-1620207418302-439b387441b0?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1234&q=80';
@@ -74,7 +76,7 @@ const uri =
             <Text style={Styles.text}>Home</Text>
           </Animated.View>
           <View style={Styles.rightAligned}>
-            <Text style={Styles.text}>Logout</Text>
+            {/* <Text style={Styles.text}>Logout</Text> */}
           </View>
         </SafeAreaView>
       );
@@ -227,8 +229,8 @@ const uri =
     },
     content: {
       width: '100%',
-      height: 10000,
-      backgroundColor: 'rgb(23 23 23);'
+      minHeight: height/2,
+      backgroundColor: 'rgb(9 9 11);'
     },
   });
   

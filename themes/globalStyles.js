@@ -4,10 +4,14 @@ import { StyleSheet } from 'react-native';
 import { Dimensions } from 'react-native';
 
 const screenHeight = Dimensions.get('window').height;
-
+const primaryColor = '#C7019C'; 
 
 
 export const globalStyles = StyleSheet.create({
+  primaryColor: {
+    color: primaryColor,
+  },
+
   container: {
     flex: 1,
     justifyContent: 'flex-start',
@@ -30,15 +34,20 @@ export const globalStyles = StyleSheet.create({
     
   },
   button: {
-    backgroundColor: '#15231a', // Example button color
-    padding: 10,
-    borderRadius: 5,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 32,
+    borderRadius: 10,
+    elevation: 3,
+    backgroundColor: primaryColor,
   },
   buttonText: {
-    color: '#fff', // or any other color
+    color: '#fff', 
     textAlign: 'center',
-    fontWeight: 'bold', // Make text bold
-    fontSize: 25, // Increase font size
+    fontSize: 18,
+    fontWeight: '600',
   },
   errorText: {
     color: '#c7259c',

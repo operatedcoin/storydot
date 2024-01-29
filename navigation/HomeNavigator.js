@@ -9,6 +9,7 @@ import TownHallNavigator from './TownHallNavigator';
 import GhostNavigator from './GhostNavigator';
 import { BlurView } from "@react-native-community/blur";
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { globalStyles } from '../themes/globalStyles';
 
 const Tab = createBottomTabNavigator();
 
@@ -35,7 +36,7 @@ function BottomTabs() {
           fontSize: 11,
           fontWeight: '500',
         },
-        tabBarActiveTintColor: '#e91e63',
+        tabBarActiveTintColor:  globalStyles.primaryColor.color,
         tabBarInactiveTintColor: 'grey', 
       }}
     >

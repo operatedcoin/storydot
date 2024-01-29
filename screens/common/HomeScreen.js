@@ -229,7 +229,7 @@ const uri =
     },
     content: {
       width: '100%',
-      minHeight: height/2,
+      minHeight: height,
       backgroundColor: 'rgb(9 9 11);'
     },
   });

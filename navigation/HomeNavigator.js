@@ -70,7 +70,7 @@ const HomeNavigator = () => (
     <Stack.Screen name="Bottom Tabs" component={BottomTabs}/>
     <Stack.Screen name="Details" component={DetailsScreen}/>
     <Stack.Screen name="GhostNavigator" component={GhostNavigator}/>
-    <Stack.Screen name="TownHallNavigator" component={TownHallNavigator}/>
+    <Stack.Screen name="TownHallNavigator" component={TownHallNavigator} options={{gestureEnabled: false}}/>
     <Stack.Screen name="DemoNavigator" component={DemoNavigator}/>
   </Stack.Navigator>
 );

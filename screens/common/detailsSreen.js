@@ -8,6 +8,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 const ios = Platform.OS === 'ios';
+
 const { height } = Dimensions.get('window');
 
   // Function to parse the credits string
@@ -100,7 +101,7 @@ const DetailsScreen = ({ route, navigation }) => {
   const renderStickyHeader = (value) => {
     return (
       <View style={[Styles.stickyHeader, {zIndex: 100}]}>
-        <Text className="font-bold text-4xl text-white">{experience.title}</Text>
+        <Text className="font-bold text-4xl text-white text-center">{experience.title}</Text>
       </View>
     );
   };

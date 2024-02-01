@@ -161,7 +161,8 @@ const uri =
     cardTitle: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: 'white'
+      color: 'white',
+      textAlign: 'center'
     },
     headerContainer: {
       position: 'absolute',

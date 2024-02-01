@@ -15,14 +15,7 @@ const GyroscopeComponent = () => {
     };
   }, []);
 
-  return (
-    <View>
-      <Text>Gyroscope Data:</Text>
-      <Text>X: {gyroData.x}</Text>
-      <Text>Y: {gyroData.y}</Text>
-      <Text>Z: {gyroData.z}</Text>
-    </View>
-  );
+
 };
 
 export default GyroscopeComponent;

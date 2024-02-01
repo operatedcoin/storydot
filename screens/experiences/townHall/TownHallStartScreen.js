@@ -1,28 +1,36 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, Button, Modal, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Button, Modal, Image, TouchableOpacity, ImageBackground } from 'react-native';
 import { Audio } from 'expo-av';
 import gyroAudioFile from '../../../assets/audio/drone.mp3';
 import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
 import TownHallHeader from '../../../components/modules/TownHallHeader.js';
 import useBleRssiScannerTownHall from '../../../hooks/useBleRssiScannerTownHall';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { BlurView } from '@react-native-community/blur';
+import { Ionicons } from '@expo/vector-icons';
+import ScanIndicator from '../../../components/visual/scanIndicator';
+import LinearGradient from 'react-native-linear-gradient';
+
+const townhallColor = '#C7019C';
 
 const DeviceCircle = ({ device, inRange, stayPink }) => {
   const circleColor = stayPink ? styles.lightPink : (inRange ? styles.inRange : styles.initialCircle);
+  const circleText = stayPink ? 'white' : (inRange ? 'white' : townhallColor);
+
 
   return (
     <View style={[styles.circle, circleColor]}>
-      <Text>{device.title}</Text>
-      <Text>{device.rssi}</Text>
+      <Text style={{color: circleText}}>{device.title}</Text>
+      {/* <Text style={{color: circleText}}>{device.rssi}</Text> */}
     </View>
   );
 };
 
-const TownHallStartScreen = () => {
+const TownHallStartScreen = ({ navigation }) => {
 
   const { devices, startScanCycle, stopScanCycle } = useBleRssiScannerTownHall();
   const soundObjectsRef = useRef({});
   const [playedAudios, setPlayedAudios] = useState({});
-  const [title, setTitle] = useState("Collect the Beacons");
   const [stayPink, setStayPink] = useState({}); 
   const [allCollected, setAllCollected] = useState(false);
   const beaconsCollectedCount = Object.values(stayPink).filter(status => status).length;
@@ -49,17 +57,6 @@ const TownHallStartScreen = () => {
     });
     setStayPink(newStayPink);
   }, [devices]);
-
-const handleRefresh = () => {
-  setStayPink({});
-  setShownModals({});
-  setPlayedAudios({}); // Reset the played audios state
-  // ... other reset actions if needed
-};
-
-  const updateTitle = () => {
-    setTitle("Collect the B3acons"); // Update this to change the title dynamically
-  };
 
   useEffect(() => {
     const checkAllCollected = Object.values(stayPink).length === devices.length &&
@@ -117,24 +114,86 @@ const handleRefresh = () => {
   
 
   return (
-    <ScrollView>
-    <TownHallHeader title={title} />
-    <View style={styles.container}>
-      <View style={styles.rowContainer}>
-        {devices.map((device) => (
-          <DeviceCircle
-            key={device.title}
-            device={device}
-            inRange={device.rssi > -45}
-            stayPink={stayPink[device.name]} // Changed stayBlue to stayPink
-          />
-        ))}
+    <View style={{flex: 1}}>
+      <ImageBackground 
+        source={require('../../../assets/images/placeholder.png')} 
+        style={{ flex: 1 }}
+        resizeMode="cover"
+      >
+    <LinearGradient
+      colors={['rgba(0,0,0,0.5)', 'rgba(199, 1, 156, 0.8)']}
+      locations={[0, 0.5]}
+      style={{ flex: 1 }}
+    >
+      <SafeAreaView style={{paddingTop:10, paddingLeft:10, zIndex: 100}}>
+       <TouchableOpacity onPress={() => navigation.goBack()}>
+          <BlurView
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                borderRadius: 15,    
+                width: 30,            
+                height: 30,
+                overlayColor: "white",
+                opacity: 5,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              blurType="light"
+              blurAmount={10}
+            >
+            <Ionicons name="close-sharp" size={26} color="white" style={{paddingLeft: 2}} />
+            </BlurView>
+          </TouchableOpacity>
+          </SafeAreaView>
+
+    <SafeAreaView style={styles.container}>
+
+      <View style={{flex: 1}}/>
+
+      <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={styles.heroTitle}>Lost stories. Found.</Text>
+        <Text style={styles.heroText}>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sit amet tristique purus. Integer hendrerit ac enim in cursus. Curabitur luctus venenatis lorem semper commodo.
+        </Text>
       </View>
-      <Button title="Refresh" onPress={handleRefresh} />
-      <Text>Gyro Sensor Active</Text>
+
+
+      <View style={{flex: 1}}/>
+      
+      <View style={styles.scanTopbarWrapper}>
+        <BlurView 
+          style={styles.scanTopbar}
+          blurType='dark'>
+            <ScanIndicator/>
+        </BlurView>
+      </View>
+
+      <View style={styles.scanBoxWrapper}>
+        <BlurView 
+          style={styles.scanBox}
+          blurType='xlight'
+          blurAmount={20}>
+          <Text style={{ textAlign: 'center', paddingVertical: 20, color: townhallColor }}>{beaconsCollectedCount} out of 5 stories collected</Text>
+          {allCollected && <Text>All devices collected!</Text>}
+          <View style={styles.rowContainer}>
+            {devices.map((device) => (
+              <DeviceCircle
+                key={device.title}
+                device={device}
+                inRange={device.rssi > -45}
+                stayPink={stayPink[device.name]}
+              />
+            ))}
+          </View>
+        </BlurView>
+      </View>
+
       <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} />
-      <Text>{beaconsCollectedCount} out of 5 beacons collected</Text>
-      {allCollected && <Text>All devices collected!</Text>}
+
+      
+      
       <Modal
   animationType="slide"
   transparent={true}
@@ -144,9 +203,12 @@ const handleRefresh = () => {
     <View style={styles.modalContainer}>
       <View style={styles.modalView}>
         <>
-          <View className="flex-row justify-between">
+          <View className="flex-row justify-between items-center">
             <Text className="text-2xl font-bold pb-4">{activeDevice.title}</Text>
-            <Button title="Close" onPress={closeModal} />
+            <TouchableOpacity onPress={closeModal} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingBottom: 8 }}>
+              <Ionicons name="close-outline" size={24} color={townhallColor} />
+              <Text style={{color: townhallColor, }}>Close</Text>
+            </TouchableOpacity>
           </View>
           <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <Image
@@ -162,8 +224,10 @@ const handleRefresh = () => {
     </View>
   )}
 </Modal>
+    </SafeAreaView>
+    </LinearGradient>
+    </ImageBackground>
     </View>
-  </ScrollView>
   );
 };
 
@@ -171,35 +235,67 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    paddingBottom: 20,
+    paddingTop: 10,
+    paddingHorizontal: 20,
   },
+  exitButton: {
+    padding: 6,
+    borderRadius: 12,
+  },
+  exitButtonText: {
+    fontSize: 12,
+    color: 'white',
+    paddingRight: 10,
+  },
+  scanTopbarWrapper: {
+    borderTopRightRadius: 20,
+    borderTopLeftRadius: 20,
+    overflow: 'hidden',
+    width: '100%',
+    minHeight: 40,
+  },
+  scanTopbar: {
+    padding: 10,
+    alignItems: 'center', 
+    justifyContent: 'center',
+  },
+  scanBoxWrapper: {
+    borderBottomRightRadius: 20,
+    borderBottomLeftRadius: 20,
+    overflow: 'hidden',
+  },
+  scanBox: {
+    paddingTop: 10,
+    paddingBottom: 20,
+    },
   rowContainer: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: 5,
   },
   circle: {
-    width: 60, // Adjusted size to fit two rows
-    height: 60,
-    borderRadius: 30,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     justifyContent: 'center',
     alignItems: 'center',
     margin: 5,
   },
   initialCircle: {
-    backgroundColor: 'white',
-    borderColor: 'pink', // Changed blue to pink
+    borderColor: townhallColor,
     borderWidth: 2,
   },
   inRange: {
-    backgroundColor: 'green',
+    backgroundColor: townhallColor,
   },
   outOfRange: {
     backgroundColor: 'grey',
   },
   lightPink: {
-    backgroundColor: 'lightpink',
+    backgroundColor: townhallColor,
     },
     modalContainer: {
       flex: 1,
@@ -211,9 +307,20 @@ const styles = StyleSheet.create({
       padding: 30,
       borderTopLeftRadius: 10, // Optional, for rounded corners at the top
       borderTopRightRadius: 10, // Optional, for rounded corners at the top
-      height: '50%', // Adjust this value as needed
+      height: '80%', // Adjust this value as needed
       // You can also use a specific value like height: 300
     },
+    heroTitle: {
+      color: 'white',
+      textAlign: 'center',
+      fontWeight: '700',
+      fontSize: 24,
+      paddingBottom: 20,
+    },
+    heroText: {
+      color: 'white',
+      textAlign: 'center'
+    }
   
   });
 

@@ -9,8 +9,8 @@ const TownHallStack = createStackNavigator();
 
 const TownHallNavigator = () => {
   return (
-    <TownHallStack.Navigator >
-      <TownHallStack.Screen name="Parramatta Town Hall" component={TownHallWelcomeScreen} />
+    <TownHallStack.Navigator screenOptions={{ headerShown: false }}>
+      <TownHallStack.Screen name="Parramatta Town Hall" component={TownHallWelcomeScreen}  />
       <TownHallStack.Screen name="Begin" component={TownHallStartScreen} />
       <TownHallStack.Screen name="Dashboard" component={TownHallDashboardScreen} />
       {/* Add other screens in the Demo experience as needed */}

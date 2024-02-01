@@ -37,13 +37,15 @@ const GyroAudioPlayerComponentBasic = ({ gyroAudioFile }) => {
   }, []); // Removed duplicate useEffect
 
   useEffect(() => {
+    console.log('Subscribing to gyroscope updates');
     const gyroSubscription = gyroscope.subscribe(({ x, y, z }) => {
       gyroDataRef.current = { x, y, z };
     });
     gyroSubscriptionRef.current = gyroSubscription;
-
+  
     return () => {
-      gyroSubscription.unsubscribe();
+      console.log('Unsubscribing from gyroscope updates');
+      gyroSubscriptionRef.current?.unsubscribe();
     };
   }, []);
 

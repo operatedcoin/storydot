@@ -4,22 +4,28 @@ import GhostHeader from '../../../components/modules/GhostHeader';
 import HauntedText from '../../../components/text/HauntedText';
 import { useNavigation } from '@react-navigation/native';
 import twentyMinutes from '../../../components/timers/twentyMinutes';
+import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
+import gyroAudioFile from '../../../assets/audio/drone.mp3';
+
 
 const GhostChapterOne = () => {
   const [showContinue, setShowContinue] = useState(false);
   const fadeAnim = useState(new Animated.Value(0))[0];
   const navigation = useNavigation();
+  const volumeAnim = useState(new Animated.Value(1))[0]; // Start at full volume
+  const [volume, setVolume] = useState(1); // Actual volume state to pass to the player
 
   useEffect(() => {
     navigation.setOptions({
       title: '',
       headerStyle: {
-        backgroundColor: 'black',
+        backgroundColor: 'white', // Changed to white
       },
-      headerTintColor: 'white',
+      headerTintColor: 'black', // Changed to black
       headerBackTitleVisible: false,
     });
   }, [navigation]);
+
 
   useEffect(() => {
     // Only resume the timer if it was previously running
@@ -44,41 +50,43 @@ const GhostChapterOne = () => {
     };
   }, []);
 
+  
+
+  
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <GhostHeader />
+      <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} />
       <View style={styles.content}>
         <HauntedText
-          text="Your journey into the unknown continues."
-          startDelay={1000}
+          text="A strange presence has been detected in the area."
+          startDelay={0}
           blockStyle={styles.blockStyle}
           letterStyle={styles.letterStyle}
         />
-        <HauntedText
-          text="Collect the flashes."
+       <HauntedText
+          text="This device tunes into traces the presence leaves behind."
+          startDelay={2000}
+          blockStyle={styles.blockStyle}
+          letterStyle={styles.letterStyle}
+        />
+          <HauntedText
+          text="Move your hand around gently. See what you can hear."
           startDelay={3000}
           blockStyle={styles.blockStyle}
           letterStyle={styles.letterStyle}
         />
-        {/* Add more HauntedText components as needed */}
-        {showContinue && (
-          <Animated.View style={{ ...styles.continueButton, opacity: fadeAnim }}>
-            <TouchableOpacity onPress={() => navigation.navigate('ChapterTwo')}>
-              <Text style={styles.continueButtonText}>Continue</Text>
-            </TouchableOpacity>
-          </Animated.View>
-        )}
+  
       </View>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  // Define styles here, similar to those in GhostStartScreen
-  // You can copy styles from GhostStartScreen or make new ones as needed
   container: {
     flex: 1,
-    backgroundColor: 'black',
+    backgroundColor: 'white', // Changed to white
     paddingHorizontal: 20,
   },
   contentContainer: {
@@ -97,18 +105,18 @@ const styles = StyleSheet.create({
   letterStyle: {
     fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
     fontSize: 24,
-    color: 'white',
+    color: 'black', // Changed to black
     lineHeight: 30,
   },
   continueButton: {
     marginTop: 20,
     paddingVertical: 15,
     paddingHorizontal: 30,
-    backgroundColor: 'gray',
+    backgroundColor: 'gray', // You might want to change this as well
     borderRadius: 5,
   },
   continueButtonText: {
-    color: 'black',
+    color: 'black', // Ensuring this is black
     textAlign: 'center',
     fontSize: 16,
   },

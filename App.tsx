@@ -6,6 +6,8 @@ import HomeNavigator from './navigation/HomeNavigator';
 import AboutScreen from './screens/common/AboutScreen';
 import firebase from './firebaseConfig'; // Adjust path as necessary
 import HomeScreen from './screens/common/HomeScreen';
+import { TimerProvider } from './components/timers/timerContext';
+
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -25,9 +27,13 @@ export default function App() {
   }, []);
 
     return (
+      <TimerProvider>
+      
+
     <NavigationContainer>
       <HomeNavigator />
     </NavigationContainer>
+    </TimerProvider>
   );
 }
 

@@ -1,28 +1,20 @@
-// TimerContext.js
-import React, { createContext, useState, useCallback } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 
 export const TimerContext = createContext();
 
 export const TimerProvider = ({ children }) => {
-  const [timer, setTimer] = useState(null);
-  const [remainingTime, setRemainingTime] = useState(22000); // Example: 22 seconds
+  const [timer, setTimer] = useState(20 * 60); // 20 minutes
 
-  const startTimer = useCallback((callback) => {
-    setTimer(setTimeout(() => {
-      callback();
-      stopTimer();
-    }, remainingTime));
-  }, [remainingTime]);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimer(prevTimer => prevTimer > 0 ? prevTimer - 1 : 0);
+    }, 1000);
 
-  const stopTimer = useCallback(() => {
-    if (timer) {
-      clearTimeout(timer);
-      setTimer(null);
-    }
-  }, [timer]);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <TimerContext.Provider value={{ startTimer, stopTimer }}>
+    <TimerContext.Provider value={{ timer, setTimer }}>
       {children}
     </TimerContext.Provider>
   );

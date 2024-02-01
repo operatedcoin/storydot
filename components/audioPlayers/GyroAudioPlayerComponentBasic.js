@@ -86,18 +86,11 @@ const GyroAudioPlayerComponentBasic = ({ gyroAudioFile }) => {
     }
   };
 
-  // return (
-  // <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-  // <TouchableOpacity onPress={togglePlayback}>
-  // <Text>Toggle Playback</Text>
-  // </TouchableOpacity>
-  // {/* Optionally, reduce the frequency of these updates or remove them for better performance */}
-  // <Text>Gyroscope Data:</Text>
-  // <Text>X: {gyroDataRef.current.x.toFixed(2)}</Text>
-  // <Text>Y: {gyroDataRef.current.y.toFixed(2)}</Text>
-  // <Text>Z: {gyroDataRef.current.z.toFixed(2)}</Text>
-  // </View>
-  // );
+  return (
+  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+
+  </View>
+  );
   };
   
   export default GyroAudioPlayerComponentBasic;

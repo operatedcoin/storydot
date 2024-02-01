@@ -5,6 +5,9 @@ import GhostHeader from '../../../components/modules/GhostHeader';
 import HauntedText from '../../../components/text/HauntedText';
 import { useNavigation } from '@react-navigation/native';
 import twentyMinutes from '../../../components/timers/twentyMinutes';
+import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
+import bleDashboardComponent from '../../../components/ble/bleDashboardComponent';
+
 
 // Define GhostChapterThree component
 const GhostChapterThree = () => {
@@ -70,6 +73,8 @@ const GhostChapterThree = () => {
             </TouchableOpacity>
           </Animated.View>
         )}
+                <GyroAudioPlayerComponentBasic gyroAudioFile="../../../assets/audio/drone.mp3" />
+
       </View>
     </ScrollView>
   );

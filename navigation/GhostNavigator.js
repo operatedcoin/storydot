@@ -28,6 +28,7 @@ const GhostNavigator = () => {
       <GhostStack.Screen name="ChapterFive" component={GhostChapterFive} />
       <GhostStack.Screen name="Dashboard" component={GhostDashboard} />
       <GhostStack.Screen name="BeaconTest" component={GhostBeaconTest} />
+      <GhostStack.Screen name="ChapterTwo" component={GhostChapterTwo} />
 
 
       {/* Add other screens in the Demo experience as needed */}

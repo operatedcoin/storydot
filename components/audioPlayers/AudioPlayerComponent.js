@@ -1,65 +1,36 @@
-// AudioPlayerComponent.js
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text } from 'react-native';
 import { Audio } from 'expo-av';
 
-const AudioPlayerComponent = ({ audioFile, onPlaybackStatusChange, volume }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);  // Track if audio is loaded
+const AudioPlayerComponent = ({ audioFile, volume = 1.0, autoPlay = false }) => {
   const soundInstance = useRef(new Audio.Sound());
+  const [isLoaded, setIsLoaded] = useState(false); // Define isLoaded state here
 
   useEffect(() => {
     const loadSound = async () => {
       try {
-        // Unloading any previous sound
-        await soundInstance.current.unloadAsync();
+        await soundInstance.current.unloadAsync(); // Ensure no previous sound is loaded
+        await soundInstance.current.loadAsync(audioFile, { shouldPlay: autoPlay, volume: volume });
+        setIsLoaded(true); // Indicate that the audio is loaded
 
-        // Loading the sound from the provided file
-        await soundInstance.current.loadAsync(audioFile, { shouldPlay: false, volume: volume });
-        setIsLoaded(true);  // Set as loaded if successful
-
-        // More setup code here...
-
+        if (autoPlay) {
+          await soundInstance.current.playAsync(); // Start playing if autoPlay is true
+        }
       } catch (error) {
-        console.error('Failed to load the sound', error);
-        // Additional error handling
+        console.error("Couldn't load or play sound", error);
+        setIsLoaded(false); // Indicate the audio failed to load
       }
     };
 
     loadSound();
 
-    return () => soundInstance.current.unloadAsync(); // Cleanup function
-  }, [audioFile, volume]);
+    return () => {
+      soundInstance.current.unloadAsync(); // Cleanup by unloading the sound
+    };
+  }, [audioFile, volume, autoPlay]);
 
-  const togglePlayback = async () => {
-    if (!isLoaded) {
-      console.log('Audio is not loaded yet');
-      return;  // Exit if audio is not loaded
-    }
-    
-    try {
-      if (isPlaying) {
-        await soundInstance.current.pauseAsync();
-        setIsPlaying(false);
-      } else {
-        await soundInstance.current.playAsync();
-        setIsPlaying(true);
-      }
-    } catch (error) {
-      console.error('Error during toggle playback', error);
-      // Additional error handling
-    }
-  };
-
-  return (
-    <View>
-      <Text>{isPlaying ? 'Playing' : 'Paused'}</Text>
-      <TouchableOpacity onPress={togglePlayback} disabled={!isLoaded}>
-        <Text>{isPlaying ? 'Pause' : 'Play'}</Text>
-      </TouchableOpacity>
-    </View>
-  );
+  // No need to show play/pause button or status text if using autoPlay
+  return null;
 };
 
 export default AudioPlayerComponent;
-

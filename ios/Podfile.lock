@@ -84,6 +84,8 @@ PODS:
     - React-NativeModulesApple
     - React-RCTAppDelegate
     - ReactCommon/turbomodule/core
+  - ExpoSensors (12.9.1):
+    - ExpoModulesCore
   - ExpoSystemUI (2.6.0):
     - ExpoModulesCore
   - EXSplashScreen (0.20.5):
@@ -610,6 +612,7 @@ DEPENDENCIES:
   - ExpoDevice (from `../node_modules/expo-device/ios`)
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
+  - ExpoSensors (from `../node_modules/expo-sensors/ios`)
   - ExpoSystemUI (from `../node_modules/expo-system-ui/ios`)
   - EXSplashScreen (from `../node_modules/expo-splash-screen/ios`)
   - EXUpdatesInterface (from `../node_modules/expo-updates-interface/ios`)
@@ -716,6 +719,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-keep-awake/ios"
   ExpoModulesCore:
     :path: "../node_modules/expo-modules-core"
+  ExpoSensors:
+    :path: "../node_modules/expo-sensors/ios"
   ExpoSystemUI:
     :path: "../node_modules/expo-system-ui/ios"
   EXSplashScreen:
@@ -837,6 +842,7 @@ SPEC CHECKSUMS:
   ExpoDevice: 1c1b0c9cad96c292c1de73948649cfd654b2b3c0
   ExpoKeepAwake: be4cbd52d9b177cde0fd66daa1913afa3161fc1d
   ExpoModulesCore: c480fd4e3c7c8e81f0a6ba3a7c56869f25fe016d
+  ExpoSensors: a88c7bed8178a38e5cd3c2759baf348781027f28
   ExpoSystemUI: e4afa05539f42fe3be09d21a6498e5495019a5b2
   EXSplashScreen: c0e7f2d4a640f3b875808ed0b88575538daf6d82
   EXUpdatesInterface: 82ed48d417cdcd376c12ca1c2ce390d35500bed6
@@ -901,6 +907,6 @@ SPEC CHECKSUMS:
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: b76f1acfda8212aa16b7e26bcce3983230c82603
 
-PODFILE CHECKSUM: b311607b637d8544f6023a5c9a967263cb5761dd
+PODFILE CHECKSUM: b8a3b806aa5a23d6187aba4cc18744dfe0cf0144
 
-COCOAPODS: 1.12.0
+COCOAPODS: 1.14.3

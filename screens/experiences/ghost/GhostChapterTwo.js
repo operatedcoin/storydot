@@ -7,10 +7,13 @@ import { useNavigation } from '@react-navigation/native';
 import twentyMinutes from '../../../components/timers/twentyMinutes';
 import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
 import bleDashboardComponent from '../../../components/ble/bleDashboardComponent';
+import AudioPlayerComponent from '../../../components/audioPlayers/AudioPlayerComponent';
+import gyroAudioFile from '../../../assets/audio/drone.mp3';
+
 
 
 // Define GhostChapterThree component
-const GhostChapterThree = () => {
+const GhostChapterTwo = () => {
   const [showContinue, setShowContinue] = useState(false);
   const fadeAnim = useState(new Animated.Value(0))[0];
   const navigation = useNavigation();
@@ -52,16 +55,16 @@ const GhostChapterThree = () => {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <GhostHeader />
+      <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} />
+      <AudioPlayerComponent
+  audioFile={require('../../../assets/audio/ghost/theBrief.mp3')}
+  volume={1.0}
+  autoPlay={true}
+/>
       <View style={styles.content}>
         <HauntedText
-          text="This is where the user wil collect the flashes."
+          text="..."
           startDelay={1000}
-          blockStyle={styles.blockStyle}
-          letterStyle={styles.letterStyle}
-        />
-        <HauntedText
-          text="Little stories that seem out of place."
-          startDelay={3000}
           blockStyle={styles.blockStyle}
           letterStyle={styles.letterStyle}
         />
@@ -119,4 +122,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default GhostChapterThree;
+export default GhostChapterTwo;

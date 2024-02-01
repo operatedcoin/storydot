@@ -1,15 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Animated, View, ScrollView, Text, StyleSheet, Platform } from 'react-native';
+import { Animated, View, ScrollView, Text, StyleSheet, Platform, Vibration, TouchableOpacity } from 'react-native';
 import GhostHeader from '../../../components/modules/GhostHeader';
 import HauntedText from '../../../components/text/HauntedText';
 import { useNavigation } from '@react-navigation/native';
 import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
 import gyroAudioFile from '../../../assets/audio/drone.mp3';
+import BlackAnimatedButton from '../../../components/text/balckAnimatedButton';
+
 
 const GhostChapterOne = () => {
+  const [hauntedText, setHauntedText] = useState(""); // Add this line
+  const [showButton, setShowButton] = useState(false); // Add this line
   const navigation = useNavigation();
   const [phase, setPhase] = useState(1); // Add phase state
   const textOpacityAnim = useRef(new Animated.Value(1)).current; // For fading text
+  const handleButtonPress = () => {
+    // Define what should happen when the button is pressed
+    navigation.navigate('ChapterTwo');
+    console.log("Button Pressed");
+  };
 
   useEffect(() => {
     navigation.setOptions({
@@ -34,6 +43,32 @@ const GhostChapterOne = () => {
 
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (phase === 2) {
+      // Set a timeout to change to phase 3
+      const timer = setTimeout(() => {
+        setPhase(3);
+      }, [5000]); // Replace [timeDuration] with the duration in milliseconds
+  
+      return () => clearTimeout(timer);
+    }
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase === 3) {
+      const vibrationPattern = [1000, 500, 1000, 500, 1000, 500, 1000];
+      Vibration.vibrate(vibrationPattern);
+  
+      const newTextDelay = vibrationPattern.reduce((a, b) => a + b, 0);
+      setTimeout(() => {
+        setHauntedText("Something is here.");
+        setShowButton(true); // Ensure this is set here
+      }, newTextDelay);
+    } else {
+      setShowButton(false); // Reset when not in phase 3
+    }
+  }, [phase]);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -71,10 +106,26 @@ const GhostChapterOne = () => {
            letterStyle={styles.letterStyle}
          />
        </Animated.View>
-          
-          
         )}
+  {phase === 3 && (
+  <Animated.View style={{ opacity: textOpacityAnim }}>
+    <HauntedText
+      text={hauntedText}
+      startDelay={0}
+      blockStyle={styles.blockStyle}
+      letterStyle={styles.letterStyle}
+    />
+    {showButton && (
+      <BlackAnimatedButton 
+        text="Hello?" 
+        onPress={handleButtonPress}
+        delay={3000} // You can adjust this delay
+      />
+    )}
+  </Animated.View>
+)}
       </View>
+
     </ScrollView>
   );
 };

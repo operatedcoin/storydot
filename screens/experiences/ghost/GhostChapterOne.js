@@ -1,83 +1,79 @@
-import React, { useState, useEffect } from 'react';
-import { Animated, View, ScrollView, TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { Animated, View, ScrollView, Text, StyleSheet, Platform } from 'react-native';
 import GhostHeader from '../../../components/modules/GhostHeader';
 import HauntedText from '../../../components/text/HauntedText';
 import { useNavigation } from '@react-navigation/native';
-import twentyMinutes from '../../../components/timers/twentyMinutes';
 import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
 import gyroAudioFile from '../../../assets/audio/drone.mp3';
 
-
 const GhostChapterOne = () => {
-  const [showContinue, setShowContinue] = useState(false);
-  const fadeAnim = useState(new Animated.Value(0))[0];
   const navigation = useNavigation();
-  const volumeAnim = useState(new Animated.Value(1))[0]; // Start at full volume
-  const [volume, setVolume] = useState(1); // Actual volume state to pass to the player
+  const [phase, setPhase] = useState(1); // Add phase state
+  const textOpacityAnim = useRef(new Animated.Value(1)).current; // For fading text
 
   useEffect(() => {
     navigation.setOptions({
       title: '',
       headerStyle: {
-        backgroundColor: 'white', // Changed to white
+        backgroundColor: 'white',
       },
-      headerTintColor: 'black', // Changed to black
+      headerTintColor: 'black',
       headerBackTitleVisible: false,
     });
   }, [navigation]);
 
-
   useEffect(() => {
-    // Only resume the timer if it was previously running
-    if (twentyMinutes.isTimerRunning()) {
-      twentyMinutes.resumeTimer();
-    }
-
-    // Set up the animation for the continue button
+    // Fade out text after 20 seconds from the appearance of the third text
     const timer = setTimeout(() => {
-      setShowContinue(true);
-      Animated.timing(fadeAnim, {
-        toValue: 1,
+      Animated.timing(textOpacityAnim, {
+        toValue: 0,
         duration: 1000,
         useNativeDriver: true,
-      }).start();
-    }, 11000);
+      }).start(() => setPhase(2)); // After fade-out, change to phase 2
+    }, 24000); // 4000ms for the last text to appear + 20000ms delay
 
-    return () => {
-      // Optionally pause the timer when the component unmounts
-      twentyMinutes.pauseTimer();
-      clearTimeout(timer);
-    };
+    return () => clearTimeout(timer);
   }, []);
-
-  
-
-  
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <GhostHeader />
       <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} />
       <View style={styles.content}>
-        <HauntedText
-          text="A strange presence has been detected in the area."
-          startDelay={0}
-          blockStyle={styles.blockStyle}
-          letterStyle={styles.letterStyle}
-        />
-       <HauntedText
-          text="This device tunes into traces the presence leaves behind."
-          startDelay={2000}
-          blockStyle={styles.blockStyle}
-          letterStyle={styles.letterStyle}
-        />
-          <HauntedText
-          text="Move your hand around gently. See what you can hear."
-          startDelay={3000}
-          blockStyle={styles.blockStyle}
-          letterStyle={styles.letterStyle}
-        />
-  
+        {phase === 1 && (
+          <Animated.View style={{ opacity: textOpacityAnim }}>
+            <HauntedText
+              text="A strange presence has been detected in the area."
+              startDelay={0}
+              blockStyle={styles.blockStyle}
+              letterStyle={styles.letterStyle}
+            />
+            <HauntedText
+              text="This device tunes into traces the presence leaves behind."
+              startDelay={2000}
+              blockStyle={styles.blockStyle}
+              letterStyle={styles.letterStyle}
+            />
+            <HauntedText
+              text="Move your hand around gently. See what you can hear."
+              startDelay={4000}
+              blockStyle={styles.blockStyle}
+              letterStyle={styles.letterStyle}
+            />
+          </Animated.View>
+        )}
+        {phase === 2 && (
+         <Animated.View style={{ opacity: textOpacityAnim }}>
+         <HauntedText
+           text="Now explore the foyer more widely."
+           startDelay={0}
+           blockStyle={styles.blockStyle}
+           letterStyle={styles.letterStyle}
+         />
+       </Animated.View>
+          
+          
+        )}
       </View>
     </ScrollView>
   );

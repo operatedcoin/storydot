@@ -9,40 +9,40 @@ const GyroAudioPlayerComponentBasic = ({ gyroAudioFile }) => {
   const [isSoundReady, setIsSoundReady] = useState(false);
   const [sound, setSound] = useState(null);
   const gyroDataRef = useRef({ x: 0, y: 0, z: 0 });
-  const targetVolumeRef = useRef(0.1); // Start with initial volume
+  const targetVolumeRef = useRef(0.2); // Adjusted initial volume from the first snippet
   const isFocused = useIsFocused();
-  const gyroSubscriptionRef = useRef(null); // Use a ref to hold the subscription
+  const gyroSubscriptionRef = useRef(null);
 
   useEffect(() => {
-    let isComponentMounted = true; // Track component mount status
+    let isComponentMounted = true;
 
     const loadSound = async () => {
       const { sound: soundObject } = await Audio.Sound.createAsync(
         gyroAudioFile,
-        { shouldPlay: false, isLooping: true, volume: 0.1 }
+        { shouldPlay: false, isLooping: true, volume: targetVolumeRef.current }
       );
       if (isComponentMounted) {
         setSound(soundObject);
-        setIsSoundReady(true); // Update state to indicate sound is ready
+        setIsSoundReady(true);
       }
     };
 
     loadSound();
 
     return () => {
-      isComponentMounted = false; // Indicate component has unmounted
+      isComponentMounted = false;
       sound?.unloadAsync().catch(console.error);
-      setIsSoundReady(false); // Ensure sound state is reset
+      setIsSoundReady(false);
     };
-  }, []); // Removed duplicate useEffect
+  }, []);
 
   useEffect(() => {
-    console.log('Subscribing to gyroscope updates');
     const gyroSubscription = gyroscope.subscribe(({ x, y, z }) => {
       gyroDataRef.current = { x, y, z };
     });
     gyroSubscriptionRef.current = gyroSubscription;
-  
+
+    // Proper cleanup from the second snippet
     return () => {
       console.log('Unsubscribing from gyroscope updates');
       gyroSubscriptionRef.current?.unsubscribe();
@@ -64,7 +64,7 @@ const GyroAudioPlayerComponentBasic = ({ gyroAudioFile }) => {
     }
 
     const interval = setInterval(async () => {
-      if (!sound) return; // Guard against sound not being loaded
+      if (!sound) return;
 
       try {
         const status = await sound.getStatusAsync();
@@ -73,10 +73,11 @@ const GyroAudioPlayerComponentBasic = ({ gyroAudioFile }) => {
         }
 
         const { x, y, z } = gyroDataRef.current;
-        const avg = (Math.abs(x) + Math.abs(y) + Math.abs(z)) / 3;
-        const scaledAvg = Math.min(avg / 10, 1); // Adjust sensitivity as needed
-        targetVolumeRef.current = scaledAvg;
-        await sound.setVolumeAsync(scaledAvg).catch(console.error);
+        // Enhanced sensitivity calculation from the first snippet
+        const movement = Math.sqrt(x * x + y * y + z * z);
+        const volume = Math.min(Math.max(movement / 2, 0.05), 1);
+        targetVolumeRef.current = volume;
+        await sound.setVolumeAsync(volume).catch(console.error);
       } catch (error) {
         console.error('Error during interval operation', error);
       }
@@ -87,7 +88,7 @@ const GyroAudioPlayerComponentBasic = ({ gyroAudioFile }) => {
 
   useEffect(() => {
     const managePlayback = async () => {
-      if (!sound || !isSoundReady) return; // Guard against sound not being ready
+      if (!sound || !isSoundReady) return;
 
       try {
         const status = await sound.getStatusAsync();
@@ -123,7 +124,7 @@ const GyroAudioPlayerComponentBasic = ({ gyroAudioFile }) => {
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-
+      {/* UI Components */}
     </View>
   );
 };

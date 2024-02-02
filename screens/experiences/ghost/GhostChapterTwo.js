@@ -17,6 +17,15 @@ const GhostChapterTwo = () => {
   const [showContinue, setShowContinue] = useState(false);
   const fadeAnim = useState(new Animated.Value(0))[0];
   const navigation = useNavigation();
+  const [isPlaying, setIsPlaying] = useState(true); // Control playback
+
+
+ const handleSkip = async () => {
+    setIsPlaying(false); // Attempt to stop the audio
+    // Since there might be a slight delay in audio stopping, consider awaiting a short timeout if needed
+    navigation.navigate('ChapterThree');
+  };
+ 
 
   useEffect(() => {
     navigation.setOptions({
@@ -55,11 +64,22 @@ const GhostChapterTwo = () => {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <GhostHeader />
-      <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} />
-      <AudioPlayerComponent
-  audioFile={require('../../../assets/audio/ghost/theBrief.mp3')}
-  volume={1.0}
-  autoPlay={true}
+      <TouchableOpacity
+  style={{
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    backgroundColor: 'transparent',
+  }}
+  onPress={handleSkip}
+>
+  <Text style={{ color: 'gray' }}>Skip</Text>
+</TouchableOpacity>
+      {/* <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} /> */}
+    <AudioPlayerComponent
+        audioFile={require('../../../assets/audio/ghost/theBrief.mp3')}
+        volume={1.0}
+        autoPlay={isPlaying} // Assuming `onEnd` is the correct prop for when the audio finishes
 />
       <View style={styles.content}>
         <HauntedText
@@ -71,12 +91,12 @@ const GhostChapterTwo = () => {
         {/* Add more HauntedText components as needed */}
         {showContinue && (
           <Animated.View style={{ ...styles.continueButton, opacity: fadeAnim }}>
-            <TouchableOpacity onPress={() => navigation.navigate('ChapterThree')}>
+            {/* <TouchableOpacity onPress={() => navigation.navigate('ChapterThree')}>
               <Text style={styles.continueButtonText}>Continue</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </Animated.View>
         )}
-                <GyroAudioPlayerComponentBasic gyroAudioFile="../../../assets/audio/drone.mp3" />
+                {/* <GyroAudioPlayerComponentBasic gyroAudioFile="../../../assets/audio/drone.mp3" /> */}
 
       </View>
     </ScrollView>

@@ -1,119 +1,102 @@
 // Import necessary modules and components
-import React, { useState, useEffect } from 'react';
-import { Animated, View, ScrollView, TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
-import GhostHeader from '../../../components/modules/GhostHeader';
-import HauntedText from '../../../components/text/HauntedText';
-import { useNavigation } from '@react-navigation/native';
-import twentyMinutes from '../../../components/timers/twentyMinutes';
+
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { Audio } from 'expo-av';
+import useBleRssiScanner from '../../../hooks/useBleRssiScanner';
+import gyroAudioFile from '../../../assets/audio/drone.mp3';
+import GyroAudioPlayerComponent from '../../../components/audioPlayers/GyroAudioPlayerComponent';
+import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
 
 // Define GhostChapterThree component
 
-const GhostChapterThree = () => {
-  const [showContinue, setShowContinue] = useState(false);
-  const fadeAnim = useState(new Animated.Value(0))[0];
-  const navigation = useNavigation();
 
-  useEffect(() => {
-    navigation.setOptions({
-      title: '',
-      headerStyle: {
-        backgroundColor: 'black',
-      },
-      headerTintColor: 'white',
-      headerBackTitleVisible: false,
-    });
-  }, [navigation]);
-
-  useEffect(() => {
-    // Only resume the timer if it was previously running
-    if (twentyMinutes.isTimerRunning()) {
-      twentyMinutes.resumeTimer();
-    }
-
-    // Set up the animation for the continue button
-    const timer = setTimeout(() => {
-      setShowContinue(true);
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }).start();
-    }, 11000);
-
-    return () => {
-      // Optionally pause the timer when the component unmounts
-      twentyMinutes.pauseTimer();
-      clearTimeout(timer);
-    };
-  }, []);
-
+const DeviceCircle = ({ device, inRange }) => {
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <GhostHeader />
-      <View style={styles.content}>
-        <HauntedText
-          text="Your journey into the unknown continues."
-          startDelay={1000}
-          blockStyle={styles.blockStyle}
-          letterStyle={styles.letterStyle}
-        />
-        <HauntedText
-          text="The mystery deepens with every step."
-          startDelay={3000}
-          blockStyle={styles.blockStyle}
-          letterStyle={styles.letterStyle}
-        />
-        {/* Add more HauntedText components as needed */}
-        {showContinue && (
-          <Animated.View style={{ ...styles.continueButton, opacity: fadeAnim }}>
-            <TouchableOpacity onPress={() => navigation.navigate('ChapterFour')}>
-              <Text style={styles.continueButtonText}>Continue</Text>
-            </TouchableOpacity>
-          </Animated.View>
-        )}
-      </View>
-    </ScrollView>
+    <View style={[styles.circle, inRange ? styles.inRange : styles.outOfRange]}>
+      <Text>{device.name}</Text>
+      <Text>{device.rssi}</Text>
+    </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'black',
-    paddingHorizontal: 20,
-  },
-  contentContainer: {
-    paddingTop: Platform.OS === 'ios' ? 44 : 56,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  content: {
-    alignItems: 'center',
-  },
-  blockStyle: {
-    marginTop: 20,
-    marginBottom: 10,
-    paddingHorizontal: 20,
-  },
-  letterStyle: {
-    fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
-    fontSize: 24,
-    color: 'white',
-    lineHeight: 30,
-  },
-  continueButton: {
-    marginTop: 20,
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    backgroundColor: 'gray',
-    borderRadius: 5,
-  },
-  continueButtonText: {
-    color: 'black',
-    textAlign: 'center',
-    fontSize: 16,
-  },
-});
+const GhostChapterThree = () => {
+  const { devices } = useBleRssiScanner();
+      const soundObjectsRef = useRef({});
+    
+  
+    useEffect(() => {
+      // Initialize sound objects for each device
+      devices.forEach(async (device) => {
+        const { sound } = await Audio.Sound.createAsync(device.audioFile);
+        // Assign the sound objects to the ref's current property
+        soundObjectsRef.current[device.name] = sound;
+      });
+  
+      return () => {
+        // Stop and unload all sounds on unmount
+        // Access the sound objects from the ref
+        Object.values(soundObjectsRef.current).forEach((sound) => {
+          sound.stopAsync();
+          sound.unloadAsync();
+        });
+      };
+    }, []);
+  
+    useEffect(() => {
+      devices.forEach(async (device) => {
+        // Access the sound objects from the ref
+        const sound = soundObjectsRef.current[device.name];
+        if (sound) {
+          try {
+            const status = await sound.getStatusAsync();
+            if (status.isLoaded) {
+              if (device.rssi > -45 && !status.isPlaying) {
+                await sound.playAsync().catch(() => {/* Handle or log specific play error */});
+              } else if (device.rssi <= -45 && status.isPlaying) {
+                await sound.stopAsync().catch(() => {/* Handle or log specific stop error */});
+              }
+            }
+          } catch (error) {
+            console.error(`Error with sound for device ${device.name}:`, error);
+          }
+        }
+      });
+    }, [devices]);
+    
+    
+    return (
+      <View style={styles.container}>
+        {devices.map((device) => (
+          <DeviceCircle key={device.name} device={device} inRange={device.rssi > -45} />
+        ))}
+        <Text>Gryo Sensor Active</Text>
+        <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} />
+      </View>
+    );
+  };
+  
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    circle: {
+      width: 100,
+      height: 100,
+      borderRadius: 50,
+      justifyContent: 'center',
+      alignItems: 'center',
+      margin: 10,
+    },
+    inRange: {
+      backgroundColor: 'green',
+    },
+    outOfRange: {
+      backgroundColor: 'grey',
+    },
+  });
 
 export default GhostChapterThree;
 

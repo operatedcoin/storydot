@@ -19,6 +19,13 @@ const GhostChapterOne = () => {
     navigation.navigate('ChapterTwo');
     console.log("Button Pressed");
   };
+  const handleSkip = () => {
+    // clearAllTimers(); // Clear all active timers
+    // Define what should happen when the button is pressed
+    navigation.navigate('ChapterTwo');
+    console.log("Button Pressed");
+  };
+ 
 
   useEffect(() => {
     navigation.setOptions({
@@ -74,6 +81,17 @@ const GhostChapterOne = () => {
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <GhostHeader />
       <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} />
+      <TouchableOpacity
+  style={{
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    backgroundColor: 'transparent',
+  }}
+  onPress={handleSkip}
+>
+  <Text style={{ color: 'gray' }}>Skip</Text>
+</TouchableOpacity>
       <View style={styles.content}>
         {phase === 1 && (
           <Animated.View style={{ opacity: textOpacityAnim }}>

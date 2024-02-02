@@ -24,7 +24,7 @@ const GhostNavigator = () => {
       {/* <GhostStack.Screen name="ChapterTwo" component={GhostChapterTwo} /> */}
       <GhostStack.Screen name="GHOST" component={GhostChapterThree} />
       <GhostStack.Screen name="ChapterFour" component={GhostChapterFour} />
-      <GhostStack.Screen name="ChapterThree" component={GhostChapterFour} />
+      <GhostStack.Screen name="ChapterThree" component={GhostChapterThree} />
       <GhostStack.Screen name="ChapterFive" component={GhostChapterFive} />
       <GhostStack.Screen name="Dashboard" component={GhostDashboard} />
       <GhostStack.Screen name="BeaconTest" component={GhostBeaconTest} />

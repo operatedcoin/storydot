@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { Animated, View, ScrollView, Text, StyleSheet, Platform, Vibration, TouchableOpacity, Image, Modal } from 'react-native';
 import { Audio } from 'expo-av';
 import GhostHeader from '../../../components/modules/GhostHeader';
@@ -63,27 +64,28 @@ const closeModal = async () => {
     await soundObjectsRef.current[activeDevice.name].stopAsync(); // Stop the audio
   }
 
-  // If the modal being closed is for the 'Green' beacon
+  // Correctly handle the case for closing the 'Green' beacon's modal
   if (activeDevice && activeDevice.name === 'Green') {
-    // Set all beacons to collected (true) except for 'MsgSix', which is set to false
+    // Set all beacons to collected (true) except for 'MsgSix'
     setStayPink(prevState => ({
       ...Object.keys(prevState).reduce((acc, beacon) => {
         acc[beacon] = beacon === 'MsgSix' ? false : true; // Explicitly set 'MsgSix' to false, others to true
         return acc;
       }, {})
     }));
-  }
-
-  // If the modal being closed is for the 'MsgSix' beacon
-  if (activeDevice && activeDevice.name === 'MsgSix') {
+    // Ensure to resume scanning only after updating the state
+    startScanCycle();
+  } else if (activeDevice && activeDevice.name === 'MsgSix') {
+    // Navigate to the next chapter when 'MsgSix' is collected and its modal is closed
     navigation.navigate('ChapterSix');
   } else {
-    // This else block ensures that we only resume scanning if we're not navigating away
+    // For any other modal, simply resume scanning without additional state updates
     startScanCycle();
   }
 
   setActiveDevice(null); // Close the modal by setting the active device to null
 };
+
 
 
 useEffect(() => {
@@ -122,35 +124,51 @@ useEffect(() => {
   };
 }, []);
 
-useEffect(() => {
-  startScanCycle();
-  return () => stopScanCycle(); // Stop scanning when component unmounts
-}, []);
+useFocusEffect(
+  React.useCallback(() => {
+    startScanCycle();
+    return () => {
+      stopScanCycle(); // Stop scanning when the screen loses focus
+    };
+  }, [])
+);
 
 
 useEffect(() => {
   const handleDevices = async () => {
     for (const device of devices) {
-      const sound = soundObjectsRef.current[device.name];
-      if (sound && !playedAudios[device.name]) {
-        try {
-          const status = await sound.getStatusAsync();
-          if (status.isLoaded && device.rssi < 0 && device.rssi > -45 && !status.isPlaying) {
-            await sound.playAsync().catch(() => {/* Handle error */});
-            setPlayedAudios(prev => ({ ...prev, [device.name]: true }));
-            setStayPink(prev => ({ ...prev, [device.name]: true }));
-            setActiveDevice(device); // Show the modal for this device
-            stopScanCycle(); // Stop scanning when a device is in range
+      // Check if the device has not been collected yet according to stayPink state
+      if (!stayPink[device.name]) {
+        const sound = soundObjectsRef.current[device.name];
+        if (sound && !playedAudios[device.name]) {
+          try {
+            const status = await sound.getStatusAsync();
+            // Ensure the sound is loaded, the device is within the desired RSSI range, and not already playing
+            if (status.isLoaded && device.rssi < 0 && device.rssi > -45 && !status.isPlaying) {
+              await sound.playAsync().catch((error) => {
+                console.error(`Error playing sound for device ${device.name}:`, error);
+              });
+              // Update the playedAudios state to prevent replaying the audio
+              setPlayedAudios(prev => ({ ...prev, [device.name]: true }));
+              // Update the stayPink state to mark the device as collected
+              setStayPink(prev => ({ ...prev, [device.name]: true }));
+              // Set the active device to show the modal for this device
+              setActiveDevice(device);
+              // Stop scanning when a device is in range to avoid detecting multiple devices simultaneously
+              stopScanCycle();
+            }
+          } catch (error) {
+            console.error(`Error with sound for device ${device.name}:`, error);
           }
-        } catch (error) {
-          console.error(`Error with sound for device ${device.name}:`, error);
         }
       }
     }
   };
+  
 
   handleDevices();
 }, [devices, shownModals, playedAudios, soundObjectsRef, startScanCycle, stopScanCycle]);
+
 
 useEffect(() => {
   navigation.setOptions({

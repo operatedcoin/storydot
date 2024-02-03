@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { Audio } from 'expo-av';
 import { Animated, View, ScrollView, Text, StyleSheet, Platform, Image, TouchableOpacity, Modal } from 'react-native';
 import GhostHeader from '../../../components/modules/GhostHeader';
@@ -107,10 +108,14 @@ const GhostChapterThree = () => {
     };
   }, []);
 
-  useEffect(() => {
-    startScanCycle();
-    return () => stopScanCycle(); // Stop scanning when component unmounts
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      startScanCycle();
+      return () => {
+        stopScanCycle(); // Stop scanning when the screen loses focus
+      };
+    }, [])
+  );
 
   
   useEffect(() => {

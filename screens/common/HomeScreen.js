@@ -17,6 +17,7 @@ import { globalStyles } from '../../themes/globalStyles';
 import { StatusBar } from 'expo-status-bar';
 import experiencesData from '../experiences/experiencesData';
 import { BlurView } from "@react-native-community/blur";
+import { MaterialIcons } from '@expo/vector-icons';
 
 const ios = Platform.OS === 'ios';
 const { height } = Dimensions.get('window');
@@ -47,6 +48,7 @@ const uri =
     
       return (
         <SafeAreaView style={Styles.safeArea}>
+        <StatusBar style="light" />
           {/* Animated BlurView */}
           <Animated.View 
             style={{ 
@@ -122,8 +124,17 @@ const uri =
                     <View style={Styles.card}>
                       <View style={Styles.centered}>
                         <Text style={Styles.cardTitle}>{experiencesData[item].title}</Text>
+                        {experiencesData[item].suburb && (
+                          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
+                            <MaterialIcons name="location-on" size={10} color="rgb(163 163 163);" />
+                            <Text style={{ color: 'rgb(163 163 163);', fontSize: 10 }}>
+                              {experiencesData[item].suburb}
+                            </Text>
+                          </View>
+                        )}
                       </View>
                     </View>
+
                   </ImageBackground>
                 </TouchableOpacity>
               )}

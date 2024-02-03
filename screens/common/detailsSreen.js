@@ -1,11 +1,11 @@
 import React from 'react';
-import { Animated, View, Text, Button, Image, SafeAreaView, StyleSheet, Dimensions, Pressable, TouchableOpacity } from 'react-native';
+import { Animated, View, Text, Alert, Image, SafeAreaView, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import ParallaxScrollView from '../../components/visual/ParallaxScrollView';
 import experiencesData from '../experiences/experiencesData';
 import { globalStyles } from '../../themes/globalStyles';
 import { BlurView } from "@react-native-community/blur";
 import LinearGradient from 'react-native-linear-gradient';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 
 const ios = Platform.OS === 'ios';
 
@@ -118,15 +118,55 @@ const DetailsScreen = ({ route, navigation }) => {
         parallaxHeader={renderParallaxHeader}
         fixedHeader={renderFixedHeader}>
           <LinearGradient
-    colors={[ 'transparent', 'rgb(9 9 11);']} // Adjust colors as needed
-    style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 350}} // Adjust the height and position as needed
-  ></LinearGradient>
+            colors={[ 'transparent', 'rgb(9 9 11);']} // Adjust colors as needed
+            style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 350}} // Adjust the height and position as needed
+          ></LinearGradient>
         <SafeAreaView style={{ flex: 1 }}>
           <View style={Styles.content}>
-            <View style={{alignItems: 'center',}}><Text style={{fontSize: 12, color: 'rgb(113 113 122)'}}>{experience.duration}</Text></View>
-          <Pressable style={[globalStyles.button, {marginTop:10, marginBottom: 20, width: '70%'}]} onPress={navigateToExperience}>
-            <Text style={globalStyles.buttonText}>Begin</Text>
-          </Pressable>
+
+          <View style={{alignItems: 'center'}}>
+          {experience.suburb && (
+          <View style={{ flexDirection: 'row' }}>
+              <>
+                <MaterialIcons name="location-on" size={13} color="rgb(113 113 122)" />
+                <Text style={{ fontSize: 12, color: 'rgb(113 113 122)' }}>
+                  {experience.address}, {experience.suburb}
+                </Text>
+              </>
+          </View>
+          )
+          }
+            {experience.duration && (
+              <View>
+                <Text style={{ fontSize: 12, color: 'rgb(113 113 122)', marginBottom: 10 }}>
+                  {experience.duration}
+                </Text>
+              </View>
+            )}
+            </View>
+
+            <TouchableOpacity
+  style={[globalStyles.button, { marginTop: 10, marginBottom: 20, width: '70%' }]}
+  onPress={() => {
+    Alert.alert(
+      'Before we begin...',
+      'This is a location-based performance.  To experience it as intended, we reccomend you begin only when you have arrived at the location listed on this page.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Continue',
+          onPress: navigateToExperience,
+        },
+      ],
+      { cancelable: true }
+    );
+  }}
+>
+  <Text style={globalStyles.buttonText}>Begin</Text>
+</TouchableOpacity>
       <Text style={Styles.descriptionText}>{experience.description}</Text>
       <View style={{borderBottomColor: 'rgba(255, 255, 255, 0.1)', borderBottomWidth: 1, marginVertical: 10,}}/>
       <Text style={Styles.sectionHeader}>Creative team</Text>
@@ -271,6 +311,7 @@ const Styles = StyleSheet.create({
     paddingRight: 20,
     minHeight: height/2,
     backgroundColor: 'rgb(9 9 11);',
+
   },
 });
 

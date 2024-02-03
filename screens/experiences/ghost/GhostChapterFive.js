@@ -1,13 +1,38 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Animated, View, ScrollView, Text, StyleSheet, Platform, Vibration, TouchableOpacity } from 'react-native';
+import { Animated, View, ScrollView, Text, StyleSheet, Platform, Vibration, TouchableOpacity, Image, Modal } from 'react-native';
+import { Audio } from 'expo-av';
 import GhostHeader from '../../../components/modules/GhostHeader';
 import HauntedText from '../../../components/text/HauntedText';
 import { useNavigation } from '@react-navigation/native';
 import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
 import gyroAudioFile from '../../../assets/audio/drone.mp3';
 import BlackAnimatedButton from '../../../components/text/balckAnimatedButton';
+import useBleRssiScannerGhost from '../../../hooks/useBleRssiScannerGhost';
+import { Ionicons } from '@expo/vector-icons';
+
+const townhallColor = 'black';
+
+const DeviceCircle = ({ device, inRange, stayPink }) => {
+  const circleColor = stayPink ? styles.lightPink : (inRange ? styles.inRange : styles.initialCircle);
+  const circleText = stayPink ? 'white' : (inRange ? 'white' : townhallColor);
+  return (
+    <View style={[styles.circle, circleColor]}>
+      <Text style={{color: circleText, textAlign: 'center'}}>{device.title}</Text>
+      {/* <Text style={{color: circleText}}>{device.rssi}</Text> */}
+    </View>
+  );
+};
 
 const GhostChapterFive = () => {
+  const { devices, startScanCycle, stopScanCycle } = useBleRssiScannerGhost();
+  const soundObjectsRef = useRef({});
+  const [playedAudios, setPlayedAudios] = useState({});
+  const [stayPink, setStayPink] = useState({Red: true, Blue: true, MsgSix: true, Yellow: true, Green: false}); 
+  const [allCollected, setAllCollected] = useState(false);
+  const beaconsCollectedCount = Object.values(stayPink).filter(status => status).length;
+  const [activeDevice, setActiveDevice] = useState(null); // State to track the active device for the pop-up  
+  const [shownModals, setShownModals] = useState({});
+
 
 const [hauntedText, setHauntedText] = useState(""); // Add this line
 const [showButton, setShowButton] = useState(false); // Add this line
@@ -32,7 +57,100 @@ const clearAllTimers = () => {
   timerRefs.current = []; // Clear the refs array after clearing the timers
 };
 
+const closeModal = async () => {
+  console.log('Closing Modal'); // Debugging line
+  if (activeDevice && soundObjectsRef.current[activeDevice.name]) {
+    await soundObjectsRef.current[activeDevice.name].stopAsync(); // Stop the audio
+  }
 
+  // If the modal being closed is for the 'Green' beacon
+  if (activeDevice && activeDevice.name === 'Green') {
+    // Set all beacons to collected (true) except for 'MsgSix', which is set to false
+    setStayPink(prevState => ({
+      ...Object.keys(prevState).reduce((acc, beacon) => {
+        acc[beacon] = beacon === 'MsgSix' ? false : true; // Explicitly set 'MsgSix' to false, others to true
+        return acc;
+      }, {})
+    }));
+  }
+
+  // If the modal being closed is for the 'MsgSix' beacon
+  if (activeDevice && activeDevice.name === 'MsgSix') {
+    navigation.navigate('ChapterSix');
+  } else {
+    // This else block ensures that we only resume scanning if we're not navigating away
+    startScanCycle();
+  }
+
+  setActiveDevice(null); // Close the modal by setting the active device to null
+};
+
+
+useEffect(() => {
+  const newStayPink = { ...stayPink }; // Start with the current state
+  devices.forEach(device => {
+    // Only consider devices with RSSI less than 0 and greater than -45
+    // and only update devices that haven't been set to pink yet
+    if (device.rssi < 0 && device.rssi > -45 && !newStayPink[device.name]) {
+      newStayPink[device.name] = true;
+    }
+  });
+  setStayPink(newStayPink);
+}, [devices]);
+
+useEffect(() => {
+  const checkAllCollected = Object.values(stayPink).length === devices.length &&
+                            Object.values(stayPink).every(status => status);
+  setAllCollected(checkAllCollected);
+}, [stayPink]);
+
+useEffect(() => {
+  // Initialize sound objects for each device
+  devices.forEach(async (device) => {
+    const { sound } = await Audio.Sound.createAsync(device.audioFile);
+    // Assign the sound objects to the ref's current property
+    soundObjectsRef.current[device.name] = sound;
+  });
+
+  return () => {
+    // Stop and unload all sounds on unmount
+    // Access the sound objects from the ref
+    Object.values(soundObjectsRef.current).forEach((sound) => {
+      sound.stopAsync();
+      sound.unloadAsync();
+    });
+  };
+}, []);
+
+useEffect(() => {
+  startScanCycle();
+  return () => stopScanCycle(); // Stop scanning when component unmounts
+}, []);
+
+
+useEffect(() => {
+  const handleDevices = async () => {
+    for (const device of devices) {
+      const sound = soundObjectsRef.current[device.name];
+      if (sound && !playedAudios[device.name]) {
+        try {
+          const status = await sound.getStatusAsync();
+          if (status.isLoaded && device.rssi < 0 && device.rssi > -45 && !status.isPlaying) {
+            await sound.playAsync().catch(() => {/* Handle error */});
+            setPlayedAudios(prev => ({ ...prev, [device.name]: true }));
+            setStayPink(prev => ({ ...prev, [device.name]: true }));
+            setActiveDevice(device); // Show the modal for this device
+            stopScanCycle(); // Stop scanning when a device is in range
+          }
+        } catch (error) {
+          console.error(`Error with sound for device ${device.name}:`, error);
+        }
+      }
+    }
+  };
+
+  handleDevices();
+}, [devices, shownModals, playedAudios, soundObjectsRef, startScanCycle, stopScanCycle]);
 
 useEffect(() => {
   navigation.setOptions({
@@ -45,51 +163,8 @@ useEffect(() => {
   });
 }, [navigation]);
 
-useEffect(() => {
-  // Fade out text after 20 seconds from the appearance of the third text
-  const timer = setTimeout(() => {
-    Animated.timing(textOpacityAnim, {
-      toValue: 0,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start(() => setPhase(2)); // After fade-out, change to phase 2
-  }, 24000); // 4000ms for the last text to appear + 20000ms delay
-  timerRefs.current.push(timer); // Add the timer ID to the refs array
-
-
-  return () => clearTimeout(timer);
-}, []);
-
-useEffect(() => {
-  if (phase === 2) {
-    // Set a timeout to change to phase 3
-    const timer = setTimeout(() => {
-      setPhase(3);
-    }, [50000]); // Replace [timeDuration] with the duration in milliseconds
-    timerRefs.current.push(timer); // Add the timer ID to the refs array
-
-
-    return () => clearTimeout(timer);
-  }
-}, [phase]);
-
-useEffect(() => {
-  if (phase === 3) {
-    const vibrationPattern = [1000, 500, 1000, 500, 1000, 500, 1000];
-    Vibration.vibrate(vibrationPattern);
-
-    const newTextDelay = vibrationPattern.reduce((a, b) => a + b, 0);
-    setTimeout(() => {
-      setHauntedText("Something is here.");
-      setShowButton(true); // Ensure this is set here
-    }, newTextDelay);
-  } else {
-    setShowButton(false); // Reset when not in phase 3
-  }
-}, [phase]);
-
 return (
-  <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+  <View style={styles.container} contentContainerStyle={styles.contentContainer}>
     <GhostHeader />
     <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} />
     <TouchableOpacity
@@ -103,47 +178,54 @@ onPress={handleSkip}
 >
 <Text style={{ color: 'gray' }}>Skip</Text>
 </TouchableOpacity>
-    <View style={styles.content}>
-      {phase === 1 && (
-        <Animated.View style={{ opacity: textOpacityAnim }}>
-          <HauntedText
-            text="This is where they collect two beacons..."
-            startDelay={0}
-            blockStyle={styles.blockStyle}
-            letterStyle={styles.letterStyle}
-          />
-        </Animated.View>
-      )}
-      {phase === 2 && (
-       <Animated.View style={{ opacity: textOpacityAnim }}>
-       <HauntedText
-         text="Now explore the foyer more widely."
-         startDelay={0}
-         blockStyle={styles.blockStyle}
-         letterStyle={styles.letterStyle}
-       />
-     </Animated.View>
-      )}
-{phase === 3 && (
-<Animated.View style={{ opacity: textOpacityAnim }}>
-  <HauntedText
-    text={hauntedText}
-    startDelay={0}
-    blockStyle={styles.blockStyle}
-    letterStyle={styles.letterStyle}
-  />
-  {showButton && (
-    <BlackAnimatedButton 
-      text="Hello?" 
-      onPress={handleButtonPress}
-      delay={3000} // You can adjust this delay
-    />
-  )}
-</Animated.View>
-)}
-    </View>
 
-  </ScrollView>
+    <View style={styles.content}>
+    <View style={styles.rowContainer}>
+            {devices.map((device) => (
+              <DeviceCircle
+                key={device.title}
+                device={device}
+                inRange={device.rssi > -45}
+                stayPink={stayPink[device.name]}
+              />
+            ))}
+          </View>
+  
+       
+      </View>
+
+      <Modal
+  animationType="slide"
+  transparent={true}
+  visible={activeDevice !== null}
+>
+  {activeDevice && (
+    <View style={styles.modalContainer}>
+      <View style={styles.modalView}>
+        <>
+          <View className="flex-row justify-between items-center">
+            <Text className="text-2xl font-bold pb-4">{activeDevice.title}</Text>
+            <TouchableOpacity onPress={closeModal} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingBottom: 8 }}>
+              <Ionicons name="close-sharp" size={20} color={townhallColor} />
+              <Text style={{color: townhallColor, fontWeight: 700 }}>Close</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+            <Image
+              className="rounded-lg mb-4"
+              source={activeDevice.image}
+              resizeMode="contain"
+              style={{ width: '100%', height: undefined, aspectRatio: 1 }}
+            />
+            <Text>Description: {activeDevice.description}</Text>
+          </ScrollView>
+        </>
+      </View>
+    </View>
+  )}
+</Modal>
+
+  </View>
 );
 };
 
@@ -184,6 +266,47 @@ continueButtonText: {
   textAlign: 'center',
   fontSize: 16,
 },
+rowContainer: {
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+circle: {
+  width: 80,
+  height: 80,
+  borderRadius: 40,
+  justifyContent: 'center',
+  alignItems: 'center',
+  margin: 5,
+},
+initialCircle: {
+  borderColor: townhallColor,
+  borderWidth: 2,
+},
+inRange: {
+  backgroundColor: townhallColor,
+},
+outOfRange: {
+  backgroundColor: 'grey',
+},
+lightPink: {
+  backgroundColor: townhallColor,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end', // Aligns the modal to the bottom
+    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Semi-transparent background for the rest of the screen
+    zIndex: 200,
+  },
+  modalView: {
+    backgroundColor: 'white', // Solid background for the modal
+    padding: 30,
+    borderTopLeftRadius: 10, // Optional, for rounded corners at the top
+    borderTopRightRadius: 10, // Optional, for rounded corners at the top
+    height: '80%', // Adjust this value as needed
+    // You can also use a specific value like height: 300
+  },
 });
 
 

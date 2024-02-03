@@ -9,7 +9,7 @@ const GyroAudioPlayerComponentBasic = ({ gyroAudioFile }) => {
   const [isSoundReady, setIsSoundReady] = useState(false);
   const [sound, setSound] = useState(null);
   const gyroDataRef = useRef({ x: 0, y: 0, z: 0 });
-  const targetVolumeRef = useRef(0.2); // Adjusted initial volume from the first snippet
+  const targetVolumeRef = useRef(0.1); // Adjusted initial volume from the first snippet
   const isFocused = useIsFocused();
   const gyroSubscriptionRef = useRef(null);
 

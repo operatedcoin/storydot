@@ -1,32 +1,85 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, Button, Modal, Image, TouchableOpacity, ImageBackground } from 'react-native';
 import { Audio } from 'expo-av';
-import gyroAudioFile from '../../../assets/audio/drone.mp3';
+import gyroAudioFile from '../../../assets/audio/townHall/loststoriesAmbient.mp3';
 import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
-import TownHallHeader from '../../../components/modules/TownHallHeader.js';
 import useBleRssiScannerTownHall from '../../../hooks/useBleRssiScannerTownHall';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BlurView } from '@react-native-community/blur';
 import { Ionicons } from '@expo/vector-icons';
 import ScanIndicator from '../../../components/visual/scanIndicator';
 import LinearGradient from 'react-native-linear-gradient';
+import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
+import { StatusBar } from 'expo-status-bar';
+import { useNavigation } from '@react-navigation/native';
 
-const townhallColor = '#C7019C';
+const townhallColor = '#EFD803';
+
+const IntroSection = ( ) => {
+  const navigation = useNavigation();
+  const soundRef = useRef(null);
+
+  useEffect(() => {
+    const loadAndPlayAudio = async () => {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../../../assets/audio/townHall/acknowledgement.mp3'), 
+        { shouldPlay: true }
+      );
+      soundRef.current = sound;
+
+      return () => {
+        soundRef.current?.unloadAsync();
+      };
+    };
+
+    loadAndPlayAudio();
+
+    return () => {
+      soundRef.current?.unloadAsync();
+    };
+  }, []);
+
+  return (
+    <View style={{flex: 1, backgroundColor:'black'}}>
+    <ExitExperienceButton onPress={() => navigation.goBack()} />
+    <View style={{ flex: 1, paddingHorizontal: 20, justifyContent: 'center', alignItems: 'center'}}>
+     <Image source={require('../townHall/lostStories_logo.png')} tintColor={'white'} resizeMode="contain" style={{width: '80%', height: undefined, aspectRatio: 2 }}/>
+      <Text style={{color:'white', textAlign: 'center', marginBottom: 20, fontSize: 18, fontWeight: 600,}}>Acknowledgement of Country.</Text>
+      <Text style={{color:'white', textAlign: 'center'}}>Mauris vehicula, ex non scelerisque tincidunt, nisi magna bibendum leo, in vehicula elit metus at felis. Pellentesque varius sodales sagittis. Integer lacinia congue turpis, a egestas enim pulvinar sed. Suspendisse potenti. Proin in nisi mauris. Pellentesque vehicula feugiat lacus id bibendum.  </Text>
+    </View>
+    </View>
+);
+  };
+
+const CreditsSection = ({ onDone }) => {
+  const navigation = useNavigation();
+
+  return (
+  <View style={{flex: 1, backgroundColor:'black'}}>
+  <ExitExperienceButton onPress={() => navigation.goBack()} />
+  <View style={{ flex: 1, paddingHorizontal: 20, justifyContent: 'center', alignItems: 'center'}}>
+   <Image source={require('../townHall/lostStories_logo.png')} tintColor={'white'} resizeMode="contain" style={{width: '80%', height: undefined, aspectRatio: 2 }}/>
+    <Text style={{color:'white', textAlign: 'center', marginBottom: 20, fontSize: 18, fontWeight: 600,}}>Congratulations, you've collected all the stories!</Text>
+    <Text style={{color:'white', textAlign: 'center'}}>Thanks for participating in Lost Stories. Found.  Mauris vehicula, ex non scelerisque tincidunt, nisi magna bibendum leo, in vehicula elit metus at felis. Pellentesque varius sodales sagittis. Integer lacinia congue turpis, a egestas enim pulvinar sed. Suspendisse potenti. Proin in nisi mauris. Pellentesque vehicula feugiat lacus id bibendum.  </Text>
+  </View>
+  </View>
+);
+  };
 
 const DeviceCircle = ({ device, inRange, stayPink }) => {
   const circleColor = stayPink ? styles.lightPink : (inRange ? styles.inRange : styles.initialCircle);
   const circleText = stayPink ? 'white' : (inRange ? 'white' : townhallColor);
-
-
   return (
     <View style={[styles.circle, circleColor]}>
-      <Text style={{color: circleText}}>{device.title}</Text>
+      <Text style={{color: circleText, textAlign: 'center'}}>{device.title}</Text>
       {/* <Text style={{color: circleText}}>{device.rssi}</Text> */}
     </View>
   );
 };
 
 const TownHallStartScreen = ({ navigation }) => {
+  const [showIntro, setShowIntro] = useState(true);
+  const [showCredits, setShowCredits] = useState(false);
 
   const { devices, startScanCycle, stopScanCycle } = useBleRssiScannerTownHall();
   const soundObjectsRef = useRef({});
@@ -37,6 +90,15 @@ const TownHallStartScreen = ({ navigation }) => {
   const [activeDevice, setActiveDevice] = useState(null); // State to track the active device for the pop-up  
   const [shownModals, setShownModals] = useState({});
 
+  useEffect(() => {
+    // Hide intro and show main content after 10 seconds
+    const timer = setTimeout(() => {
+      setShowIntro(false);
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const closeModal = async () => {
     console.log('Closing Modal'); // Debugging line
     if (activeDevice && soundObjectsRef.current[activeDevice.name]) {
@@ -44,7 +106,17 @@ const TownHallStartScreen = ({ navigation }) => {
     }
     setActiveDevice(null); // Close the modal by setting modalDevice to null
     startScanCycle(); // Resume scanning
-  };
+
+  // New logic to trigger CreditsSection after last beacon's modal is closed
+      if (allCollected) {
+        setShowCredits(true);
+        setTimeout(() => {
+          setShowCredits(false);
+          navigation.goBack();
+        }, 10000);
+        setAllBeaconsCollected(false); // Reset this flag
+      }
+   };
 
   useEffect(() => {
     const newStayPink = { ...stayPink }; // Start with the current state
@@ -115,45 +187,28 @@ const TownHallStartScreen = ({ navigation }) => {
 
   return (
     <View style={{flex: 1}}>
+      <StatusBar style="light" />
+      {showIntro && <IntroSection />}
+      {!showIntro && !showCredits && (
       <ImageBackground 
-        source={require('../../../assets/images/placeholder.png')} 
+        source={require('../townHall/townHall_bg.jpg')} 
         style={{ flex: 1 }}
         resizeMode="cover"
       >
     <LinearGradient
-      colors={['rgba(0,0,0,0.5)', 'rgba(199, 1, 156, 0.8)']}
-      locations={[0, 0.5]}
+      colors={['rgba(0,0,0,0.5)', 'rgba(244, 226, 59, 0.8)']}
+      locations={[0, 0.7]}
       style={{ flex: 1 }}
     >
-      <SafeAreaView style={{paddingTop:10, paddingLeft:10, zIndex: 100}}>
-       <TouchableOpacity onPress={() => navigation.goBack()}>
-          <BlurView
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                borderRadius: 15,    
-                width: 30,            
-                height: 30,
-                overlayColor: "white",
-                opacity: 5,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              blurType="light"
-              blurAmount={10}
-            >
-            <Ionicons name="close-sharp" size={26} color="white" style={{paddingLeft: 2}} />
-            </BlurView>
-          </TouchableOpacity>
-          </SafeAreaView>
+    
+    <ExitExperienceButton onPress={() => navigation.goBack()} />
 
     <SafeAreaView style={styles.container}>
 
       <View style={{flex: 1}}/>
 
-      <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={styles.heroTitle}>Lost stories. Found.</Text>
+      <View style={{ alignItems: 'center', justifyContent: 'center'}}>
+        <Image source={require('../townHall/lostStories_logo.png')} tintColor={townhallColor} resizeMode="contain" style={{width: '100%', height: undefined, aspectRatio: 2 }}/>
         <Text style={styles.heroText}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sit amet tristique purus. Integer hendrerit ac enim in cursus. Curabitur luctus venenatis lorem semper commodo.
         </Text>
@@ -165,7 +220,8 @@ const TownHallStartScreen = ({ navigation }) => {
       <View style={styles.scanTopbarWrapper}>
         <BlurView 
           style={styles.scanTopbar}
-          blurType='dark'>
+          blurType='dark'
+          blurAmount={20}>
             <ScanIndicator/>
         </BlurView>
       </View>
@@ -173,7 +229,7 @@ const TownHallStartScreen = ({ navigation }) => {
       <View style={styles.scanBoxWrapper}>
         <BlurView 
           style={styles.scanBox}
-          blurType='xlight'
+          blurType='dark'
           blurAmount={20}>
           <Text style={{ textAlign: 'center', paddingVertical: 20, color: townhallColor }}>{beaconsCollectedCount} out of 5 stories collected</Text>
           {allCollected && <Text>All devices collected!</Text>}
@@ -206,8 +262,8 @@ const TownHallStartScreen = ({ navigation }) => {
           <View className="flex-row justify-between items-center">
             <Text className="text-2xl font-bold pb-4">{activeDevice.title}</Text>
             <TouchableOpacity onPress={closeModal} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingBottom: 8 }}>
-              <Ionicons name="close-outline" size={24} color={townhallColor} />
-              <Text style={{color: townhallColor, }}>Close</Text>
+              <Ionicons name="close-sharp" size={20} color={townhallColor} />
+              <Text style={{color: townhallColor, fontWeight: 700 }}>Close</Text>
             </TouchableOpacity>
           </View>
           <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -227,6 +283,8 @@ const TownHallStartScreen = ({ navigation }) => {
     </SafeAreaView>
     </LinearGradient>
     </ImageBackground>
+          )}
+          {showCredits && <CreditsSection onDone={() => navigation.goBack()} />}
     </View>
   );
 };
@@ -236,7 +294,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'flex-start',
-    paddingBottom: 20,
+    paddingBottom: 0,
     paddingTop: 10,
     paddingHorizontal: 20,
   },
@@ -255,6 +313,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     width: '100%',
     minHeight: 40,
+    borderBottomWidth: 1,
+    borderBottomColor: townhallColor,
   },
   scanTopbar: {
     padding: 10,

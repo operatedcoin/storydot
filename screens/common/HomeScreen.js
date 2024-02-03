@@ -230,7 +230,7 @@ const uri =
     },
     content: {
       width: '100%',
-      minHeight: height,
+      minHeight: height/2,
       backgroundColor: 'rgb(9 9 11);'
     },
   });

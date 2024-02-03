@@ -150,7 +150,7 @@ const DetailsScreen = ({ route, navigation }) => {
   onPress={() => {
     Alert.alert(
       'Before we begin...',
-      'This is a location-based performance.  To experience it as intended, we reccomend you begin only when you have arrived at the location listed on this page.',
+      'This is a location-based experience.  We recommend you begin only when you have arrived at the location listed on this page.',
       [
         {
           text: 'Cancel',

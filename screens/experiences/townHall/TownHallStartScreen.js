@@ -45,7 +45,7 @@ const IntroSection = ( ) => {
     <View style={{ flex: 1, paddingHorizontal: 20, justifyContent: 'center', alignItems: 'center'}}>
      <Image source={require('../townHall/lostStories_logo.png')} tintColor={'white'} resizeMode="contain" style={{width: '80%', height: undefined, aspectRatio: 2 }}/>
       <Text style={{color:'white', textAlign: 'center', marginBottom: 20, fontSize: 18, fontWeight: 600,}}>Acknowledgement of Country.</Text>
-      <Text style={{color:'white', textAlign: 'center'}}>Mauris vehicula, ex non scelerisque tincidunt, nisi magna bibendum leo, in vehicula elit metus at felis. Pellentesque varius sodales sagittis. Integer lacinia congue turpis, a egestas enim pulvinar sed. Suspendisse potenti. Proin in nisi mauris. Pellentesque vehicula feugiat lacus id bibendum.  </Text>
+      <Text style={{color:'white', textAlign: 'center'}}>We acknowledge the traditional custodians of the land on which we gather, the Darug people. We pay our respects to their elders past and present, and acknowledge their deep and ongoing connection to the land, waters and culture. As you step into this experience and connect with stories of place, we ask you to take a moment to acknowledge that sovereignty was never ceded, and that this land always was, and always will be, Aboriginal land. </Text>
     </View>
     </View>
 );
@@ -60,7 +60,7 @@ const CreditsSection = ({ onDone }) => {
   <View style={{ flex: 1, paddingHorizontal: 20, justifyContent: 'center', alignItems: 'center'}}>
    <Image source={require('../townHall/lostStories_logo.png')} tintColor={'white'} resizeMode="contain" style={{width: '80%', height: undefined, aspectRatio: 2 }}/>
     <Text style={{color:'white', textAlign: 'center', marginBottom: 20, fontSize: 18, fontWeight: 600,}}>Congratulations, you've collected all the stories!</Text>
-    <Text style={{color:'white', textAlign: 'center'}}>Thanks for participating in Lost Stories. Found.  Mauris vehicula, ex non scelerisque tincidunt, nisi magna bibendum leo, in vehicula elit metus at felis. Pellentesque varius sodales sagittis. Integer lacinia congue turpis, a egestas enim pulvinar sed. Suspendisse potenti. Proin in nisi mauris. Pellentesque vehicula feugiat lacus id bibendum.  </Text>
+    <Text style={{color:'white', textAlign: 'center'}}>Thanks for participating in Lost Stories. Found. We recommend catching IF THESE WALLS COULD SING, an immersive theatre and song event hosted here at Town Hall runnings Fridays, Saturdays and Sundays till March 3. These initiatives are proudly supported by the NSW Government through the Culture Up Late Western Sydney Program. </Text>
   </View>
   </View>
 );
@@ -210,7 +210,7 @@ const TownHallStartScreen = ({ navigation }) => {
       <View style={{ alignItems: 'center', justifyContent: 'center'}}>
         <Image source={require('../townHall/lostStories_logo.png')} tintColor={townhallColor} resizeMode="contain" style={{width: '100%', height: undefined, aspectRatio: 2 }}/>
         <Text style={styles.heroText}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sit amet tristique purus. Integer hendrerit ac enim in cursus. Curabitur luctus venenatis lorem semper commodo.
+        Explore Town Hall and hold this device close to one of the five LOST STORIES objects to dive deeper.  
         </Text>
       </View>
 
@@ -231,8 +231,8 @@ const TownHallStartScreen = ({ navigation }) => {
           style={styles.scanBox}
           blurType='dark'
           blurAmount={20}>
-          <Text style={{ textAlign: 'center', paddingVertical: 20, color: townhallColor }}>{beaconsCollectedCount} out of 5 stories collected</Text>
-          {allCollected && <Text>All devices collected!</Text>}
+          <Text style={{ textAlign: 'center', paddingVertical: 20, color: townhallColor }}>{beaconsCollectedCount} out of 5 Lost Stories Found.</Text>
+          {allCollected && <Text>All stories have been found.!</Text>}
           <View style={styles.rowContainer}>
             {devices.map((device) => (
               <DeviceCircle
@@ -246,7 +246,7 @@ const TownHallStartScreen = ({ navigation }) => {
         </BlurView>
       </View>
 
-      <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} />
+      {/* <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} /> */}
 
       
       
@@ -267,13 +267,13 @@ const TownHallStartScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
           <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-            <Image
+            {/* <Image
               className="rounded-lg mb-4"
               source={activeDevice.image}
               resizeMode="contain"
               style={{ width: '100%', height: undefined, aspectRatio: 1 }}
-            />
-            <Text>Description: {activeDevice.description}</Text>
+            /> */}
+            <Text>{activeDevice.description}</Text>
           </ScrollView>
         </>
       </View>
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'flex-start',
-    paddingBottom: 0,
+    paddingBottom: 20,
     paddingTop: 10,
     paddingHorizontal: 20,
   },

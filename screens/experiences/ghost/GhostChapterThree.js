@@ -1,102 +1,189 @@
-// Import necessary modules and components
-
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Audio } from 'expo-av';
-import useBleRssiScanner from '../../../hooks/useBleRssiScanner';
-import gyroAudioFile from '../../../assets/audio/drone.mp3';
-import GyroAudioPlayerComponent from '../../../components/audioPlayers/GyroAudioPlayerComponent';
+import { Animated, View, ScrollView, Text, StyleSheet, Platform, Vibration, TouchableOpacity } from 'react-native';
+import GhostHeader from '../../../components/modules/GhostHeader';
+import HauntedText from '../../../components/text/HauntedText';
+import { useNavigation } from '@react-navigation/native';
 import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
+import gyroAudioFile from '../../../assets/audio/drone.mp3';
+import BlackAnimatedButton from '../../../components/text/balckAnimatedButton';
 
-// Define GhostChapterThree component
+
+const GhostChapterThree = () => {
+  const [hauntedText, setHauntedText] = useState(""); // Add this line
+  const [showButton, setShowButton] = useState(false); // Add this line
+  const navigation = useNavigation();
+  const [phase, setPhase] = useState(1); // Add phase state
+  const textOpacityAnim = useRef(new Animated.Value(1)).current; // For fading text
+  const handleButtonPress = () => {
+    // Define what should happen when the button is pressed
+    navigation.navigate('ChapterFour');
+    console.log("Button Pressed");
+  };
+  const handleSkip = () => {
+    // clearAllTimers(); // Clear all active timers
+    // Define what should happen when the button is pressed
+    clearAllTimers(); // Clear all active timers before navigating
+    navigation.navigate('ChapterFour');
+    console.log("Button Pressed");
+  };
+  const timerRefs = useRef([]);
+  const clearAllTimers = () => {
+    timerRefs.current.forEach(timer => clearTimeout(timer));
+    timerRefs.current = []; // Clear the refs array after clearing the timers
+  };
+
+ 
+
+  useEffect(() => {
+    navigation.setOptions({
+      title: '',
+      headerStyle: {
+        backgroundColor: 'white',
+      },
+      headerTintColor: 'black',
+      headerBackTitleVisible: false,
+    });
+  }, [navigation]);
+
+  useEffect(() => {
+    // Fade out text after 20 seconds from the appearance of the third text
+    const timer = setTimeout(() => {
+      Animated.timing(textOpacityAnim, {
+        toValue: 0,
+        duration: 1000,
+        useNativeDriver: true,
+      }).start(() => setPhase(2)); // After fade-out, change to phase 2
+    }, 24000); // 4000ms for the last text to appear + 20000ms delay
+    timerRefs.current.push(timer); // Add the timer ID to the refs array
 
 
-const DeviceCircle = ({ device, inRange }) => {
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (phase === 2) {
+      // Set a timeout to change to phase 3
+      const timer = setTimeout(() => {
+        setPhase(3);
+      }, [50000]); // Replace [timeDuration] with the duration in milliseconds
+      timerRefs.current.push(timer); // Add the timer ID to the refs array
+
+  
+      return () => clearTimeout(timer);
+    }
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase === 3) {
+      const vibrationPattern = [1000, 500, 1000, 500, 1000, 500, 1000];
+      Vibration.vibrate(vibrationPattern);
+  
+      const newTextDelay = vibrationPattern.reduce((a, b) => a + b, 0);
+      setTimeout(() => {
+        setHauntedText("Something is here.");
+        setShowButton(true); // Ensure this is set here
+      }, newTextDelay);
+    } else {
+      setShowButton(false); // Reset when not in phase 3
+    }
+  }, [phase]);
+
   return (
-    <View style={[styles.circle, inRange ? styles.inRange : styles.outOfRange]}>
-      <Text>{device.name}</Text>
-      <Text>{device.rssi}</Text>
-    </View>
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <GhostHeader />
+      <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} />
+      <TouchableOpacity
+  style={{
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    backgroundColor: 'transparent',
+  }}
+  onPress={handleSkip}
+>
+  <Text style={{ color: 'gray' }}>Skip</Text>
+</TouchableOpacity>
+      <View style={styles.content}>
+        {phase === 1 && (
+          <Animated.View style={{ opacity: textOpacityAnim }}>
+            <HauntedText
+              text="This is where they collect the beacons.."
+              startDelay={0}
+              blockStyle={styles.blockStyle}
+              letterStyle={styles.letterStyle}
+            />
+          </Animated.View>
+        )}
+        {phase === 2 && (
+         <Animated.View style={{ opacity: textOpacityAnim }}>
+         <HauntedText
+           text="Now explore the foyer more widely."
+           startDelay={0}
+           blockStyle={styles.blockStyle}
+           letterStyle={styles.letterStyle}
+         />
+       </Animated.View>
+        )}
+  {phase === 3 && (
+  <Animated.View style={{ opacity: textOpacityAnim }}>
+    <HauntedText
+      text={hauntedText}
+      startDelay={0}
+      blockStyle={styles.blockStyle}
+      letterStyle={styles.letterStyle}
+    />
+    {showButton && (
+      <BlackAnimatedButton 
+        text="Hello?" 
+        onPress={handleButtonPress}
+        delay={3000} // You can adjust this delay
+      />
+    )}
+  </Animated.View>
+)}
+      </View>
+
+    </ScrollView>
   );
 };
 
-const GhostChapterThree = () => {
-  const { devices } = useBleRssiScanner();
-      const soundObjectsRef = useRef({});
-    
-  
-    useEffect(() => {
-      // Initialize sound objects for each device
-      devices.forEach(async (device) => {
-        const { sound } = await Audio.Sound.createAsync(device.audioFile);
-        // Assign the sound objects to the ref's current property
-        soundObjectsRef.current[device.name] = sound;
-      });
-  
-      return () => {
-        // Stop and unload all sounds on unmount
-        // Access the sound objects from the ref
-        Object.values(soundObjectsRef.current).forEach((sound) => {
-          sound.stopAsync();
-          sound.unloadAsync();
-        });
-      };
-    }, []);
-  
-    useEffect(() => {
-      devices.forEach(async (device) => {
-        // Access the sound objects from the ref
-        const sound = soundObjectsRef.current[device.name];
-        if (sound) {
-          try {
-            const status = await sound.getStatusAsync();
-            if (status.isLoaded) {
-              if (device.rssi > -45 && !status.isPlaying) {
-                await sound.playAsync().catch(() => {/* Handle or log specific play error */});
-              } else if (device.rssi <= -45 && status.isPlaying) {
-                await sound.stopAsync().catch(() => {/* Handle or log specific stop error */});
-              }
-            }
-          } catch (error) {
-            console.error(`Error with sound for device ${device.name}:`, error);
-          }
-        }
-      });
-    }, [devices]);
-    
-    
-    return (
-      <View style={styles.container}>
-        {devices.map((device) => (
-          <DeviceCircle key={device.name} device={device} inRange={device.rssi > -45} />
-        ))}
-        <Text>Gryo Sensor Active</Text>
-        <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} />
-      </View>
-    );
-  };
-  
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    circle: {
-      width: 100,
-      height: 100,
-      borderRadius: 50,
-      justifyContent: 'center',
-      alignItems: 'center',
-      margin: 10,
-    },
-    inRange: {
-      backgroundColor: 'green',
-    },
-    outOfRange: {
-      backgroundColor: 'grey',
-    },
-  });
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'white', // Changed to white
+    paddingHorizontal: 20,
+  },
+  contentContainer: {
+    paddingTop: Platform.OS === 'ios' ? 44 : 56,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  content: {
+    alignItems: 'center',
+  },
+  blockStyle: {
+    marginTop: 20,
+    marginBottom: 10,
+    paddingHorizontal: 20,
+  },
+  letterStyle: {
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
+    fontSize: 24,
+    color: 'black', // Changed to black
+    lineHeight: 30,
+  },
+  continueButton: {
+    marginTop: 20,
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    backgroundColor: 'gray', // You might want to change this as well
+    borderRadius: 5,
+  },
+  continueButtonText: {
+    color: 'black', // Ensuring this is black
+    textAlign: 'center',
+    fontSize: 16,
+  },
+});
 
 export default GhostChapterThree;
-

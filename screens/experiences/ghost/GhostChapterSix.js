@@ -6,20 +6,20 @@ import twentyMinutes from '../../../components/timers/twentyMinutes';
 import AudioPlayerComponent from '../../../components/audioPlayers/AudioPlayerComponent';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
-const GhostChapterFour = () => {
 
-const [showContinue, setShowContinue] = useState(false);
+const GhostChapterSix = () => {
+  const [showContinue, setShowContinue] = useState(false);
   const fadeAnim = useState(new Animated.Value(0))[0];
   const navigation = useNavigation();
   const [isPlaying, setIsPlaying] = useState(true); // Control playback
 
   const handleSkip = async () => {
     await stopAudio(); // Stop audio if playing
-    navigation.navigate('ChapterFive');
+    navigation.navigate('Begin');
   };
 
   const navigateToChapterThree = () => {
-    navigation.navigate('ChapterFive');
+    navigation.navigate('Begin');
   };
 
   const stopAudio = () => {
@@ -71,7 +71,7 @@ const [showContinue, setShowContinue] = useState(false);
         <Text style={{ color: 'gray' }}>Skip</Text>
       </TouchableOpacity>
       <AudioPlayerComponent
-  audioFile={require('../../../assets/audio/ghost/ThatsEverything.mp3')}
+  audioFile={require('../../../assets/audio/ghost/Recital.mp3')}
   volume={1.0}
   autoPlay={true}
   isPlaying={isPlaying} // Pass isPlaying state as a prop
@@ -133,4 +133,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
-export default GhostChapterFour;
+
+export default GhostChapterSix;

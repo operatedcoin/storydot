@@ -1,50 +1,45 @@
-// Import necessary modules and components
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Animated, View, ScrollView, TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
 import GhostHeader from '../../../components/modules/GhostHeader';
 import HauntedText from '../../../components/text/HauntedText';
-import { useNavigation } from '@react-navigation/native';
 import twentyMinutes from '../../../components/timers/twentyMinutes';
-import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
-import bleDashboardComponent from '../../../components/ble/bleDashboardComponent';
 import AudioPlayerComponent from '../../../components/audioPlayers/AudioPlayerComponent';
-import gyroAudioFile from '../../../assets/audio/drone.mp3';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
-
-
-// Define GhostChapterThree component
 const GhostChapterTwo = () => {
   const [showContinue, setShowContinue] = useState(false);
   const fadeAnim = useState(new Animated.Value(0))[0];
   const navigation = useNavigation();
   const [isPlaying, setIsPlaying] = useState(true); // Control playback
 
-
- const handleSkip = async () => {
-    setIsPlaying(false); // Attempt to stop the audio
-    // Since there might be a slight delay in audio stopping, consider awaiting a short timeout if needed
+  const handleSkip = async () => {
+    await stopAudio(); // Stop audio if playing
     navigation.navigate('ChapterThree');
   };
- 
+
+  const navigateToChapterThree = () => {
+    navigation.navigate('ChapterThree');
+  };
+
+  const stopAudio = () => {
+    setIsPlaying(false); // This should trigger the AudioPlayerComponent to stop playback
+  };
+  
+  useFocusEffect(
+    useCallback(() => {
+      return () => stopAudio(); // Stops audio when navigating away
+    }, [])
+  );
+  
 
   useEffect(() => {
     navigation.setOptions({
       title: '',
-      headerStyle: {
-        backgroundColor: 'black',
-      },
+      headerStyle: { backgroundColor: 'black' },
       headerTintColor: 'white',
       headerBackTitleVisible: false,
     });
-  }, [navigation]);
 
-  useEffect(() => {
-    // Only resume the timer if it was previously running
-    if (twentyMinutes.isTimerRunning()) {
-      twentyMinutes.resumeTimer();
-    }
-
-    // Set up the animation for the continue button
     const timer = setTimeout(() => {
       setShowContinue(true);
       Animated.timing(fadeAnim, {
@@ -55,31 +50,31 @@ const GhostChapterTwo = () => {
     }, 11000);
 
     return () => {
-      // Optionally pause the timer when the component unmounts
       twentyMinutes.pauseTimer();
       clearTimeout(timer);
     };
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      // Do something when the screen comes into focus
+      
+      return () => stopAudio(); // Ensure audio is stopped when navigating away
+    }, [])
+  );
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <GhostHeader />
-      <TouchableOpacity
-  style={{
-    position: 'absolute',
-    top: 40,
-    right: 20,
-    backgroundColor: 'transparent',
-  }}
-  onPress={handleSkip}
->
-  <Text style={{ color: 'gray' }}>Skip</Text>
-</TouchableOpacity>
-      {/* <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} /> */}
-    <AudioPlayerComponent
-        audioFile={require('../../../assets/audio/ghost/theBrief.mp3')}
-        volume={1.0}
-        autoPlay={isPlaying} // Assuming `onEnd` is the correct prop for when the audio finishes
+      <TouchableOpacity onPress={handleSkip} style={{ position: 'absolute', top: 40, right: 20, backgroundColor: 'transparent' }}>
+        <Text style={{ color: 'gray' }}>Skip</Text>
+      </TouchableOpacity>
+      <AudioPlayerComponent
+  audioFile={require('../../../assets/audio/ghost/theBrief.mp3')}
+  volume={1.0}
+  autoPlay={true}
+  isPlaying={isPlaying} // Pass isPlaying state as a prop
+  onEnd={navigateToChapterThree}
 />
       <View style={styles.content}>
         <HauntedText
@@ -88,20 +83,16 @@ const GhostChapterTwo = () => {
           blockStyle={styles.blockStyle}
           letterStyle={styles.letterStyle}
         />
-        {/* Add more HauntedText components as needed */}
         {showContinue && (
           <Animated.View style={{ ...styles.continueButton, opacity: fadeAnim }}>
-            {/* <TouchableOpacity onPress={() => navigation.navigate('ChapterThree')}>
-              <Text style={styles.continueButtonText}>Continue</Text>
-            </TouchableOpacity> */}
+            {/* Continue button logic here */}
           </Animated.View>
         )}
-                {/* <GyroAudioPlayerComponentBasic gyroAudioFile="../../../assets/audio/drone.mp3" /> */}
-
       </View>
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

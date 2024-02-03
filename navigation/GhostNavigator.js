@@ -11,6 +11,8 @@ import GhostChapterOne from '../screens/experiences/ghost/GhostChapterOne';
 import GhostDashboard from '../screens/experiences/ghost/GhostDashboard';
 import GhostBeaconTest from '../screens/experiences/ghost/GhostBeaconTest';
 
+import GhostChapterSix from '../screens/experiences/ghost/GhostChapterSix';
+
 
 
 const GhostStack = createStackNavigator();
@@ -29,6 +31,7 @@ const GhostNavigator = () => {
       <GhostStack.Screen name="Dashboard" component={GhostDashboard} />
       <GhostStack.Screen name="BeaconTest" component={GhostBeaconTest} />
       <GhostStack.Screen name="ChapterTwo" component={GhostChapterTwo} />
+      <GhostStack.Screen name="ChapterSix" component={GhostChapterSix} />
 
 
       {/* Add other screens in the Demo experience as needed */}

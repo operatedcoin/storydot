@@ -22,9 +22,16 @@ const GhostChapterOne = () => {
   const handleSkip = () => {
     // clearAllTimers(); // Clear all active timers
     // Define what should happen when the button is pressed
+    clearAllTimers(); // Clear all active timers before navigating
     navigation.navigate('ChapterTwo');
     console.log("Button Pressed");
   };
+  const timerRefs = useRef([]);
+  const clearAllTimers = () => {
+    timerRefs.current.forEach(timer => clearTimeout(timer));
+    timerRefs.current = []; // Clear the refs array after clearing the timers
+  };
+
  
 
   useEffect(() => {
@@ -47,6 +54,8 @@ const GhostChapterOne = () => {
         useNativeDriver: true,
       }).start(() => setPhase(2)); // After fade-out, change to phase 2
     }, 24000); // 4000ms for the last text to appear + 20000ms delay
+    timerRefs.current.push(timer); // Add the timer ID to the refs array
+
 
     return () => clearTimeout(timer);
   }, []);
@@ -56,7 +65,9 @@ const GhostChapterOne = () => {
       // Set a timeout to change to phase 3
       const timer = setTimeout(() => {
         setPhase(3);
-      }, [5000]); // Replace [timeDuration] with the duration in milliseconds
+      }, [50000]); // Replace [timeDuration] with the duration in milliseconds
+      timerRefs.current.push(timer); // Add the timer ID to the refs array
+
   
       return () => clearTimeout(timer);
     }

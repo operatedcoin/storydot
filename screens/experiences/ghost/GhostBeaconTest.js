@@ -1,99 +1,131 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Audio } from 'expo-av';
-import useBleRssiScanner from '../../../hooks/useBleRssiScanner';
-import gyroAudioFile from '../../../assets/audio/drone.mp3';
-import GyroAudioPlayerComponent from '../../../components/audioPlayers/GyroAudioPlayerComponent';
-import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
+import { Animated, View, ScrollView, TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import GhostHeader from '../../../components/modules/GhostHeader';
+import HauntedText from '../../../components/text/HauntedText';
+import AnimatedButton from '../../../components/text/AnimatedButton';
+import BackgroundAudioPlayer from '../../../components/audioPlayers/BackgroundAudioPlayer';
 
+const GhostBeaconTest = () => {
+  const [playAudio, setPlayAudio] = useState(true);
+  const [phase, setPhase] = useState(1);
+  const navigation = useNavigation();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const buttonsFadeAnim = useRef(new Animated.Value(0)).current;
 
+  // Custom hook to manage phase transitions and animations
+  usePhaseTransition(phase, setPhase, fadeAnim, buttonsFadeAnim);
 
-const DeviceCircle = ({ device, inRange }) => {
+  // Navigation and audio management
+  useEffect(() => {
+    const unsubscribeFocus = navigation.addListener('focus', () => setPlayAudio(true));
+    const unsubscribeBlur = navigation.addListener('blur', () => setPlayAudio(false));
+
+    navigation.setOptions({
+      title: '',
+      headerStyle: { backgroundColor: 'black' },
+      headerTintColor: 'white',
+      headerBackTitleVisible: false,
+    });
+
+    return () => {
+      unsubscribeFocus();
+      unsubscribeBlur();
+    };
+  }, [navigation]);
+
+  // Handle component unmount
+  useEffect(() => () => setPlayAudio(false), []);
+
+  const handleSkip = () => {
+    setPlayAudio(false);
+    navigation.navigate('ChapterOne');
+  };
+
   return (
-    <View style={[styles.circle, inRange ? styles.inRange : styles.outOfRange]}>
-      <Text>{device.name}</Text>
-      <Text>{device.rssi}</Text>
-    </View>
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <TouchableOpacity
+        style={{
+          position: 'absolute',
+          top: 40,
+          right: 20,
+          backgroundColor: 'transparent',
+        }}
+        onPress={handleSkip}
+      >
+        <Text style={{ color: 'white' }}>Skip</Text>
+      </TouchableOpacity>
+
+      <BackgroundAudioPlayer audioFile={require("../../../assets/audio/drone.mp3")} play={playAudio} />
+      <GhostHeader />
+      <PhaseContent phase={phase} fadeAnim={fadeAnim} buttonsFadeAnim={buttonsFadeAnim} setPhase={setPhase} />
+    </ScrollView>
   );
 };
 
-
-    const GhostBeaconTest = () => {
-      const { devices } = useBleRssiScanner();
-      const soundObjectsRef = useRef({});
-    
-  
-    useEffect(() => {
-      // Initialize sound objects for each device
-      devices.forEach(async (device) => {
-        const { sound } = await Audio.Sound.createAsync(device.audioFile);
-        // Assign the sound objects to the ref's current property
-        soundObjectsRef.current[device.name] = sound;
-      });
-  
-      return () => {
-        // Stop and unload all sounds on unmount
-        // Access the sound objects from the ref
-        Object.values(soundObjectsRef.current).forEach((sound) => {
-          sound.stopAsync();
-          sound.unloadAsync();
-        });
-      };
-    }, []);
-  
-    useEffect(() => {
-      devices.forEach(async (device) => {
-        // Access the sound objects from the ref
-        const sound = soundObjectsRef.current[device.name];
-        if (sound) {
-          try {
-            const status = await sound.getStatusAsync();
-            if (status.isLoaded) {
-              if (device.rssi > -45 && !status.isPlaying) {
-                await sound.playAsync().catch(() => {/* Handle or log specific play error */});
-              } else if (device.rssi <= -45 && status.isPlaying) {
-                await sound.stopAsync().catch(() => {/* Handle or log specific stop error */});
-              }
-            }
-          } catch (error) {
-            console.error(`Error with sound for device ${device.name}:`, error);
-          }
-        }
-      });
-    }, [devices]);
-    
-    
+const PhaseContent = ({ phase, fadeAnim, buttonsFadeAnim, setPhase }) => {
+  // Depending on the phase, render different content
+  // Use Animated.View or HauntedText along with AnimatedButton components as needed
+  // Handle animations with fadeAnim and buttonsFadeAnim
+  // This function should return JSX based on the current phase
+  // Example for phase 1:
+  if (phase === 1) {
     return (
-      <View style={styles.container}>
-        {devices.map((device) => (
-          <DeviceCircle key={device.name} device={device} inRange={device.rssi > -45} />
-        ))}
-        <Text>Gryo Sensor Active</Text>
-        <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} />
-      </View>
+      <>
+        <HauntedText
+          text="Hello."
+          startDelay={0}
+          // Pass styles as needed
+        />
+        <HauntedText
+          text="Take a minute to find a place in the foyer you feel comfortable."
+          startDelay={5000}
+          // Pass styles as needed
+        />
+        {/* Render more content based on phase */}
+      </>
     );
-  };
-  
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    circle: {
-      width: 100,
-      height: 100,
-      borderRadius: 50,
-      justifyContent: 'center',
-      alignItems: 'center',
-      margin: 10,
-    },
-    inRange: {
-      backgroundColor: 'green',
-    },
-    outOfRange: {
-      backgroundColor: 'grey',
-    },
-  });
+  }
+  // Continue with other phases...
+};
+
+function usePhaseTransition(phase, setPhase, fadeAnim, buttonsFadeAnim) {
+  useEffect(() => {
+    let timer;
+    switch (phase) {
+      case 1:
+        // Example: Transition from phase 1 to phase 2 after a delay
+        timer = setTimeout(() => setPhase(2), 10000);
+        break;
+      case 2:
+        // Start fade-in animation for phase 2 content
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }).start();
+        // Transition to phase 3 after a delay
+        timer = setTimeout(() => setPhase(3), 10000);
+        break;
+      // Define other phases and their transitions/animations
+    }
+
+    return () => clearTimeout(timer); // Cleanup timer on phase change
+  }, [phase, setPhase, fadeAnim, buttonsFadeAnim]);
+}
+
+const styles = StyleSheet.create({
+  // Define your styles here
+  container: {
+    flex: 1,
+    backgroundColor: 'black',
+    paddingHorizontal: 20,
+  },
+  contentContainer: {
+    paddingTop: Platform.OS === 'ios' ? 44 : 56,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
 
 export default GhostBeaconTest;

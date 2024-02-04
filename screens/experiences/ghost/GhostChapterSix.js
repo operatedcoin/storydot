@@ -12,14 +12,16 @@ const GhostChapterSix = () => {
   const fadeAnim = useState(new Animated.Value(0))[0];
   const navigation = useNavigation();
   const [isPlaying, setIsPlaying] = useState(true); // Control playback
+  
 
   const handleSkip = async () => {
     await stopAudio(); // Stop audio if playing
-    navigation.navigate('Begin');
+    navigation.navigate('Details', { experienceId: 'ghost' });
   };
 
-  const navigateToChapterThree = () => {
-    navigation.navigate('Begin');
+  const navigateToStart = () => {
+    stopAudio(); // Stop audio if playing
+    navigation.navigate('Details', { experienceId: 'ghost' });
   };
 
   const stopAudio = () => {
@@ -75,7 +77,7 @@ const GhostChapterSix = () => {
   volume={1.0}
   autoPlay={true}
   isPlaying={isPlaying} // Pass isPlaying state as a prop
-  onEnd={navigateToChapterThree}
+  onEnd={navigateToStart}
 />
       <View style={styles.content}>
         <HauntedText

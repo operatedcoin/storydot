@@ -1,15 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Audio } from 'expo-av';
 import { Magnetometer } from 'expo-sensors';
 
 
-const CompassAudioPlayer = ({ isFocused }: { isFocused: boolean }) => {
-        const [audioFiles, setAudioFiles] = useState([
-        { uri: require('../../assets/audio/audioNorth.mp3'), volume: 1 },
-        { uri: require('../../assets/audio/audioEast.mp3'), volume: 1 },
-        { uri: require('../../assets/audio/audioSouth.mp3'), volume: 1 },
-        { uri: require('../../assets/audio/audioWest.mp3'), volume: 1 },
+const CompassAudioPlayer = ({ isFocused, shouldPlay }: { isFocused: boolean; shouldPlay: boolean }) => {
+  
+  const [audioFiles, setAudioFiles] = useState([
+        { uri: require('../../assets/audio/ghost/audienceLoop.mp3'), volume: 0.3 },
+        { uri: require('../../assets/audio/ghost/heart.mp3'), volume: 0.3 },
+        { uri: require('../../assets/audio/ghost/whisperLoop.mp3'), volume: 0.7 },
+        { uri: require('../../assets/audio/ghost/presenceLoop.mp3'), volume: 0.3 },
       ]);      
       const [soundObjects, setSoundObjects] = useState<Audio.Sound[]>([]);
       const [compassHeading, setCompassHeading] = useState<number | null>(null);
@@ -24,17 +25,24 @@ const CompassAudioPlayer = ({ isFocused }: { isFocused: boolean }) => {
         }
       }, [audioFiles, soundObjects]);
 
-      useEffect(() => {
-        console.log(`CompassAudioPlayer isFocused: ${isFocused}`);
-        if (isFocused) {
-          loadAudio();
-        } else {
-          unloadAudio();
-        }
-        return () => {
-          unloadAudio();
-        };
-      }, [isFocused]);
+      
+
+      
+// Updated useEffect in CompassAudioPlayer to listen to shouldPlay
+useEffect(() => {
+  const unloadAudio = async () => {
+    console.log('Starting to unload audio');
+    await Promise.all(soundObjects.map(sound => sound.unloadAsync().then(() => console.log('Audio unloaded')).catch((error) => console.error('Error unloading audio:', error))));
+    console.log('All audio files attempted to unload');
+  };
+  console.log(`CompassAudioPlayer: shouldPlay=${shouldPlay}, isFocused=${isFocused}`);
+  if (shouldPlay) {
+    loadAudio();
+  } else {
+    unloadAudio(); // Ensure this call is made when expected
+  }
+}, [shouldPlay, isFocused]);
+
 
       useEffect(() => {
         Magnetometer.setUpdateInterval(1000); // Adjust as needed
@@ -50,6 +58,8 @@ const CompassAudioPlayer = ({ isFocused }: { isFocused: boolean }) => {
           subscription.remove();
         };
       }, []);
+
+      
 
       const adjustAudioVolumes = useCallback((heading: number) => {
         // Initialize all volumes to 0

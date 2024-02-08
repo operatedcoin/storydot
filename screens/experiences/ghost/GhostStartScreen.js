@@ -9,15 +9,13 @@ import AnimatedButton from '../../../components/text/AnimatedButton';
 
 
 const GhostStartScreen = () => {
+  const [audioKey, setAudioKey] = useState('introLoop'); // Use 'introLoop' or 'trace' as the key
   const [playAudio, setPlayAudio] = useState(true);
   const [phase, setPhase] = useState(1); // 1 for first text, 2 for second text and button
   const [timerSeconds, setTimerSeconds] = useState(60);
   const [showContinue, setShowContinue] = useState(false);
   const fadeAnim = useState(new Animated.Value(0))[0];
-  const hauntedTextFadeAnim = useState(new Animated.Value(1))[0]; // Initial value is 1 (fully visible)
   const navigation = useNavigation();
-  const textOpacity = useState(new Animated.Value(0))[0];
-  const [buttonVisible, setButtonVisible] = useState(false); // State to control button visibility
   const [buttonsFadeAnim] = useState(new Animated.Value(0)); // For fading in the buttons
   const handleAnswer = (nextPhase) => {
     setPhase(nextPhase);
@@ -37,10 +35,27 @@ const GhostStartScreen = () => {
     timersRef.current = []; // Reset the timers array
   };
   const handleSkip = () => {
-    clearAllTimers(); // Clear all active timers
-    setPlayAudio(false); // Stop audio playback
-    navigation.navigate('ChapterOne');
+    clearAllTimers(); // Clear all active timers if necessary
+
+  
+    // Check if not in the last phase before skipping to prevent going beyond your defined phases
+    if (phase < 10) {
+      setPhase(8);
+    } else {
+      // Optionally handle the scenario when the skip button is pressed in the last phase
+      // For example, navigate to the next chapter or restart the experience
+      // navigation.navigate('ChapterOne'); // This line can be adjusted or removed based on the desired behavior
+    }
+  
+    // Optionally, if you want to stop the audio playback when skipping (depending on your app's design),
+    // you can include the setPlayAudio(false) call here. 
+    // If the audio should continue playing across different phases, you might not need to call it.
   };
+  
+  const [fadeOut, setFadeOut] = useState(false);
+  const introLoop = require("../../../assets/audio/ghost/introLoop.mp3");
+  const trace = require("../../../assets/audio/ghost/trace.mp3");
+
   useEffect(() => {
     return () => {
       setPlayAudio(false); // Ensure audio is stopped when component unmounts
@@ -78,6 +93,8 @@ const GhostStartScreen = () => {
     });
   }, [navigation]);
 
+
+
   useEffect(() => {
     const timer = setSafeTimeout(() => {
       setShowContinue(true);
@@ -86,22 +103,23 @@ const GhostStartScreen = () => {
         duration: 1000,
         useNativeDriver: true,
       }).start();
-    }, 10000); 
+    }, 0); 
     
     // Set this to the desired time in milliseconds (22000ms = 22 seconds)
     return () => clearAllTimers();
   }, []);
+  
 
   useEffect(() => {
     // Phase 1 Timer: Show "Hello" and "Take a minute..." for 20 seconds
     const phase1Timer = setTimeout(() => {
       setPhase(2);
-    }, 9000); // Change phase after 20 seconds // temp change 
+    }, 45000); // Change phase after 20 seconds // temp change 
 
     // Phase 2 Timer: Switch to the second phase after 60 seconds in total
     const phase2Timer = setTimeout(() => {
       setPhase(3);
-    }, 10000); // 60 seconds after component mounts temp change
+    }, 50000); // 60 seconds after component mounts temp change
     
 
     return () => {
@@ -161,13 +179,12 @@ const GhostStartScreen = () => {
 
   useEffect(() => {
     if (phase === 10) {
-      const timer = setTimeout(() => {
-        setPlayAudio(false); // Stop audio playback
-        navigation.navigate('ChapterOne'); // Replace with your actual screen name
-      }, 10000); // 10 seconds delay
-      return () => clearTimeout(timer);
+      setFadeOut(true);
+      setTimeout(() => {
+            navigation.navigate('ChapterOne'); // Continue with navigation
+        }, 10000); // Adjust the delay as needed, ensuring it's enough time for the audio to stop
     }
-  }, [phase, navigation]);
+}, [phase, navigation]);
 
 
   return (
@@ -182,23 +199,23 @@ const GhostStartScreen = () => {
   }}
   onPress={handleSkip}
 >
-  <Text style={{ color: 'white' }}>Skip</Text>
+  <Text style={{ color: 'gray' }}>Skip</Text>
 </TouchableOpacity>
 
-<BackgroundAudioPlayer audioFile={require("../../../assets/audio/drone.mp3")} play={playAudio} />
+<BackgroundAudioPlayer audioFile={audioKey === 'introLoop' ? introLoop : trace} play={playAudio} fadeOut={fadeOut} />
       <GhostHeader />
       <View style={styles.content}>
         {phase === 1 && (
           <>
             <HauntedText
               text="Hello."
-              startDelay={0}
+              startDelay={5000}
               blockStyle={styles.blockStyle}
               letterStyle={styles.letterStyle}
             />
             <HauntedText
               text="Take a minute to find a place in the foyer you feel comfortable."
-              startDelay={0}
+              startDelay={10000}
               blockStyle={styles.blockStyle}
               letterStyle={styles.letterStyle}
             />
@@ -227,7 +244,7 @@ const GhostStartScreen = () => {
         <>
           <HauntedText
             text="Do you believe in Ghosts?"
-            startDelay={0}
+            startDelay={1000}
             blockStyle={styles.blockStyle}
             letterStyle={styles.letterStyle}
           />
@@ -241,7 +258,7 @@ const GhostStartScreen = () => {
           <>
   <HauntedText
             text="If you were a Ghost, would you haunt people?"
-            startDelay={0}
+            startDelay={1000}
             blockStyle={styles.blockStyle}
             letterStyle={styles.letterStyle}
           />
@@ -254,15 +271,15 @@ const GhostStartScreen = () => {
        {phase === 7 && (
           <>
   <HauntedText
-            text="Do you have regrets?"
-            startDelay={0}
+            text="Are there things you wish you'd done differently?"
+            startDelay={1000}
             blockStyle={styles.blockStyle}
             letterStyle={styles.letterStyle}
           />
-          <AnimatedButton text="Yes." onPress={() => handleAnswer(8)}delay={3000} />
-          <AnimatedButton text="Everyone wishes they'd done something differently." onPress={() => handleAnswer(8)} delay={4000}/>
-          <AnimatedButton text="I don't think about that stuff." onPress={() => handleAnswer(8)} delay={5000}/>
-          <AnimatedButton text="No." onPress={() => handleAnswer(8)} delay={6000}/>
+          <AnimatedButton text="Yes." onPress={() => handleAnswer(8)}delay={5000} />
+          <AnimatedButton text="Everyone wishes they'd done something differently." onPress={() => handleAnswer(8)} delay={6000}/>
+          <AnimatedButton text="I don't think about that stuff." onPress={() => handleAnswer(8)} delay={7000}/>
+          <AnimatedButton text="No." onPress={() => handleAnswer(8)} delay={8000}/>
           </>
         )}
 
@@ -270,11 +287,11 @@ const GhostStartScreen = () => {
            <>
            <HauntedText
                      text="Would you descibe yourself as still or stuck?"
-                     startDelay={0}
+                     startDelay={1000}
                      blockStyle={styles.blockStyle}
                      letterStyle={styles.letterStyle}
                    />
-                   <AnimatedButton text="Still." onPress={() => handleAnswer(9)}delay={6000} />
+                   <AnimatedButton text="Still." onPress={() => handleAnswer(9)}delay={5000} />
                    <AnimatedButton text="Stuck." onPress={() => handleAnswer(9)} delay={6000}/>
 
                    </>

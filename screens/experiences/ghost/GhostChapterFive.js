@@ -93,7 +93,7 @@ const closeModal = async () => {
   }
 
   // Correctly handle the case for closing the 'Green' beacon's modal
-  if (activeDevice && activeDevice.name === 'Green') {
+  if (activeDevice && activeDevice.name === 'Blue') {
     // Set all beacons to collected (true) except for 'MsgSix'
     setStayPink(prevState => ({
       ...Object.keys(prevState).reduce((acc, beacon) => {

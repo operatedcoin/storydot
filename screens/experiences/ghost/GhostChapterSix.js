@@ -72,7 +72,7 @@ const GhostChapterSix = () => {
 
       <ExitExperienceButton onPress={handleSkip} /> 
       <AudioPlayerComponent
-  audioFile={require('../../../assets/audio/ghost/Recital.mp3')}
+  audioFile={require('../../../assets/audio/ghost/peopleTake2.mp3')}
   volume={1.0}
   autoPlay={true}
   isPlaying={isPlaying} 

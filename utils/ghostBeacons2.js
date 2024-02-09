@@ -19,7 +19,7 @@ image: require('../assets/images/ocoin.jpeg')
   name: 'Green',
   rssi: -100,
   title: 'Bag',
-  audioFile: require('../assets/audio/ghost/BagTakeTwo.mp3'),
+  audioFile: require('../assets/audio/ghost/boardTake2.mp3'),
   description: "Blibbering bloopers bumbled through the zibberish zoo, zonking zany zippers with zibber-zabber zest. Flibber-flopping fudgelumps flibbered while flibberjibbing flibberish frogs flapped furiously. Gobbledygook gizmos giggled, gobbling gobbledygibberish gumdrops greedily. Splibber-splabber splish-splashed, spluttering splendiferous splunkers splorked and splackled. Whibber-whobber whoopee cushions whizzed, whirling wildly in whibberjabbity whirlwinds. Zibber-zabber zootopia zigzagged, zipping zany zeppelins zestfully. Rambunctious razzle-dazzle roared, ricocheting rickety raccoons riotously. Higgledy-piggledy haggled with hibberjibber hobgoblins, hilariously hootin' and hollerin'.",
   image: require('../assets/images/ocoin.jpeg')
 },
@@ -27,7 +27,7 @@ image: require('../assets/images/ocoin.jpeg')
   name: 'MsgSix',
   rssi: -100,
   title: 'People',
-  audioFile: require('../assets/audio/ghost/People.mp3'),
+  audioFile: require('../assets/audio/ghost/peopleTake2.mp3'),
   subTitle: "I am Ghost #4",
   description: "Blibbering bloopers bumbled through the zibberish zoo, zonking zany zippers with zibber-zabber zest. Flibber-flopping fudgelumps flibbered while flibberjibbing flibberish frogs flapped furiously. Gobbledygook gizmos giggled, gobbling gobbledygibberish gumdrops greedily. Splibber-splabber splish-splashed, spluttering splendiferous splunkers splorked and splackled. Whibber-whobber whoopee cushions whizzed, whirling wildly in whibberjabbity whirlwinds. Zibber-zabber zootopia zigzagged, zipping zany zeppelins zestfully. Rambunctious razzle-dazzle roared, ricocheting rickety raccoons riotously. Higgledy-piggledy haggled with hibberjibber hobgoblins, hilariously hootin' and hollerin'.",
   image: require('../assets/images/ocoin.jpeg')

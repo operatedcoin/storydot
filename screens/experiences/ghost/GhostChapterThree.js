@@ -200,7 +200,7 @@ const GhostChapterThree = () => {
   <View style={{flex: 2}}/>
     
     <View  style={{flex: 3}}>
-    <Text style={styles.letterStyle}>Keep exploring. Talk a walk around the foyer.</Text>
+    <Text style={styles.letterStyle}>Traces have small white lights near them. Hold this device close to the lights to collect.</Text>
     </View>
 
       <CircleLayout devices={devices} stayPink={stayPink} />

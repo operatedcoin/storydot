@@ -72,7 +72,7 @@ const [showContinue, setShowContinue] = useState(false);
       <ExitExperienceButton onPress={() => navigation.goBack()} /> 
 
       <AudioPlayerComponent
-  audioFile={require('../../../assets/audio/ghost/ThatsEverything.mp3')}
+  audioFile={require('../../../assets/audio/ghost/Sc5.mp3')}
   volume={1.0}
   autoPlay={true}
   isPlaying={isPlaying}

@@ -70,7 +70,7 @@ const GhostChapterTwo = () => {
        <ExitExperienceButton onPress={() => navigation.goBack()} /> 
       
       <AudioPlayerComponent
-  audioFile={require('../../../assets/audio/ghost/help.mp3')}
+  audioFile={require('../../../assets/audio/ghost/theBrief2.mp3')}
   volume={1.0}
   autoPlay={true}
   isPlaying={isPlaying} // Pass isPlaying state as a prop

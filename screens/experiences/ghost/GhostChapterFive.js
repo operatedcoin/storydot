@@ -171,8 +171,15 @@ useEffect(() => {
         if (sound && !playedAudios[device.name]) {
           try {
             const status = await sound.getStatusAsync();
-            // Ensure the sound is loaded, the device is within the desired RSSI range, and not already playing
-            if (status.isLoaded && device.rssi < 0 && device.rssi > -45 && !status.isPlaying) {
+            // Ensure the sound is loaded and the device is within the desired RSSI range
+            if (status.isLoaded && device.rssi < 0 && device.rssi > -45) {
+              // Check if the collected device is 'MsgSix'
+              if (device.name === 'MsgSix') {
+                // Navigate to the next screen directly
+                navigation.navigate('ChapterSix');
+                return; // Exit the function early to prevent further execution
+              }
+              // Play audio for the device
               await sound.playAsync().catch((error) => {
                 console.error(`Error playing sound for device ${device.name}:`, error);
               });
@@ -193,9 +200,10 @@ useEffect(() => {
     }
   };
   
-
   handleDevices();
-}, [devices, shownModals, playedAudios, soundObjectsRef, startScanCycle, stopScanCycle]);
+}, [devices, stayPink, playedAudios, soundObjectsRef, navigation, stopScanCycle]);
+
+
 
 
 useEffect(() => {

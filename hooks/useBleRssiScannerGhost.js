@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { BleManager, ScanMode } from 'react-native-ble-plx';
-import { ghostBeaconDevices, processDevices } from '../utils/ghostBeacons';
 
-const useBleRssiScannerGhost = () => {
-  const [devices, setDevices] = useState(processDevices(ghostBeaconDevices));
+const useBleRssiScannerGhost = (dataSource, processFunction) => {
+  const [devices, setDevices] = useState(processFunction(dataSource));
   const managerRef = useRef(new BleManager());
   const scanIntervalRef = useRef();
   const scanPauseTimeoutRef = useRef();

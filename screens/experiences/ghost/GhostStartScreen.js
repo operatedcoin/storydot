@@ -6,6 +6,8 @@ import { useNavigation } from '@react-navigation/native';
 import twentyMinutes from '../../../components/timers/twentyMinutes';
 import BackgroundAudioPlayer from '../../../components/audioPlayers/BackgroundAudioPlayer';
 import AnimatedButton from '../../../components/text/AnimatedButton';
+import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 const GhostStartScreen = () => {
@@ -189,22 +191,16 @@ const GhostStartScreen = () => {
 
   return (
     
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-<TouchableOpacity
-  style={{
-    position: 'absolute',
-    top: 40,
-    right: 20,
-    backgroundColor: 'transparent',
-  }}
-  onPress={handleSkip}
->
-  <Text style={{ color: 'gray' }}>Skip</Text>
-</TouchableOpacity>
+    <View style={{flex:1, backgroundColor: 'black'}}>
+
+       <ExitExperienceButton onPress={() => navigation.goBack()} />
+
 
 <BackgroundAudioPlayer audioFile={audioKey === 'introLoop' ? introLoop : trace} play={playAudio} fadeOut={fadeOut} />
-      <GhostHeader />
-      <View style={styles.content}>
+      {/* <GhostHeader /> */}
+      <SafeAreaView style={styles.container}>
+      <View style={{flex: 1}}/>
+        <View>
         {phase === 1 && (
           <>
             <HauntedText
@@ -301,7 +297,7 @@ const GhostStartScreen = () => {
 {phase === 9 && (
           <>
         <HauntedText
-                     text="Interesting."
+                     text="Interesting..."
                      startDelay={0}
                      blockStyle={styles.blockStyle}
                      letterStyle={styles.letterStyle}
@@ -324,9 +320,20 @@ const GhostStartScreen = () => {
                    </>
         )}
 
-        
       </View>
-    </ScrollView>
+      <View style={{flex: 1}}/>
+
+      <TouchableOpacity
+  style={{
+    backgroundColor: 'transparent',
+  }}
+  onPress={handleSkip}
+>
+  <Text style={{ color: 'gray' }}>Skip</Text>
+</TouchableOpacity>
+      </SafeAreaView>
+      </View>
+
   );
 };
 
@@ -337,13 +344,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'black',
     paddingHorizontal: 20,
-  },
-  contentContainer: {
-    paddingTop: Platform.OS === 'ios' ? 44 : 56, // Adjust this based on the nav bar height
+    paddingBottom: 20,
     justifyContent: 'center',
-    alignItems: 'center',
-  },
-  content: {
     alignItems: 'center',
   },
   hauntedText: {

@@ -5,6 +5,8 @@ import HauntedText from '../../../components/text/HauntedText';
 import twentyMinutes from '../../../components/timers/twentyMinutes';
 import AudioPlayerComponent from '../../../components/audioPlayers/AudioPlayerComponent';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const GhostChapterFour = () => {
 
@@ -65,32 +67,31 @@ const [showContinue, setShowContinue] = useState(false);
   );
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <GhostHeader />
-      <TouchableOpacity onPress={handleSkip} style={{ position: 'absolute', top: 40, right: 20, backgroundColor: 'transparent' }}>
-        <Text style={{ color: 'gray' }}>Skip</Text>
-      </TouchableOpacity>
+    <View style={{flex:1, backgroundColor: 'black'}}>
+
+      <ExitExperienceButton onPress={() => navigation.goBack()} /> 
+
       <AudioPlayerComponent
   audioFile={require('../../../assets/audio/ghost/ThatsEverything.mp3')}
   volume={1.0}
   autoPlay={true}
-  isPlaying={isPlaying} // Pass isPlaying state as a prop
+  isPlaying={isPlaying}
   onEnd={navigateToChapterThree}
 />
-      <View style={styles.content}>
-        <HauntedText
-          text="..."
-          startDelay={1000}
-          blockStyle={styles.blockStyle}
-          letterStyle={styles.letterStyle}
-        />
-        {showContinue && (
-          <Animated.View style={{ ...styles.continueButton, opacity: fadeAnim }}>
-            {/* Continue button logic here */}
-          </Animated.View>
-        )}
-      </View>
-    </ScrollView>
+<SafeAreaView style={styles.container}>
+    <View>
+        <View style={{flex: 1}}/>
+        
+        <View style={{width: 100, height: 100, backgroundColor: 'green', borderRadius: 50}} />
+        
+        <View style={{flex: 1}}/>
+
+        <TouchableOpacity onPress={handleSkip} style={{backgroundColor: 'transparent',}}>
+        <Text style={{ color: 'gray', textAlign: 'center', }}>Skip</Text>
+        </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </View>
   );
 };
 
@@ -100,6 +101,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'black',
     paddingHorizontal: 20,
+    paddingBottom: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   contentContainer: {
     paddingTop: Platform.OS === 'ios' ? 44 : 56,

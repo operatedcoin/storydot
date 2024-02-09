@@ -10,22 +10,54 @@ import gyroAudioFile from '../../../assets/audio/drone.mp3';
 import BlackAnimatedButton from '../../../components/text/balckAnimatedButton';
 import useBleRssiScannerGhost from '../../../hooks/useBleRssiScannerGhost';
 import { Ionicons } from '@expo/vector-icons';
+import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { ghostBeaconDevices, processDevices } from '../../../utils/ghostBeacons';
 
-const townhallColor = 'black';
+const townhallColor = 'white';
 
-const DeviceCircle = ({ device, inRange, stayPink }) => {
+const DeviceCircle = ({ device, inRange, stayPink, x, y }) => {
   const circleColor = stayPink ? styles.lightPink : (inRange ? styles.inRange : styles.initialCircle);
-  const circleText = stayPink ? 'white' : (inRange ? 'white' : townhallColor);
+  const circleText = stayPink ? townhallColor : (inRange ? styles.blackText : styles.blackText);
+
   return (
-    <View style={[styles.circle, circleColor]}>
-      <Text style={{color: circleText, textAlign: 'center'}}>{device.title}</Text>
-      {/* <Text style={{color: circleText}}>{device.rssi}</Text> */}
+    <View style={[styles.circle, circleColor, { transform: [{ translateX: x }, { translateY: y }] }]}>
+      <Text style={[circleText, {textAlign: 'center'}]}>{device.title}</Text>
     </View>
   );
 };
 
+const CircleLayout = ({ devices, stayPink }) => {
+  const radius = 110; // Adjust this value to change the radius of the circle
+  const numberOfDevices = devices.length;
+  const angleStep = (2 * Math.PI) / numberOfDevices;
+
+  return (
+    <View style={styles.circleContainer}>
+      {devices.map((device, index) => {
+        const angle = index * angleStep;
+        const x = radius * Math.cos(angle);
+        const y = radius * Math.sin(angle);
+
+        return (
+          <DeviceCircle
+            key={device.title}
+            device={device}
+            inRange={device.rssi > -45}
+            stayPink={stayPink[device.name]}
+            x={x}
+            y={y}
+          />
+        );
+      })}
+    </View>
+  );
+};
+
+
+
 const GhostChapterThree = () => {
-  const { devices, startScanCycle, stopScanCycle } = useBleRssiScannerGhost();
+  const { devices, startScanCycle, stopScanCycle } = useBleRssiScannerGhost(ghostBeaconDevices, processDevices);
   const soundObjectsRef = useRef({});
   const [playedAudios, setPlayedAudios] = useState({});
   const [stayPink, setStayPink] = useState({}); 
@@ -156,38 +188,38 @@ const GhostChapterThree = () => {
 
 
   return (
-    <View style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <GhostHeader />
+    <View style={{flex:1, backgroundColor: 'black'}}>
+
+<ExitExperienceButton onPress={() => navigation.goBack()} />
+
+      {/* <GhostHeader /> */}
       
       <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} />
-      
-      <TouchableOpacity
+
+  <SafeAreaView style={styles.container}>
+  <View style={{flex: 2}}/>
+    
+    <View  style={{flex: 3}}>
+    <Text style={styles.letterStyle}>Keep exploring. Talk a walk around the foyer.</Text>
+    </View>
+
+      <CircleLayout devices={devices} stayPink={stayPink} />
+      <View style={{flex: 1}}/>
+
+      <View style={{flex: 1}}>
+    <Text style={{color: 'white'}}>{beaconsCollectedCount} out of  Traces Found.</Text>
+          {allCollected && <Text>All Traces have been found.!</Text>}
+    </View>
+      <View style={{flex: 2}}/>
+  <TouchableOpacity
   style={{
-    position: 'absolute',
-    top: 40,
-    right: 20,
     backgroundColor: 'transparent',
   }}
   onPress={handleSkip}
 >
   <Text style={{ color: 'gray' }}>Skip</Text>
 </TouchableOpacity>
-
-      <View style={styles.content}>
-
-      <View style={styles.rowContainer}>
-            {devices.map((device) => (
-              <DeviceCircle
-                key={device.title}
-                device={device}
-                inRange={device.rssi > -45}
-                stayPink={stayPink[device.name]}
-              />
-            ))}
-          </View>
-  
-       
-      </View>
+      </SafeAreaView>
 
       <Modal
   animationType="slide"
@@ -201,8 +233,8 @@ const GhostChapterThree = () => {
           <View className="flex-row justify-between items-center">
             <Text className="text-2xl font-bold pb-4">{activeDevice.title}</Text>
             <TouchableOpacity onPress={closeModal} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingBottom: 8 }}>
-              <Ionicons name="close-sharp" size={20} color={townhallColor} />
-              <Text style={{color: townhallColor, fontWeight: 700 }}>Close</Text>
+              <Ionicons name="close-sharp" size={20} color={'black'} />
+              <Text style={{color: 'black', fontWeight: 700 }}>Close</Text>
             </TouchableOpacity>
           </View>
           <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -227,8 +259,18 @@ const GhostChapterThree = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white', // Changed to white
+    backgroundColor: 'black',
     paddingHorizontal: 20,
+    paddingBottom: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  circleContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignContent: 'center',
+    height: '50%',
+    width: '100%',
   },
   contentContainer: {
     paddingTop: Platform.OS === 'ios' ? 44 : 56,
@@ -246,8 +288,9 @@ const styles = StyleSheet.create({
   letterStyle: {
     fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
     fontSize: 24,
-    color: 'black', // Changed to black
+    color: 'white',
     lineHeight: 30,
+    textAlign: 'center'
   },
   continueButton: {
     marginTop: 20,
@@ -273,7 +316,13 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    margin: 5,
+    position: 'absolute',
+  },
+  whiteText: {
+    color: 'white',
+  },
+  blackText: {
+    color: 'black',
   },
   initialCircle: {
     borderColor: townhallColor,

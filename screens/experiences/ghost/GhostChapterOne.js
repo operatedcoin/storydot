@@ -1,41 +1,26 @@
-import React, { useState, useEffect, useCallback, useImperativeHandle, forwardRef, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Animated, View, ScrollView, Text, StyleSheet, Platform, Vibration, TouchableOpacity } from 'react-native';
 import GhostHeader from '../../../components/modules/GhostHeader';
 import HauntedText from '../../../components/text/HauntedText';
 import { useNavigation } from '@react-navigation/native';
 import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
 import gyroAudioFile from '../../../assets/audio/drone.mp3';
-
+import AnimatedButton from '../../../components/text/AnimatedButton';
 import CompassAudioPlayer from '../../../components/audioPlayers/compassAudio';
 import { useIsFocused } from '@react-navigation/native';
-import AnimatedButton from '../../../components/text/AnimatedButton';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
+
+
 
 const GhostChapterOne = () => {
-  const [hauntedText, setHauntedText] = useState(""); // Add this line
-  const [showButton, setShowButton] = useState(false); // Add this line
+  const [hauntedText, setHauntedText] = useState(""); 
+  const [showButton, setShowButton] = useState(false); 
   const navigation = useNavigation();
-  const [phase, setPhase] = useState(1); // Add phase state
+  const [phase, setPhase] = useState(1);
   const textOpacityAnim = useRef(new Animated.Value(1)).current; // For fading text
   const isFocused = useIsFocused();
   const [shouldPlayCompassAudio, setShouldPlayCompassAudio] = useState(false);
-  const currentPhaseRef = useRef(phase);
-const isFocusedRef = useRef(isFocused);
-
-useEffect(() => {
-  currentPhaseRef.current = phase;
-}, [phase]);
-
-useEffect(() => {
-  isFocusedRef.current = isFocused;
-}, [isFocused]);
-
-useEffect(() => {
-  // Example logic adjustment
-  // Assuming you want audio to play only in phase 2 when the component is focused
-  const shouldAudioPlay = isFocused && phase === 2;
-  setShouldPlayCompassAudio(shouldAudioPlay);
-}, [isFocused, phase]);
-
 
   useEffect(() => {
     // Set shouldPlayAudio based on both navigation focus and current phase
@@ -46,19 +31,13 @@ useEffect(() => {
 
   const handleButtonPress = () => {
     // Define what should happen when the button is pressed
-    console.log('this shoud stop the audio');
-
     navigation.navigate('ChapterTwo');
     console.log("Button Pressed");
   };
   const handleSkip = () => {
-    // clearAllTimers(); // Clear all active timers
-    // Define what should happen when the button is pressed
+    setShouldPlayCompassAudio(false);
     clearAllTimers(); // Clear all active timers before navigating
-    setShouldPlayCompassAudio(false);
     navigation.navigate('ChapterTwo');
-    setShouldPlayCompassAudio(false);
-
     console.log("Button Pressed");
   };
   const timerRefs = useRef([]);
@@ -71,24 +50,12 @@ useEffect(() => {
     navigation.setOptions({
       title: '',
       headerStyle: {
-        backgroundColor: 'black',
+        backgroundColor: 'white',
       },
-      headerTintColor: 'white',
+      headerTintColor: 'black',
       headerBackTitleVisible: false,
     });
   }, [navigation]);
-
-  useEffect(() => {
-    const unsubscribeBlur = navigation.addListener('blur', () => {
-      // Ensure audio is stopped when navigating away
-      setShouldPlayCompassAudio(false);
-      // Clear all timers here
-      clearAllTimers();
-    });
-  
-    return unsubscribeBlur;
-  }, [navigation]);
-  
 
   useEffect(() => {
     // Fade out text after 20 seconds from the appearance of the third text
@@ -107,55 +74,24 @@ useEffect(() => {
 
   useEffect(() => {
     if (phase === 2) {
-      // Schedule transition to phase 3 independently of the compass audio logic
-      const phaseChangeTimer = setTimeout(() => {
-        setPhase(3); // Transition to phase 3 after appropriate duration
-      }, 30000); // Total time in phase 2 before moving to phase 3, adjust as needed
+      // Set a timeout to change to phase 3
+      const timer = setTimeout(() => {
+        setShouldPlayCompassAudio(false);
+        setPhase(3);
+      }, 50000); // Replace [timeDuration] with the duration in milliseconds
+      timerRefs.current.push(timer); // Add the timer ID to the refs array
+
   
-      timerRefs.current.push(phaseChangeTimer);
-  
-      return () => {
-        clearTimeout(phaseChangeTimer);
-      };
+      return () => clearTimeout(timer);
     }
   }, [phase]);
 
   useEffect(() => {
-    let audioStartDelayTimer;
-  
-    if (phase === 2) {
-      // Set shouldPlayCompassAudio false immediately upon entering phase 2
-      setShouldPlayCompassAudio(false);
-  
-      // Delay the start of the compass audio
-      audioStartDelayTimer = setTimeout(() => {
-        // Check the most current phase and focus status before starting audio
-        if (currentPhaseRef.current === 2 && isFocusedRef.current) {
-          setShouldPlayCompassAudio(true);
-        }
-      }, 10000); // 15-second delay
-    }
-  
-    return () => {
-      // Clear the delay timer when the component unmounts or if the phase changes
-      if (audioStartDelayTimer) {
-        clearTimeout(audioStartDelayTimer);
-      }
-    };
-  }, [phase]); // Dependency on phase ensures this effect is re-run when phase changes
-  
-  
-  
-
-  useEffect(() => {
     if (phase === 3) {
       console.log(`Phase 3 Effect: Starting vibration and setting hauntedText and showButton`);
-      setShouldPlayCompassAudio(false);
-      print("compass stop")
-
-      const vibrationPattern = [500, 200, 1500, 300, 800, 100, 1200, 400, 700];
+  
+      const vibrationPattern = [1000, 500, 1000, 500, 1000, 500, 1000];
       Vibration.vibrate(vibrationPattern);
-
   
       const newTextDelay = vibrationPattern.reduce((a, b) => a + b, 0);
       setTimeout(() => {
@@ -172,21 +108,18 @@ useEffect(() => {
   
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <GhostHeader />
+    <View style={{flex:1, backgroundColor: 'black'}}>
+
+<ExitExperienceButton onPress={() => navigation.goBack()} />
+
+
+      {/* <GhostHeader /> */}
       <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} />
-      <TouchableOpacity
-  style={{
-    position: 'absolute',
-    top: 40,
-    right: 20,
-    backgroundColor: 'transparent',
-  }}
-  onPress={handleSkip}
->
-  <Text style={{ color: 'gray' }}>Skip</Text>
-</TouchableOpacity>
-      <View style={styles.content}>
+
+    <SafeAreaView style={styles.container}>
+       <View style={{flex: 1}}/>
+
+       <View>
         {phase === 1 && (
           <Animated.View style={{ opacity: textOpacityAnim }}>
             <HauntedText
@@ -209,17 +142,18 @@ useEffect(() => {
             />
           </Animated.View>
         )}
-       {phase === 2 && (
-  <Animated.View style={{ opacity: textOpacityAnim }}>
-    <HauntedText
-      text="Now explore the foyer more widely."
-      startDelay={0}
-      blockStyle={styles.blockStyle}
-      letterStyle={styles.letterStyle}
-    />
-<CompassAudioPlayer isFocused={isFocused} shouldPlay={shouldPlayCompassAudio} />
-  </Animated.View>
-)}
+        {phase === 2 && (
+         <Animated.View style={{ opacity: textOpacityAnim }}>
+         <HauntedText
+           text="Now explore the foyer more widely."
+           startDelay={0}
+           blockStyle={styles.blockStyle}
+           letterStyle={styles.letterStyle}
+         />
+        <CompassAudioPlayer isFocused={shouldPlayCompassAudio} />
+       </Animated.View>
+
+        )}
   {phase === 3 && (
   <Animated.View style={{ opacity: textOpacityAnim }}>
     <HauntedText
@@ -237,24 +171,32 @@ useEffect(() => {
     )}
   </Animated.View>
 )}
-      </View>
+</View>
 
-    </ScrollView>
+<View style={{flex: 1}}/>
+
+      <TouchableOpacity
+  style={{
+    backgroundColor: 'transparent',
+  }}
+  onPress={handleSkip}
+>
+  <Text style={{ color: 'gray' }}>Skip</Text>
+</TouchableOpacity>
+
+      </SafeAreaView>
+
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'black', // Changed to white
+    backgroundColor: 'black',
     paddingHorizontal: 20,
-  },
-  contentContainer: {
-    paddingTop: Platform.OS === 'ios' ? 44 : 56,
+    paddingBottom: 20,
     justifyContent: 'center',
-    alignItems: 'center',
-  },
-  content: {
     alignItems: 'center',
   },
   blockStyle: {
@@ -265,18 +207,18 @@ const styles = StyleSheet.create({
   letterStyle: {
     fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
     fontSize: 24,
-    color: 'white', // Changed to black
+    color: 'white',
     lineHeight: 30,
   },
   continueButton: {
     marginTop: 20,
     paddingVertical: 15,
     paddingHorizontal: 30,
-    backgroundColor: 'gray', // You might want to change this as well
+    backgroundColor: 'gray',
     borderRadius: 5,
   },
   continueButtonText: {
-    color: 'white', // Ensuring this is black
+    color: 'black',
     textAlign: 'center',
     fontSize: 16,
   },

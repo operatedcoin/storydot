@@ -3,8 +3,7 @@ export const devices = [
   name: 'Red',
   rssi: -55,
   title: 'Tissues',
-  audioFile: require('../assets/audio/townHall/1_flyingPieman.mp3'),
-  subTitle: "I am Ghost #1",
+  audioFile: require('../assets/audio/ghost/Tissues.mp3'),
   description: "Blibbering bloopers bumbled through the zibberish zoo, zonking zany zippers with zibber-zabber zest. Flibber-flopping fudgelumps flibbered while flibberjibbing flibberish frogs flapped furiously. Gobbledygook gizmos giggled, gobbling gobbledygibberish gumdrops greedily. Splibber-splabber splish-splashed, spluttering splendiferous splunkers splorked and splackled. Whibber-whobber whoopee cushions whizzed, whirling wildly in whibberjabbity whirlwinds. Zibber-zabber zootopia zigzagged, zipping zany zeppelins zestfully. Rambunctious razzle-dazzle roared, ricocheting rickety raccoons riotously. Higgledy-piggledy haggled with hibberjibber hobgoblins, hilariously hootin' and hollerin'.",
   image: require('../assets/images/ocoin.jpeg')
 },
@@ -12,8 +11,7 @@ export const devices = [
     name: 'Blue',
     rssi: -100,
     title: 'Sheet Music',
-    audioFile: require('../assets/audio/townHall/2_baltiaDelicatessen.mp3'),
-    subTitle: "I am Ghost #1",
+    audioFile: require('../assets/audio/ghost/SheetMusic.mp3'),
     description: "Blibbering bloopers bumbled through the zibberish zoo, zonking zany zippers with zibber-zabber zest. Flibber-flopping fudgelumps flibbered while flibberjibbing flibberish frogs flapped furiously. Gobbledygook gizmos giggled, gobbling gobbledygibberish gumdrops greedily. Splibber-splabber splish-splashed, spluttering splendiferous splunkers splorked and splackled. Whibber-whobber whoopee cushions whizzed, whirling wildly in whibberjabbity whirlwinds. Zibber-zabber zootopia zigzagged, zipping zany zeppelins zestfully. Rambunctious razzle-dazzle roared, ricocheting rickety raccoons riotously. Higgledy-piggledy haggled with hibberjibber hobgoblins, hilariously hootin' and hollerin'.",
     image: require('../assets/images/ocoin.jpeg')
   },
@@ -21,8 +19,7 @@ export const devices = [
     name: 'Green',
     rssi: -100,
     title: 'Bag',
-    audioFile: require('../assets/audio/townHall/3_hartHitchcockAndCo.mp3'),
-    subTitle: "I am Ghost #1",
+    audioFile: require('../assets/audio/ghost/Bag.mp3'),
     description: "Blibbering bloopers bumbled through the zibberish zoo, zonking zany zippers with zibber-zabber zest. Flibber-flopping fudgelumps flibbered while flibberjibbing flibberish frogs flapped furiously. Gobbledygook gizmos giggled, gobbling gobbledygibberish gumdrops greedily. Splibber-splabber splish-splashed, spluttering splendiferous splunkers splorked and splackled. Whibber-whobber whoopee cushions whizzed, whirling wildly in whibberjabbity whirlwinds. Zibber-zabber zootopia zigzagged, zipping zany zeppelins zestfully. Rambunctious razzle-dazzle roared, ricocheting rickety raccoons riotously. Higgledy-piggledy haggled with hibberjibber hobgoblins, hilariously hootin' and hollerin'.",
     image: require('../assets/images/ocoin.jpeg')
   },
@@ -30,7 +27,7 @@ export const devices = [
     name: 'MsgSix',
     rssi: -100,
     title: 'People',
-    audioFile: require('../assets/audio/townHall/4_roslynLydiaMaryBlay.mp3'),
+    audioFile: require('../assets/audio/ghost/People.mp3'),
     subTitle: "I am Ghost #4",
     description: "Blibbering bloopers bumbled through the zibberish zoo, zonking zany zippers with zibber-zabber zest. Flibber-flopping fudgelumps flibbered while flibberjibbing flibberish frogs flapped furiously. Gobbledygook gizmos giggled, gobbling gobbledygibberish gumdrops greedily. Splibber-splabber splish-splashed, spluttering splendiferous splunkers splorked and splackled. Whibber-whobber whoopee cushions whizzed, whirling wildly in whibberjabbity whirlwinds. Zibber-zabber zootopia zigzagged, zipping zany zeppelins zestfully. Rambunctious razzle-dazzle roared, ricocheting rickety raccoons riotously. Higgledy-piggledy haggled with hibberjibber hobgoblins, hilariously hootin' and hollerin'.",
     image: require('../assets/images/ocoin.jpeg')
@@ -38,21 +35,21 @@ export const devices = [
   {
     name: 'Yellow',
     rssi: -100,
-    title: 'Malteasers',
-    audioFile: require('../assets/audio/townHall/5_rosieBintBroheen.mp3'),
+    title: 'Maltesers',
+    audioFile: require('../assets/audio/ghost/Maltesers.mp3'),
     subTitle: "I am Ghost #5",
     description: "Blibbering bloopers bumbled through the zibberish zoo, zonking zany zippers with zibber-zabber zest. Flibber-flopping fudgelumps flibbered while flibberjibbing flibberish frogs flapped furiously. Gobbledygook gizmos giggled, gobbling gobbledygibberish gumdrops greedily. Splibber-splabber splish-splashed, spluttering splendiferous splunkers splorked and splackled. Whibber-whobber whoopee cushions whizzed, whirling wildly in whibberjabbity whirlwinds. Zibber-zabber zootopia zigzagged, zipping zany zeppelins zestfully. Rambunctious razzle-dazzle roared, ricocheting rickety raccoons riotously. Higgledy-piggledy haggled with hibberjibber hobgoblins, hilariously hootin' and hollerin'.",
     image: require('../assets/images/ocoin.jpeg')
   },
-  // {
-  //   name: 'Orange',
-  //   rssi: -100,
-  //   title: 'Bag',
-  //   audioFile: require('../assets/audio/townHall/5_rosieBintBroheen.mp3'),
-  //   subTitle: "I am Ghost #5",
-  //   description: "Blibbering bloopers bumbled through the zibberish zoo, zonking zany zippers with zibber-zabber zest. Flibber-flopping fudgelumps flibbered while flibberjibbing flibberish frogs flapped furiously. Gobbledygook gizmos giggled, gobbling gobbledygibberish gumdrops greedily. Splibber-splabber splish-splashed, spluttering splendiferous splunkers splorked and splackled. Whibber-whobber whoopee cushions whizzed, whirling wildly in whibberjabbity whirlwinds. Zibber-zabber zootopia zigzagged, zipping zany zeppelins zestfully. Rambunctious razzle-dazzle roared, ricocheting rickety raccoons riotously. Higgledy-piggledy haggled with hibberjibber hobgoblins, hilariously hootin' and hollerin'.",
-  //   image: require('../assets/images/ocoin.jpeg')
-  // },
+  {
+    name: 'Orange',
+    rssi: -100,
+    title: 'Wet Floor Sign',
+    audioFile: require('../assets/audio/ghost/WetFloor.mp3'),
+    subTitle: "I am Ghost #5",
+    description: "Blibbering bloopers bumbled through the zibberish zoo, zonking zany zippers with zibber-zabber zest. Flibber-flopping fudgelumps flibbered while flibberjibbing flibberish frogs flapped furiously. Gobbledygook gizmos giggled, gobbling gobbledygibberish gumdrops greedily. Splibber-splabber splish-splashed, spluttering splendiferous splunkers splorked and splackled. Whibber-whobber whoopee cushions whizzed, whirling wildly in whibberjabbity whirlwinds. Zibber-zabber zootopia zigzagged, zipping zany zeppelins zestfully. Rambunctious razzle-dazzle roared, ricocheting rickety raccoons riotously. Higgledy-piggledy haggled with hibberjibber hobgoblins, hilariously hootin' and hollerin'.",
+    image: require('../assets/images/ocoin.jpeg')
+  },
 ];
 
 const processDevices = (devices) => {

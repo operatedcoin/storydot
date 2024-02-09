@@ -57,7 +57,7 @@ const GhostChapterFive = () => {
   const { devices, startScanCycle, stopScanCycle } = useBleRssiScannerGhost(ghostBeaconDevices, processDevices);
   const soundObjectsRef = useRef({});
   const [playedAudios, setPlayedAudios] = useState({});
-  const [stayPink, setStayPink] = useState({Red: true, Blue: true, MsgSix: true, Yellow: true, Green: false, Orange: true,}); 
+  const [stayPink, setStayPink] = useState({Red: true, Blue: false, MsgSix: true, Yellow: true, Green: true, Orange: true,}); 
   const [allCollected, setAllCollected] = useState(false);
   const beaconsCollectedCount = Object.values(stayPink).filter(status => status).length;
   const [activeDevice, setActiveDevice] = useState(null); // State to track the active device for the pop-up  

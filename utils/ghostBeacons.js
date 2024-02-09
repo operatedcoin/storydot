@@ -42,7 +42,7 @@ export const devices = [
     //image: require('../assets/images/ocoin.jpeg')
   },
   {
-    name: 'Orange',
+    name: 'Purple',
     rssi: -100,
     title: 'Wet Floor Sign',
     audioFile: require('../assets/audio/ghost/WetFloor.mp3'),

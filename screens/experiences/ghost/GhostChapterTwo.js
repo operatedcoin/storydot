@@ -1,42 +1,41 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Animated, View, ScrollView, TouchableOpacity, Text, StyleSheet, Platform, Alert } from 'react-native';
-import GhostHeader from '../../../components/modules/GhostHeader';
-import HauntedText from '../../../components/text/HauntedText';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Animated, View, TouchableOpacity, Text, StyleSheet, Platform, Alert } from 'react-native';
 import twentyMinutes from '../../../components/timers/twentyMinutes';
-import AudioPlayerComponent from '../../../components/audioPlayers/AudioPlayerComponent';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Video } from 'expo-av';
 
 const GhostChapterTwo = () => {
-  const [showContinue, setShowContinue] = useState(false);
   const fadeAnim = useState(new Animated.Value(0))[0];
   const navigation = useNavigation();
-  const [isPlaying, setIsPlaying] = useState(true); // Control playback
+  const videoRef = useRef(null); // Create a ref for the video component
 
   const handleSkip = async () => {
-    await stopAudio(); // Stop audio if playing
     navigation.navigate('ChapterThree');
   };
 
   const navigateToStart = () => {
-    stopAudio(); // Stop audio if playing
     navigation.navigate('Details', { experienceId: 'ghost' });
   };
 
-  const navigateToChapterThree = () => {
-    navigation.navigate('ChapterThree');
-  };
+  const handleVideoEnd = (status) => {
+    if (status.didJustFinish) {
+        navigation.navigate('ChapterThree');
+    }
+};
 
-  const stopAudio = () => {
-    setIsPlaying(false); // This should trigger the AudioPlayerComponent to stop playback
-  };
-  
-  useFocusEffect(
-    useCallback(() => {
-      return () => stopAudio(); // Stops audio when navigating away
-    }, [])
-  );
+useFocusEffect(
+  React.useCallback(() => {
+      // This function is called when the screen comes into focus
+      return () => {
+          // This function is called when the screen goes out of focus
+          if (videoRef.current) {
+              videoRef.current.stopAsync(); // Stop the video when navigating away
+          }
+      };
+  }, [])
+);
   
 
   useEffect(() => {
@@ -62,13 +61,6 @@ const GhostChapterTwo = () => {
     };
   }, []);
 
-  useFocusEffect(
-    useCallback(() => {
-      // Do something when the screen comes into focus
-      return () => stopAudio(); // Ensure audio is stopped when navigating away
-    }, [])
-  );
-
   return (
     <View style={{flex:1, backgroundColor: 'black'}}>
 
@@ -89,18 +81,23 @@ const GhostChapterTwo = () => {
       { cancelable: true }
     );
   }} />      
-      <AudioPlayerComponent
-  audioFile={require('../../../assets/audio/ghost/theBrief2.mp3')}
-  volume={1.0}
-  autoPlay={true}
-  isPlaying={isPlaying} // Pass isPlaying state as a prop
-  onEnd={navigateToChapterThree}
-/>
+
     <SafeAreaView style={styles.container}>
     <View>
         <View style={{flex: 1}}/>
         
-        <View style={{width: 100, height: 100, backgroundColor: 'green', borderRadius: 50}} />
+        <Video
+                ref={videoRef}
+                source={require('../../../assets/video/ghost/help.mp4')}
+                rate={1.0}
+                volume={1.0}
+                isMuted={false}
+                resizeMode="cover"
+                shouldPlay
+                isLooping={false}
+                style={styles.video}
+                onPlaybackStatusUpdate={handleVideoEnd}
+            />
         
         <View style={{flex: 1}}/>
 
@@ -124,6 +121,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  video: {
+    width: 300,
+    height: 300,
+},
   blockStyle: {
     marginTop: 20,
     marginBottom: 10,

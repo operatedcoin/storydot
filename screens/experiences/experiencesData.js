@@ -10,14 +10,21 @@ export default {
     credits: "Producer & Presenter: FORM Dance Projects, Audio Installation: Operated Coin, Flying Pieman: Anton, Composer: Christine Johnston, Composer: Peter Nelson, Composer: Trent Arkleysmith, Set and Costume Designer: Melanie Liertz, Lighting Designer: Peter Rubie, Production and Technical Manager: Alejandro Rolandi",
     supporters: [
       require('../../assets/images/supporters/cityOfParra.png'),
-      require('../../assets/images/supporters/creativeAustralia.png'),
+      require('../../assets/images/supporters/nswGov.png'),
     ],  },
   ghost: {
     navigator: "GhostNavigator",
     title: "Ghost",
     description: "Description for Ghost",
-    image: require('../../assets/images/placeholder.png'),
-    credits: "Credits for Ghost"
+    duration: "XX-XX mins",
+    suburb: "Penrith",
+    address: 'Joan Sutherland Performing Arts Centre',
+    image: require('./ghost/ghostHero.jpg'),
+    credits: "Credits for Ghost",
+    supporters: [
+      require('../../assets/images/supporters/qTheatre.png'),
+      require('../../assets/images/supporters/nswGov.png'),
+    ], 
   },
   demo: {
     navigator: "DemoNavigator",

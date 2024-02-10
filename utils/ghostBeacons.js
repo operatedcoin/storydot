@@ -28,7 +28,6 @@ export const devices = [
     rssi: -100,
     title: 'People',
     audioFile: require('../assets/audio/ghost/People.mp3'),
-    subTitle: "I am Ghost #4",
     description: "",
    // image: require('../assets/images/ocoin.jpeg')
   },
@@ -37,7 +36,6 @@ export const devices = [
     rssi: -100,
     title: 'Maltesers',
     audioFile: require('../assets/audio/ghost/Maltesers.mp3'),
-    subTitle: "I am Ghost #5",
     description: "",
     //image: require('../assets/images/ocoin.jpeg')
   },

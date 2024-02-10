@@ -129,7 +129,7 @@ const DetailsScreen = ({ route, navigation }) => {
           <View style={{ flexDirection: 'row' }}>
               <>
                 <MaterialIcons name="location-on" size={13} color="rgb(113 113 122)" />
-                <Text style={{ fontSize: 12, color: 'rgb(113 113 122)' }}>
+                <Text style={{ fontSize: 12, color: 'rgb(113 113 122)', textAlign: 'center' }}>
                   {experience.address}, {experience.suburb}
                 </Text>
               </>
@@ -138,7 +138,7 @@ const DetailsScreen = ({ route, navigation }) => {
           }
             {experience.duration && (
               <View>
-                <Text style={{ fontSize: 12, color: 'rgb(113 113 122)', marginBottom: 10 }}>
+                <Text style={{ fontSize: 12, color: 'rgb(113 113 122)', marginBottom: 10, textAlign: 'center', }}>
                   {experience.duration}
                 </Text>
               </View>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Animated, View, ScrollView, TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
+import { Animated, View, ScrollView, TouchableOpacity, Text, StyleSheet, Platform, Alert } from 'react-native';
 import GhostHeader from '../../../components/modules/GhostHeader';
 import HauntedText from '../../../components/text/HauntedText';
 import twentyMinutes from '../../../components/timers/twentyMinutes';
@@ -17,6 +17,11 @@ const GhostChapterTwo = () => {
   const handleSkip = async () => {
     await stopAudio(); // Stop audio if playing
     navigation.navigate('ChapterThree');
+  };
+
+  const navigateToStart = () => {
+    stopAudio(); // Stop audio if playing
+    navigation.navigate('Details', { experienceId: 'ghost' });
   };
 
   const navigateToChapterThree = () => {
@@ -67,8 +72,23 @@ const GhostChapterTwo = () => {
   return (
     <View style={{flex:1, backgroundColor: 'black'}}>
 
-       <ExitExperienceButton onPress={() => navigation.goBack()} /> 
-      
+<ExitExperienceButton onPress={() => {
+    Alert.alert(
+      'Leave performance?',
+      'Leaving will end the performance.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Leave',
+          onPress: navigateToStart,
+        },
+      ],
+      { cancelable: true }
+    );
+  }} />      
       <AudioPlayerComponent
   audioFile={require('../../../assets/audio/ghost/theBrief2.mp3')}
   volume={1.0}

@@ -1,4 +1,4 @@
-import { Animated, View, ScrollView, TouchableOpacity, Text, StyleSheet, Platform} from 'react-native';
+import { Animated, View, ScrollView, TouchableOpacity, Text, StyleSheet, Platform, Alert} from 'react-native';
 import GhostHeader from '../../../components/modules/GhostHeader';
 import React, { useState, useEffect, useRef } from 'react';
 import HauntedText from '../../../components/text/HauntedText';
@@ -193,7 +193,23 @@ const GhostStartScreen = () => {
     
     <View style={{flex:1, backgroundColor: 'black'}}>
 
-       <ExitExperienceButton onPress={() => navigation.goBack()} />
+<ExitExperienceButton onPress={() => {
+    Alert.alert(
+      'Leave performance?',
+      'Leaving will end the performance.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Leave',
+          onPress: navigation.goBack,
+        },
+      ],
+      { cancelable: true }
+    );
+  }} />
 
 
 <BackgroundAudioPlayer audioFile={audioKey === 'introLoop' ? introLoop : trace} play={playAudio} fadeOut={fadeOut} />

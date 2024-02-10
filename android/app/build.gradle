@@ -81,9 +81,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace 'com.operatedcoin.storydot'
+    namespace 'com.operatedcoin.voxstep'
     defaultConfig {
-        applicationId 'com.operatedcoin.storydot'
+        applicationId 'com.operatedcoin.voxstep'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

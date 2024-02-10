@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { Animated, View, ScrollView, Text, StyleSheet, Platform, Vibration, TouchableOpacity, Image, Modal } from 'react-native';
+import { Animated, View, ScrollView, Text, StyleSheet, Platform, Vibration, TouchableOpacity, Image, Modal, Alert } from 'react-native';
 import { Audio } from 'expo-av';
 import GhostHeader from '../../../components/modules/GhostHeader';
 import HauntedText from '../../../components/text/HauntedText';
@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ghostBeaconDevices, processDevices } from '../../../utils/ghostBeacons2';
+import * as Haptics from 'expo-haptics';
 
 const townhallColor = 'white';
 
@@ -62,12 +63,29 @@ const GhostChapterFive = () => {
   const beaconsCollectedCount = Object.values(stayPink).filter(status => status).length;
   const [activeDevice, setActiveDevice] = useState(null); // State to track the active device for the pop-up  
   const [shownModals, setShownModals] = useState({});
+  const navigation = useNavigation();
 
-const [hauntedText, setHauntedText] = useState(""); // Add this line
-const [showButton, setShowButton] = useState(false); // Add this line
-const navigation = useNavigation();
-const [phase, setPhase] = useState(1); // Add phase state
-const textOpacityAnim = useRef(new Animated.Value(1)).current; // For fading text
+  const beacondetectHaptic = async () => {
+    try {
+      // Start with a light vibration
+      await Haptics.selectionAsync();
+  
+      // Wait for a short duration
+      await new Promise(resolve => setTimeout(resolve, 100)); // Adjust duration as needed
+  
+      // Continue with a slightly stronger vibration
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  
+      // Wait for another short duration
+      await new Promise(resolve => setTimeout(resolve, 100)); // Adjust duration as needed
+  
+      // End with a heavier vibration
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    } catch (error) {
+      console.error('Error while generating tick-tock vibration:', error);
+    }
+  };
+
 const handleButtonPress = () => {
   // Define what should happen when the button is pressed
   navigation.navigate('ChapterSix');
@@ -80,6 +98,11 @@ const handleSkip = () => {
   navigation.navigate('ChapterSix');
   console.log("Button Pressed");
 };
+
+const navigateToStart = () => {
+  navigation.navigate('Details', { experienceId: 'ghost' });
+};
+
 const timerRefs = useRef([]);
 const clearAllTimers = () => {
   timerRefs.current.forEach(timer => clearTimeout(timer));
@@ -176,6 +199,7 @@ useEffect(() => {
               // Check if the collected device is 'MsgSix'
               if (device.name === 'MsgSix') {
                 // Navigate to the next screen directly
+                beacondetectHaptic();
                 navigation.navigate('ChapterSix');
                 return; // Exit the function early to prevent further execution
               }
@@ -187,6 +211,7 @@ useEffect(() => {
               setPlayedAudios(prev => ({ ...prev, [device.name]: true }));
               // Update the stayPink state to mark the device as collected
               setStayPink(prev => ({ ...prev, [device.name]: true }));
+              beacondetectHaptic();
               // Set the active device to show the modal for this device
               setActiveDevice(device);
               // Stop scanning when a device is in range to avoid detecting multiple devices simultaneously
@@ -220,8 +245,23 @@ useEffect(() => {
 return (
   <View style={{flex:1, backgroundColor: 'black'}}>
 
-  <ExitExperienceButton onPress={() => navigation.goBack()} />
-
+<ExitExperienceButton onPress={() => {
+    Alert.alert(
+      'Leave performance?',
+      'Leaving will end the performance.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Leave',
+          onPress: navigateToStart,
+        },
+      ],
+      { cancelable: true }
+    );
+  }} /> 
     <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} />
 
   <SafeAreaView style={styles.container}>

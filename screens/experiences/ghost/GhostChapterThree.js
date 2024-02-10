@@ -1,18 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { Audio } from 'expo-av';
-import { Animated, View, ScrollView, Text, StyleSheet, Platform, Image, TouchableOpacity, Modal } from 'react-native';
-import GhostHeader from '../../../components/modules/GhostHeader';
-import HauntedText from '../../../components/text/HauntedText';
+import { Animated, View, ScrollView, Text, StyleSheet, Platform, Image, TouchableOpacity, Modal, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
 import gyroAudioFile from '../../../assets/audio/drone.mp3';
-import BlackAnimatedButton from '../../../components/text/balckAnimatedButton';
 import useBleRssiScannerGhost from '../../../hooks/useBleRssiScannerGhost';
 import { Ionicons } from '@expo/vector-icons';
 import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ghostBeaconDevices, processDevices } from '../../../utils/ghostBeacons';
+import * as Haptics from 'expo-haptics';
 
 const townhallColor = 'white';
 
@@ -65,24 +63,38 @@ const GhostChapterThree = () => {
   const beaconsCollectedCount = Object.values(stayPink).filter(status => status).length;
   const [activeDevice, setActiveDevice] = useState(null); // State to track the active device for the pop-up  
   const [shownModals, setShownModals] = useState({});
-
-  const [hauntedText, setHauntedText] = useState(""); // Add this line
-  const [showButton, setShowButton] = useState(false); // Add this line
   const navigation = useNavigation();
-  const [phase, setPhase] = useState(1); // Add phase state
-  const textOpacityAnim = useRef(new Animated.Value(1)).current; // For fading text
-  const handleButtonPress = () => {
-    // Define what should happen when the button is pressed
+
+  const beacondetectHaptic = async () => {
+    try {
+      // Start with a light vibration
+      await Haptics.selectionAsync();
+  
+      // Wait for a short duration
+      await new Promise(resolve => setTimeout(resolve, 100)); // Adjust duration as needed
+  
+      // Continue with a slightly stronger vibration
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  
+      // Wait for another short duration
+      await new Promise(resolve => setTimeout(resolve, 100)); // Adjust duration as needed
+  
+      // End with a heavier vibration
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    } catch (error) {
+      console.error('Error while generating tick-tock vibration:', error);
+    }
+  };
+
+
+  const handleSkip = () => {
+    clearAllTimers(); // Clear all active timers before navigating
     navigation.navigate('ChapterFour');
     console.log("Button Pressed");
   };
 
-  const handleSkip = () => {
-    // clearAllTimers(); // Clear all active timers
-    // Define what should happen when the button is pressed
-    clearAllTimers(); // Clear all active timers before navigating
-    navigation.navigate('ChapterFour');
-    console.log("Button Pressed");
+  const navigateToStart = () => {
+    navigation.navigate('Details', { experienceId: 'ghost' });
   };
 
   const timerRefs = useRef([]);
@@ -94,7 +106,7 @@ const GhostChapterThree = () => {
   const closeModal = async () => {
     console.log('Closing Modal'); // Debugging line
     if (activeDevice && soundObjectsRef.current[activeDevice.name]) {
-      await soundObjectsRef.current[activeDevice.name].stopAsync(); // Stop the audio
+      await soundObjectsRef.current[activeDevice.name].stopAsync(); 
     }
     setActiveDevice(null); // Close the modal by setting modalDevice to null
     startScanCycle(); // Resume scanning
@@ -161,6 +173,7 @@ const GhostChapterThree = () => {
               await sound.playAsync().catch(() => {/* Handle error */});
               setPlayedAudios(prev => ({ ...prev, [device.name]: true }));
               setStayPink(prev => ({ ...prev, [device.name]: true }));
+              beacondetectHaptic();
               setActiveDevice(device); // Show the modal for this device
               stopScanCycle(); // Stop scanning when a device is in range
             }
@@ -190,9 +203,23 @@ const GhostChapterThree = () => {
   return (
     <View style={{flex:1, backgroundColor: 'black'}}>
 
-<ExitExperienceButton onPress={() => navigation.goBack()} />
-
-      {/* <GhostHeader /> */}
+<ExitExperienceButton onPress={() => {
+    Alert.alert(
+      'Leave performance?',
+      'Leaving will end the performance.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Leave',
+          onPress: navigateToStart,
+        },
+      ],
+      { cancelable: true }
+    );
+  }} />      
       
       <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} />
 
@@ -207,7 +234,7 @@ const GhostChapterThree = () => {
       <View style={{flex: 1}}/>
 
       <View style={{flex: 1}}>
-    <Text style={{color: 'white'}}>{beaconsCollectedCount} out of  Traces Found.</Text>
+    <Text style={{color: 'white'}}>{beaconsCollectedCount} out of 6 Traces Found.</Text>
           {allCollected && <Text>All Traces have been found.!</Text>}
     </View>
       <View style={{flex: 2}}/>

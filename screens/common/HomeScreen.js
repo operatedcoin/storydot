@@ -22,8 +22,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 const ios = Platform.OS === 'ios';
 const { height } = Dimensions.get('window');
 
-const uri =
-  'https://images.unsplash.com/photo-1620207418302-439b387441b0?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1234&q=80';
+const heroImg = require('../../assets/images/voxstepHero.jpeg');
 
   const HomeScreen = ({ navigation }) => {
 
@@ -36,8 +35,11 @@ const uri =
     };
     
     const renderParallaxHeader = (value) => {
-      return <View><Image source={{ uri }} style={Styles.image} resizeMode="cover" /></View>
+      return (
+        <Image source={heroImg} style={Styles.image} resizeMode="cover" />
+      );
     };
+    
   
     const renderFixedHeader = (value) => {
       const titleOpacity = value.interpolate({
@@ -88,7 +90,7 @@ const uri =
     const renderStickyHeader = (value) => {
       return (
         <View style={Styles.stickyHeader}>
-          <Text className="font-bold text-4xl text-white">Voxstep</Text>
+          {/* <Text className="font-bold text-4xl text-white">Voxstep</Text> */}
         </View>
       );
     };
@@ -151,7 +153,9 @@ const uri =
       margin: 5,
       width: 150, // Adjust the width of your card
       height: 200, // Adjust the height of your card
-      borderRadius: 10,
+      borderRadius: 15,
+      borderWidth: 1,
+      borderColor: 'rgba(255, 255, 255, 0.08)',
       overflow: 'hidden', // Ensure that the View with borderRadius clips the content
     },
     card: {
@@ -222,7 +226,7 @@ const uri =
       fontWeight: '600',
       color: 'white',
       paddingLeft: 15,
-      paddingTop: 6,
+      paddingTop: 10,
       paddingBottom: 6,
     },
     image: {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, Button, Modal, Image, TouchableOpacity, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Button, Modal, Image, TouchableOpacity, ImageBackground, Alert } from 'react-native';
 import { Audio } from 'expo-av';
 import gyroAudioFile from '../../../assets/audio/townHall/loststoriesAmbient.mp3';
 import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
@@ -41,7 +41,23 @@ const IntroSection = ( ) => {
 
   return (
     <View style={{flex: 1, backgroundColor:'black'}}>
-    <ExitExperienceButton onPress={() => navigation.goBack()} />
+    <ExitExperienceButton onPress={() => {
+    Alert.alert(
+      'Leave performance?',
+      'Leaving will end the performance.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Leave',
+          onPress: navigation.goBack,
+        },
+      ],
+      { cancelable: true }
+    );
+  }} />
     <View style={{ flex: 1, paddingHorizontal: 20, justifyContent: 'center', alignItems: 'center'}}>
      <Image source={require('../townHall/lostStories_logo.png')} tintColor={'white'} resizeMode="contain" style={{width: '80%', height: undefined, aspectRatio: 2 }}/>
       <Text style={{color:'white', textAlign: 'center', marginBottom: 20, fontSize: 18, fontWeight: 600,}}>Acknowledgement of Country.</Text>
@@ -201,8 +217,23 @@ const TownHallStartScreen = ({ navigation }) => {
       style={{ flex: 1 }}
     >
     
-    <ExitExperienceButton onPress={() => navigation.goBack()} />
-
+    <ExitExperienceButton onPress={() => {
+    Alert.alert(
+      'Leave performance?',
+      'Leaving will end the performance.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Leave',
+          onPress: navigation.goBack,
+        },
+      ],
+      { cancelable: true }
+    );
+  }} />
     <SafeAreaView style={styles.container}>
 
       <View style={{flex: 1}}/>

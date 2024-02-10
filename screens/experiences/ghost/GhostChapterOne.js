@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Animated, View, ScrollView, Text, StyleSheet, Platform, Vibration, TouchableOpacity } from 'react-native';
+import { Animated, View, ScrollView, Text, StyleSheet, Platform, Vibration, TouchableOpacity, Alert } from 'react-native';
 import GhostHeader from '../../../components/modules/GhostHeader';
 import HauntedText from '../../../components/text/HauntedText';
 import { useNavigation } from '@react-navigation/native';
@@ -10,7 +10,6 @@ import CompassAudioPlayer from '../../../components/audioPlayers/compassAudio';
 import { useIsFocused } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
-
 
 
 const GhostChapterOne = () => {
@@ -39,6 +38,10 @@ const GhostChapterOne = () => {
     clearAllTimers(); // Clear all active timers before navigating
     navigation.navigate('ChapterTwo');
     console.log("Button Pressed");
+  };
+  const navigateToStart = () => {
+    setShouldPlayCompassAudio(false);
+    navigation.navigate('Details', { experienceId: 'ghost' });
   };
   const timerRefs = useRef([]);
   const clearAllTimers = () => {
@@ -110,7 +113,23 @@ const GhostChapterOne = () => {
   return (
     <View style={{flex:1, backgroundColor: 'black'}}>
 
-<ExitExperienceButton onPress={() => navigation.goBack()} />
+<ExitExperienceButton onPress={() => {
+    Alert.alert(
+      'Leave performance?',
+      'Leaving will end the performance.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Leave',
+          onPress: navigateToStart,
+        },
+      ],
+      { cancelable: true }
+    );
+  }} />   
 
 
       {/* <GhostHeader /> */}

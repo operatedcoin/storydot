@@ -4,15 +4,15 @@ export const devices = [
   rssi: -55,
   title: 'Tissues',
   audioFile: require('../assets/audio/ghost/Tissues.mp3'),
-  description: "",
+  // description: "",
   //image: require('../assets/images/ocoin.jpeg')
 },
   {
     name: 'Blue',
     rssi: -100,
-    title: 'Sheet Music',
+    title: 'Bulletin Board',
     audioFile: require('../assets/audio/ghost/board.mp3'),
-    description: "",
+    // description: "",
     //image: require('../assets/images/ocoin.jpeg')
   },
   {
@@ -20,7 +20,7 @@ export const devices = [
     rssi: -100,
     title: 'Bag',
     audioFile: require('../assets/audio/ghost/Bag.mp3'),
-    description: "",
+    // description: "",
     //image: require('../assets/images/ocoin.jpeg')
   },
   {
@@ -28,7 +28,7 @@ export const devices = [
     rssi: -100,
     title: 'People',
     audioFile: require('../assets/audio/ghost/People.mp3'),
-    description: "",
+    // description: "",
    // image: require('../assets/images/ocoin.jpeg')
   },
   {
@@ -36,6 +36,7 @@ export const devices = [
     rssi: -100,
     title: 'Maltesers',
     audioFile: require('../assets/audio/ghost/Maltesers.mp3'),
+    subTitle: "I am Ghost #5",
     description: "",
     //image: require('../assets/images/ocoin.jpeg')
   },
@@ -45,7 +46,7 @@ export const devices = [
     title: 'Wet Floor Sign',
     audioFile: require('../assets/audio/ghost/WetFloor.mp3'),
     subTitle: "I am Ghost #5",
-    description: "",
+    // description: "",
   },
 ];
 

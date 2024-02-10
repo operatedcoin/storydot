@@ -10,6 +10,7 @@ import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 const ios = Platform.OS === 'ios';
 
 const { height } = Dimensions.get('window');
+const { height: screenHeight } = Dimensions.get('window');
 
   // Function to parse the credits string
   const parseCredits = (credits) => {
@@ -30,6 +31,11 @@ const DetailsScreen = ({ route, navigation }) => {
   const creditsArray = parseCredits(experience.credits);
   const hasSupporters = experience.supporters && experience.supporters.length > 0;
 
+  // Calculate the height of the SafeAreaView based on the device
+  const safeAreaHeight = ios ? -35 : -10; // Adjust this value based on your SafeAreaView configuration
+
+  // Adjust the screen height to exclude the SafeAreaView
+  const usableScreenHeight = screenHeight - safeAreaHeight;
 
   const navigateToExperience = () => {
     // Navigate to the specific navigator
@@ -62,28 +68,40 @@ const DetailsScreen = ({ route, navigation }) => {
             style={Styles.headerContainer}
             blurType="dark"
             blurAmount={10}
-          >
+            overlayColor={"#00000000"}
+          />
             <Animated.View
               style={[Styles.titleBackground, { opacity: titleOpacity }]}
             />
-          </BlurView>
+          
         </Animated.View>
   
         {/* Always visible elements */}
         <View style={Styles.leftAligned}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-          <BlurView
+              {/* Use Platform.select to conditionally apply styles based on platform */}
+              <View
+          style={{
+            position: 'absolute',
+            width: 30,
+            height: 30,
+            overflow: 'hidden', // Hide overflow to enforce border radius
+            borderRadius: 15, // Set borderRadius to make it rounded
+          }}
+        >
+          {/* Apply BlurView only on iOS */}
+          {Platform.OS === 'ios' && (
+            <BlurView
               style={{
-                position: 'absolute', // To ensure BlurView doesn't affect layout
-                borderRadius: 15,     // Match this to the icon's size and border radius
-                width: 30,            // Adjust width and height to match the icon size
-                height: 30,
-                overlayColor: "white",
-                opacity: 5,
+                width: '100%',
+                height: '100%',
               }}
               blurType="light"
               blurAmount={20}
+              overlayColor="#00000000"
             />
+          )}
+        </View>
             <Ionicons name="chevron-back" size={26} color="white" />
           </TouchableOpacity>
         </View>
@@ -100,14 +118,14 @@ const DetailsScreen = ({ route, navigation }) => {
 
   const renderStickyHeader = (value) => {
     return (
-      <View style={[Styles.stickyHeader, {zIndex: 100}]}>
+      <View style={[Styles.stickyHeader, {height: usableScreenHeight/2, zIndex: 100}]}>
         <Text className="font-bold text-4xl text-white text-center">{experience.title}</Text>
       </View>
     );
   };
 
-  const IHeight = 350;
-  const HeaderHeight = 350;
+  const IHeight = usableScreenHeight / 2;
+  const HeaderHeight = usableScreenHeight / 2;
 
   return (
     <ParallaxScrollView
@@ -119,7 +137,7 @@ const DetailsScreen = ({ route, navigation }) => {
         fixedHeader={renderFixedHeader}>
           <LinearGradient
             colors={[ 'transparent', 'rgb(9 9 11);']} // Adjust colors as needed
-            style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 350}} // Adjust the height and position as needed
+            style={{ position: 'absolute', left: 0, right: 0, top: 0, height: IHeight}}
           ></LinearGradient>
         <SafeAreaView style={{ flex: 1 }}>
           <View style={Styles.content}>
@@ -242,7 +260,8 @@ const Styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: 70, // Adjust as needed
+    height: 70,
+    zIndex: 100, // Adjust as needed
   },
   safeArea: {
     flexDirection: 'row',
@@ -296,7 +315,6 @@ const Styles = StyleSheet.create({
   },
 
   stickyHeader: {
-    height: 350,
     width: '100%',
     justifyContent: 'flex-end',
     paddingBottom: 10,

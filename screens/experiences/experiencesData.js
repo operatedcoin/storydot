@@ -2,7 +2,7 @@ export default {
   townHall: {
     navigator: "TownHallNavigator",
     title: "Lost Stories. Found.",
-    description: "Let the charismatic figure of William Francis King, the infamous Flying Pieman feed you the stories of Parramatta’s past in the newly refurbished Parramatta Town Hall. Step inside an immersive sculptural installation inspired by the landscape of the Parramatta River and hear stories of place and community.",
+    description: "Let the charismatic figure of William Francis King, the infamous Flying Pieman feed you the stories of Parramatta’s past in the newly refurbished Parramatta Town Hall. Step inside an immersive sculptural installation inspired by the landscape of the Parramatta River and hear stories of place and community. ",
     duration: "15-20 mins",
     suburb: "Parramatta",
     address: 'Town Hall, Parramatta Square',

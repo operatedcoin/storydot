@@ -30,6 +30,7 @@ function BottomTabs() {
             style={{ position: 'absolute', top: 0, left: 0, bottom: 0, right: 0 }}
             blurType="dark"
             blurAmount={10}
+            overlayColor={"#00000000"}
           />
         ),
         tabBarLabelStyle: {
@@ -66,7 +67,7 @@ const Stack = createStackNavigator();
 
 const HomeNavigator = () => (
     
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
+  <Stack.Navigator screenOptions={{ headerShown: false, animation: 'none' }}>
     <Stack.Screen name="Bottom Tabs" component={BottomTabs}/>
     <Stack.Screen name="Details" component={DetailsScreen}/>
     <Stack.Screen name="GhostNavigator" component={GhostNavigator}/>

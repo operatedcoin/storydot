@@ -19,7 +19,7 @@ const GhostStack = createStackNavigator();
 
 const GhostNavigator = () => {
   return (
-    <GhostStack.Navigator screenOptions={{ headerShown: false }}>
+    <GhostStack.Navigator screenOptions={{ headerShown: false, animation: 'none' }}>
       <GhostStack.Screen name="Welcome" component={GhostWelcomeScreen} />
       <GhostStack.Screen name="Begin" component={GhostStartScreen} />
       <GhostStack.Screen name="ChapterOne" component={GhostChapterOne} />

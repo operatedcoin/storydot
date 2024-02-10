@@ -12,6 +12,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
+import * as Haptics from 'expo-haptics';
 
 const townhallColor = '#EFD803';
 
@@ -96,7 +97,6 @@ const DeviceCircle = ({ device, inRange, stayPink }) => {
 const TownHallStartScreen = ({ navigation }) => {
   const [showIntro, setShowIntro] = useState(true);
   const [showCredits, setShowCredits] = useState(false);
-
   const { devices, startScanCycle, stopScanCycle } = useBleRssiScannerTownHall();
   const soundObjectsRef = useRef({});
   const [playedAudios, setPlayedAudios] = useState({});
@@ -105,6 +105,27 @@ const TownHallStartScreen = ({ navigation }) => {
   const beaconsCollectedCount = Object.values(stayPink).filter(status => status).length;
   const [activeDevice, setActiveDevice] = useState(null); // State to track the active device for the pop-up  
   const [shownModals, setShownModals] = useState({});
+
+  const beacondetectHaptic = async () => {
+    try {
+      // Start with a light vibration
+      await Haptics.selectionAsync();
+  
+      // Wait for a short duration
+      await new Promise(resolve => setTimeout(resolve, 100)); // Adjust duration as needed
+  
+      // Continue with a slightly stronger vibration
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  
+      // Wait for another short duration
+      await new Promise(resolve => setTimeout(resolve, 100)); // Adjust duration as needed
+  
+      // End with a heavier vibration
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    } catch (error) {
+      console.error('Error while generating tick-tock vibration:', error);
+    }
+  };
 
   useEffect(() => {
     // Hide intro and show main content after 10 seconds
@@ -187,6 +208,7 @@ const TownHallStartScreen = ({ navigation }) => {
               await sound.playAsync().catch(() => {/* Handle error */});
               setPlayedAudios(prev => ({ ...prev, [device.name]: true }));
               setStayPink(prev => ({ ...prev, [device.name]: true }));
+              beacondetectHaptic();
               setActiveDevice(device); // Show the modal for this device
               stopScanCycle(); // Stop scanning when a device is in range
             }

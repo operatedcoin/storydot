@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Animated, View, ScrollView, Text, StyleSheet, Platform, Vibration, TouchableOpacity, Alert } from 'react-native';
-import GhostHeader from '../../../components/modules/GhostHeader';
 import HauntedText from '../../../components/text/HauntedText';
 import { useNavigation } from '@react-navigation/native';
 import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
@@ -10,6 +9,7 @@ import CompassAudioPlayer from '../../../components/audioPlayers/compassAudio';
 import { useIsFocused } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
+import { StatusBar } from 'react-native';
 
 
 const GhostChapterOne = () => {
@@ -112,6 +112,7 @@ const GhostChapterOne = () => {
 
   return (
     <View style={{flex:1, backgroundColor: 'black'}}>
+      <StatusBar backgroundColor="black" barStyle="light-content" />
 
 <ExitExperienceButton onPress={() => {
     Alert.alert(
@@ -131,8 +132,6 @@ const GhostChapterOne = () => {
     );
   }} />   
 
-
-      {/* <GhostHeader /> */}
       <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} />
 
     <SafeAreaView style={styles.container}>

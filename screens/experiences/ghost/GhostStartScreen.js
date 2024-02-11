@@ -1,5 +1,4 @@
 import { Animated, View, ScrollView, TouchableOpacity, Text, StyleSheet, Platform, Alert} from 'react-native';
-import GhostHeader from '../../../components/modules/GhostHeader';
 import React, { useState, useEffect, useRef } from 'react';
 import HauntedText from '../../../components/text/HauntedText';
 import { useNavigation } from '@react-navigation/native';
@@ -8,12 +7,13 @@ import BackgroundAudioPlayer from '../../../components/audioPlayers/BackgroundAu
 import AnimatedButton from '../../../components/text/AnimatedButton';
 import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'react-native';
 
 
 const GhostStartScreen = () => {
   const [audioKey, setAudioKey] = useState('introLoop'); // Use 'introLoop' or 'trace' as the key
   const [playAudio, setPlayAudio] = useState(true);
-  const [phase, setPhase] = useState(1); // 1 for first text, 2 for second text and button
+  const [phase, setPhase] = useState(1); 
   const [timerSeconds, setTimerSeconds] = useState(60);
   const [showContinue, setShowContinue] = useState(false);
   const fadeAnim = useState(new Animated.Value(0))[0];
@@ -192,6 +192,7 @@ const GhostStartScreen = () => {
   return (
     
     <View style={{flex:1, backgroundColor: 'black'}}>
+      <StatusBar backgroundColor="black" barStyle="light-content" />
 
 <ExitExperienceButton onPress={() => {
     Alert.alert(
@@ -213,7 +214,6 @@ const GhostStartScreen = () => {
 
 
 <BackgroundAudioPlayer audioFile={audioKey === 'introLoop' ? introLoop : trace} play={playAudio} fadeOut={fadeOut} />
-      {/* <GhostHeader /> */}
       <SafeAreaView style={styles.container}>
       <View style={{flex: 1}}/>
         <View>
@@ -363,6 +363,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 40,
   },
   hauntedText: {
     fontSize: 12,
@@ -379,7 +380,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   letterStyle: {
-    fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
     fontSize: 24,
     color: 'white',
     lineHeight: 30,

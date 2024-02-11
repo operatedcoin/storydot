@@ -13,6 +13,8 @@ import { ghostBeaconDevices, processDevices } from '../../../utils/ghostBeacons'
 import BackgroundAudioPlayer from '../../../components/audioPlayers/BackgroundAudioPlayer';
 
 import * as Haptics from 'expo-haptics';
+import { StatusBar } from 'react-native';
+
 
 const townhallColor = 'white';
 
@@ -189,6 +191,7 @@ const GhostChapterThree = () => {
 
   return (
     <View style={{flex:1, backgroundColor: 'black'}}>
+      <StatusBar backgroundColor="black" barStyle="light-content" />
 
 <ExitExperienceButton onPress={() => {
     Alert.alert(

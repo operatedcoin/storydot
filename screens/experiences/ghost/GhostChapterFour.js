@@ -7,6 +7,7 @@ import AudioPlayerComponent from '../../../components/audioPlayers/AudioPlayerCo
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'react-native';
 
 const GhostChapterFour = () => {
 
@@ -73,6 +74,7 @@ const [showContinue, setShowContinue] = useState(false);
 
   return (
     <View style={{flex:1, backgroundColor: 'black'}}>
+      <StatusBar backgroundColor="black" barStyle="light-content" />
 
 <ExitExperienceButton onPress={() => {
     Alert.alert(

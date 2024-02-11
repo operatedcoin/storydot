@@ -5,6 +5,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Video } from 'expo-av';
+import { StatusBar } from 'react-native';
 
 const GhostChapterTwo = () => {
   const fadeAnim = useState(new Animated.Value(0))[0];
@@ -46,15 +47,6 @@ useFocusEffect(
       headerBackTitleVisible: false,
     });
 
-    const timer = setTimeout(() => {
-      setShowContinue(true);
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }).start();
-    }, 11000);
-
     return () => {
       twentyMinutes.pauseTimer();
       clearTimeout(timer);
@@ -83,6 +75,8 @@ useFocusEffect(
   }} />      
 
     <SafeAreaView style={styles.container}>
+    <StatusBar backgroundColor="black" barStyle="light-content" />
+
     <View>
         <View style={{flex: 1}}/>
         

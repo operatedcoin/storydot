@@ -13,6 +13,7 @@ import ExitExperienceButton from '../../../components/visual/exitExperienceButto
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ghostBeaconDevices, processDevices } from '../../../utils/ghostBeacons2';
 import * as Haptics from 'expo-haptics';
+import { StatusBar } from 'react-native';
 
 const townhallColor = 'white';
 
@@ -244,6 +245,7 @@ useEffect(() => {
 
 return (
   <View style={{flex:1, backgroundColor: 'black'}}>
+      <StatusBar backgroundColor="black" barStyle="light-content" />
 
 <ExitExperienceButton onPress={() => {
     Alert.alert(

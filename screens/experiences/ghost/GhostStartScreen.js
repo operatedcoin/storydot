@@ -36,13 +36,16 @@ const GhostStartScreen = () => {
     timersRef.current.forEach(clearTimeout);
     timersRef.current = []; // Reset the timers array
   };
+  const [fadeOut, setFadeOut] = useState(false);
+
+
   const handleSkip = () => {
     clearAllTimers(); // Clear all active timers if necessary
 
   
     // Check if not in the last phase before skipping to prevent going beyond your defined phases
     if (phase < 10) {
-      setPhase(8);
+      setPhase(10);
     } else {
       // Optionally handle the scenario when the skip button is pressed in the last phase
       // For example, navigate to the next chapter or restart the experience
@@ -54,7 +57,6 @@ const GhostStartScreen = () => {
     // If the audio should continue playing across different phases, you might not need to call it.
   };
   
-  const [fadeOut, setFadeOut] = useState(false);
   const introLoop = require("../../../assets/audio/ghost/introLoop.mp3");
   const trace = require("../../../assets/audio/ghost/trace.mp3");
 
@@ -63,6 +65,7 @@ const GhostStartScreen = () => {
       setPlayAudio(false); // Ensure audio is stopped when component unmounts
     };
   }, []);
+  
 
   useEffect(() => {
     const unsubscribeFocus = navigation.addListener('focus', () => {
@@ -182,6 +185,7 @@ const GhostStartScreen = () => {
   useEffect(() => {
     if (phase === 10) {
       setFadeOut(true);
+      
       setTimeout(() => {
             navigation.navigate('ChapterOne'); // Continue with navigation
         }, 10000); // Adjust the delay as needed, ensuring it's enough time for the audio to stop

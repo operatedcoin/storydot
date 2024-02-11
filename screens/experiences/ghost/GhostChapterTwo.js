@@ -47,6 +47,15 @@ useFocusEffect(
       headerBackTitleVisible: false,
     });
 
+    // const timer = setTimeout(() => {
+    //   setShowContinue(true);
+    //   Animated.timing(fadeAnim, {
+    //     toValue: 1,
+    //     duration: 1000,
+    //     useNativeDriver: true,
+    //   }).start();
+    // }, 11000);
+
     return () => {
       twentyMinutes.pauseTimer();
       clearTimeout(timer);

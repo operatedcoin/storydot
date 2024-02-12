@@ -37,6 +37,7 @@ const GhostStartScreen = () => {
     timersRef.current = []; // Reset the timers array
   };
   const [fadeOut, setFadeOut] = useState(false);
+  
 
 
   const handleSkip = () => {

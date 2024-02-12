@@ -15,47 +15,84 @@ const GhostChapterTwo = () => {
   const videoRef = useRef(null); // Create a ref for the video component
   const [currentPhase, setCurrentPhase] = useState(1);
   const [showTextAndButtons, setShowTextAndButtons] = useState(false);
+  const [isAudioLoading, setIsAudioLoading] = useState(false);
+  const secondaryAudioRef = useRef(new Audio.Sound()); // Ref for the secondary audio component
+
 
   const audioRef = useRef(new Audio.Sound()); // Ref for the audio component
 
   const audioFiles = [
     require('../../../assets/audio/ghost/TheBriefPartOne.mp3'),
+    require('../../../assets/audio/ghost/presenceLoop.mp3'),
     require('../../../assets/audio/ghost/TheBriefPartTwo.mp3'),
+    require('../../../assets/audio/ghost/presenceLoop.mp3'),
     require('../../../assets/audio/ghost/TheBriefPartThree.mp3'),
   ];
 
-  const loadAndPlayAudio = async (audioIndex) => {
-    try {
-      await audioRef.current.unloadAsync(); // Ensure no previous audio is loaded
-      await audioRef.current.loadAsync(audioFiles[audioIndex]);
-      await audioRef.current.playAsync();
-    } catch (error) {
-      console.error("Couldn't load audio", error);
-    }
-  };
-
   useEffect(() => {
-    // Play audio at the start of each phase
-    loadAndPlayAudio(currentPhase - 1);
-
+    const loadAndPlayAudio = async (index) => {
+      try {
+        await audioRef.current.unloadAsync(); // Ensure any previous audio is stopped and unloaded
+        const source = audioFiles[index];
+        await audioRef.current.loadAsync(source);
+        await audioRef.current.playAsync();
+      } catch (error) {
+        console.error("Couldn't load audio", error);
+      }
+    };
+  
+    // Logic to handle phase-specific audio playback
+    if (currentPhase === 1) {
+      loadAndPlayAudio(0); // Play audio for phase 1
+    } else if (currentPhase === 1.5) {
+      setShowTextAndButtons(true); // Show text for intermediate phase 1.5
+      loadAndPlayAudio(1); // Correctly play audio for phase 1.5
+    } else if (currentPhase === 2) {
+      loadAndPlayAudio(2); // Play audio for phase 2, after 1.5's audio has been played
+    } else if (currentPhase === 2.5) {
+      setShowTextAndButtons(true); // Show text for intermediate phase 2.5
+      loadAndPlayAudio(3); // Play audio for phase 2.5
+    } else if (currentPhase === 3) {
+      loadAndPlayAudio(4); // Play audio for phase 3, after 2.5's audio has been played
+    }
+  
+    // Listener for audio playback status update
     audioRef.current.setOnPlaybackStatusUpdate((status) => {
-      if (status.didJustFinish && currentPhase < 3) {
-        setShowTextAndButtons(true);
-      } else if (currentPhase === 3 && status.didJustFinish) {
-        finishPhaseThree();
+      if (status.didJustFinish) {
+        if (currentPhase === 1) {
+          setCurrentPhase(1.5); // Transition to intermediate phase 1.5 after phase 1 audio
+        } else if (currentPhase === 1.5) {
+          setShowTextAndButtons(false);
+          setCurrentPhase(2); // Transition to phase 2 after intermediate 1.5's audio
+        } else if (currentPhase === 2) {
+          setCurrentPhase(2.5); // Transition to intermediate phase 2.5 after phase 2 audio
+        } else if (currentPhase === 2.5) {
+          setShowTextAndButtons(false);
+          setCurrentPhase(3); // Transition to phase 3 after intermediate 2.5's audio
+        }
       }
     });
-
-
+  
     return () => {
-      audioRef.current.setOnPlaybackStatusUpdate(null); // Remove listener
-      audioRef.current.stopAsync(); // Stop audio when component unmounts or phase changes
+      audioRef.current.setOnPlaybackStatusUpdate(null);
+      audioRef.current.stopAsync();
     };
-  }, [currentPhase]); // Re-run effect when currentPhase changes
+  }, [currentPhase]);
 
 
-  const goToPhaseTwo = () => setCurrentPhase(2);
-  const goToPhaseThree = () => setCurrentPhase(3);
+  const goToPhaseTwo = () => {
+    setShowTextAndButtons(false); // Ensure text/buttons are hidden when phase starts
+    setCurrentPhase(2);
+    // It's a good practice to start audio playback here if not already started
+    loadAndPlayAudio(1); // Assuming index 1 is for phase 2's audio
+  };
+  
+  const goToPhaseThree = () => {
+    setShowTextAndButtons(false);
+    setCurrentPhase(3);
+    // Start audio playback for phase 3, if applicable
+  };
+  
   const finishPhaseThree = () => navigation.navigate('ChapterThree');
 
   const handleSkip = async () => {
@@ -71,6 +108,7 @@ const GhostChapterTwo = () => {
       navigation.navigate('ChapterThree');
     }
   };
+
 
   useFocusEffect(
     React.useCallback(() => {
@@ -92,53 +130,35 @@ const GhostChapterTwo = () => {
       headerBackTitleVisible: false,
     });
 
-    // Uncomment and fix the timer logic if needed
-    // const timer = setTimeout(() => {
-    //   setShowContinue(true);
-    //   Animated.timing(fadeAnim, {
-    //     toValue: 1,
-    //     duration: 1000,
-    //     useNativeDriver: true,
-    //   }).start();
-    // }, 11000);
-
     return () => {
-      // twentyMinutes.pauseTimer(); // Ensure this function exists or is relevant
-      // clearTimeout(timer); // Uncomment and fix this if you're using the timer logic above
+  
     };
   }, []);
 
   return (
     <View style={{ flex: 1, backgroundColor: 'black' }}>
-      <ExitExperienceButton onPress={() => { /* Your existing onPress logic */ }} />
+      <ExitExperienceButton onPress={() => Alert.alert('Leave performance?', 'Leaving will end the performance.', [{ text: 'Cancel', style: 'cancel' }, { text: 'Leave', onPress: () => navigation.goBack() }], { cancelable: true })} />
       <SafeAreaView style={styles.container}>
         <StatusBar backgroundColor="black" barStyle="light-content" />
-        {/* UI Elements for phases */}
-        {currentPhase === 1 && showTextAndButtons && (
-        <>
-          <HauntedText
-            text="Would you describe yourself as still or stuck?"
-            startDelay={1000}
-            blockStyle={styles.blockStyle}
-            letterStyle={styles.letterStyle}
-          />
-          <AnimatedButton text="Still." onPress={goToPhaseTwo} delay={1000} />
-        </>
-      )}
-      {currentPhase === 2 && !showTextAndButtons && (
-        <>    <HauntedText
-        text="Would you describe yourself as still or stuck?"
-        startDelay={1000}
-        blockStyle={styles.blockStyle}
-        letterStyle={styles.letterStyle}
-      />
-      <AnimatedButton text="Still." onPress={goToPhaseThree} delay={1000} />
-    </>
-  )}
-        {currentPhase === 3 && (
-          // No button needed here since it will auto-transition after audio ends
-          <Text style={{ color: 'gray', textAlign: 'center' }}>Phase 3</Text>
+        {showTextAndButtons && (
+          <>
+            {currentPhase === 1.5 && (
+              <>
+                <HauntedText text="Find the next spot." startDelay={0} blockStyle={styles.blockStyle} letterStyle={styles.letterStyle} />
+                <AnimatedButton text="Ready." onPress={() => setCurrentPhase(2)} delay={3000} />
+              </>
+            )}
+            {currentPhase === 2.5 && (
+              <>
+                <HauntedText text="Prepare for the final phase." startDelay={0} blockStyle={styles.blockStyle} letterStyle={styles.letterStyle} />
+                <AnimatedButton text="Proceed." onPress={() => setCurrentPhase(3)} delay={3000} />
+              </>
+            )}
+          </>
         )}
+        <TouchableOpacity style={{ backgroundColor: 'transparent', marginTop: 20 }} onPress={handleSkip}>
+          <Text style={{ color: 'gray' }}>Skip</Text>
+        </TouchableOpacity>
       </SafeAreaView>
     </View>
   );

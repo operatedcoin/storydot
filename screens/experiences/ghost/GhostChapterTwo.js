@@ -1,191 +1,236 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Animated, View, TouchableOpacity, Text, StyleSheet, Platform, Alert } from 'react-native';
-import twentyMinutes from '../../../components/timers/twentyMinutes';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { View, TouchableOpacity, Text, StyleSheet, Platform, Alert, SafeAreaView, StatusBar } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Video, Audio } from 'expo-av';
-import { StatusBar } from 'react-native';
 import HauntedText from '../../../components/text/HauntedText';
 import AnimatedButton from '../../../components/text/AnimatedButton';
+import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
+import { Audio, Video } from 'expo-av';
 
 const GhostChapterTwo = () => {
-  const fadeAnim = useState(new Animated.Value(0))[0];
+  const [phase, setPhase] = useState(1); // Initial phase
   const navigation = useNavigation();
-  const videoRef = useRef(null); // Create a ref for the video component
-  const [currentPhase, setCurrentPhase] = useState(1);
-  const [showTextAndButtons, setShowTextAndButtons] = useState(false);
-  const [isAudioLoading, setIsAudioLoading] = useState(false);
-  const secondaryAudioRef = useRef(new Audio.Sound()); // Ref for the secondary audio component
+  const videoRef = useRef(null);
+  const audioRef = useRef(new Audio.Sound());
 
-
-  const audioRef = useRef(new Audio.Sound()); // Ref for the audio component
-
-  const audioFiles = [
-    require('../../../assets/audio/ghost/TheBriefPartOne.mp3'),
-    require('../../../assets/audio/ghost/presenceLoop.mp3'),
-    require('../../../assets/audio/ghost/TheBriefPartTwo.mp3'),
-    require('../../../assets/audio/ghost/presenceLoop.mp3'),
-    require('../../../assets/audio/ghost/TheBriefPartThree.mp3'),
-  ];
-
-  useEffect(() => {
-    const loadAndPlayAudio = async (index) => {
-      try {
-        await audioRef.current.unloadAsync(); // Ensure any previous audio is stopped and unloaded
-        const source = audioFiles[index];
-        await audioRef.current.loadAsync(source);
-        await audioRef.current.playAsync();
-      } catch (error) {
-        console.error("Couldn't load audio", error);
-      }
-    };
-  
-    audioRef.current.setOnPlaybackStatusUpdate((status) => {
-      if (status.didJustFinish) {
-        if (currentPhase === 1) {
-          setCurrentPhase(1.5); // Transition to intermediate phase 1.5 after phase 1 audio
-        } else if (currentPhase === 1.5) {
-          setShowTextAndButtons(false);
-          setCurrentPhase(2); // Transition to phase 2 after intermediate 1.5's audio
-        } else if (currentPhase === 2) {
-          setCurrentPhase(2.5); // Transition to intermediate phase 2.5 after phase 2 audio
-        } else if (currentPhase === 2.5) {
-          setShowTextAndButtons(false);
-          setCurrentPhase(3); // Transition to phase 3 after intermediate 2.5's audio
-        } else if (currentPhase === 3) {
-          // This is the new condition to check if the current phase is 3 and the audio has just finished.
-          // If true, navigate to ChapterThree.
-          finishPhaseThree(); // Call the function to navigate to ChapterThree
-        }
-      }
-    });
-  
-    // Logic to handle phase-specific audio playback
-    if (currentPhase === 1) {
-      loadAndPlayAudio(0); // Play audio for phase 1
-    } else if (currentPhase === 1.5) {
-      setShowTextAndButtons(true); // Show text for intermediate phase 1.5
-      loadAndPlayAudio(1); // Correctly play audio for phase 1.5
-    } else if (currentPhase === 2) {
-      loadAndPlayAudio(2); // Play audio for phase 2, after 1.5's audio has been played
-    } else if (currentPhase === 2.5) {
-      setShowTextAndButtons(true); // Show text for intermediate phase 2.5
-      loadAndPlayAudio(3); // Play audio for phase 2.5
-    } else if (currentPhase === 3) {
-      loadAndPlayAudio(4); // Play audio for phase 3, after 2.5's audio has been played
-    }
-  
-    return () => {
-      audioRef.current.setOnPlaybackStatusUpdate(null);
-      audioRef.current.stopAsync();
-    };
-  }, [currentPhase]);
-
-
-  const goToPhaseTwo = () => {
-    setShowTextAndButtons(false); // Ensure text/buttons are hidden when phase starts
-    setCurrentPhase(2);
-    // It's a good practice to start audio playback here if not already started
-    loadAndPlayAudio(1); // Assuming index 1 is for phase 2's audio
-  };
-  
-  const goToPhaseThree = () => {
-    setShowTextAndButtons(false);
-    setCurrentPhase(3);
-    // Start audio playback for phase 3, if applicable
-  };
-  
-  const finishPhaseThree = () => navigation.navigate('ChapterThree');
-  const handleSkip = async () => {
-    try {
-      // Attempt to stop the primary audio if it's loaded
-      if (audioRef.current) {
-        await audioRef.current.stopAsync();
-      }
-    } catch (error) {
-      console.log("Error stopping primary audio:", error);
-    }
-  
-    try {
-      // Attempt to stop the secondary audio if it's loaded and being used
-      if (secondaryAudioRef.current) {
-        await secondaryAudioRef.current.stopAsync();
-      }
-    } catch (error) {
-      console.log("Error stopping secondary audio:", error);
-    }
-  
-    // Navigate to the next chapter after attempting to stop any playing audio
-    navigation.navigate('ChapterThree');
-  };
-
-  const navigateToStart = () => {
-    navigation.navigate('Details', { experienceId: 'ghost' });
-  };
-
-  const handleVideoEnd = (status) => {
+  const handleVideoEnd = useCallback((status) => {
     if (status.didJustFinish) {
-      navigation.navigate('ChapterThree');
+      switch (phase) {
+        case 1:
+          setPhase(1.5);
+          break;
+        case 2:
+          setPhase(2.5);
+          break;
+        case 3:
+          navigation.navigate('ChapterThree');
+          break;
+        default:
+          // Handle unexpected phase
+          console.error('Unexpected phase:', phase);
+          break;
+      }
     }
-  };
-
-  
-
-  useFocusEffect(
-    React.useCallback(() => {
-      // This function is called when the screen comes into focus
-      return () => {
-        // This function is called when the screen goes out of focus
-        if (videoRef.current) {
-          videoRef.current.stopAsync(); // Stop the video when navigating away
-        }
-      };
-    }, [])
-  );
+  }, [phase, navigation]);
 
   useEffect(() => {
-    navigation.setOptions({
-      title: '',
-      headerStyle: { backgroundColor: 'black' },
-      headerTintColor: 'white',
-      headerBackTitleVisible: false,
-    });
+    // Load audio file
+    const loadAudio = async () => {
+      try {
+        await audioRef.current.unloadAsync(); // Ensure no previous audio is loaded
+        await audioRef.current.loadAsync(require('../../../assets/audio/ghost/presenceLoop.mp3'));
+        // Don't play immediately, wait for phase check
+      } catch (error) {
+        console.error('Error loading audio', error);
+      }
+    };
+
+    loadAudio();
 
     return () => {
-  
+      audioRef.current.unloadAsync(); // Cleanup audio on component unmount
     };
   }, []);
 
+  useEffect(() => {
+    // Play audio in specific phases and stop when leaving those phases
+    const manageAudioPlayback = async () => {
+      if (phase === 1.5 || phase === 2.5) {
+        await audioRef.current.playAsync();
+      } else {
+        await audioRef.current.stopAsync();
+      }
+    };
+
+    manageAudioPlayback();
+  }, [phase]); // Depend on phase
+
+  useFocusEffect(
+    useCallback(() => {
+      const blurListener = navigation.addListener('blur', async () => {
+        // Stop both video and audio when navigating away
+        if (videoRef.current) {
+          videoRef.current.stopAsync();
+        }
+        await audioRef.current.stopAsync();
+      });
+
+      return blurListener;
+    }, [navigation])
+  );
+
+  // Debugging video source loading
+  useEffect(() => {
+    if (phase === 1 || phase === 2 || phase === 3) {
+      // Optionally, you can force video to play here if not auto-playing
+      // if (videoRef.current) videoRef.current.playAsync();
+    }
+  }, [phase]);
+
+  // Function to move to the next phase manually, used by button taps
+  const advancePhase = () => {
+    const nextPhase = phase + 0.5;
+    setPhase(nextPhase);
+  };
+
   return (
-    <View style={{ flex: 1, backgroundColor: 'black' }}>
-      <ExitExperienceButton onPress={() => Alert.alert('Leave performance?', 'Leaving will end the performance.', [{ text: 'Cancel', style: 'cancel' }, { text: 'Leave', onPress: () => navigation.goBack() }], { cancelable: true })} />
+    <View style={{flex:1, backgroundColor: 'black'}}>
+      <ExitExperienceButton onPress={() => {
+        Alert.alert(
+          'Leave performance?',
+          'Leaving will end the performance.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Leave', onPress: () => navigation.navigate('Details', { experienceId: 'ghost' }) },
+          ],
+          { cancelable: true }
+        );
+      }} />
+
       <SafeAreaView style={styles.container}>
         <StatusBar backgroundColor="black" barStyle="light-content" />
-        {showTextAndButtons && (
-          <>
-            {currentPhase === 1.5 && (
-              <>
-                <HauntedText text="Find the next spot." startDelay={0} blockStyle={styles.blockStyle} letterStyle={styles.letterStyle} />
-                <AnimatedButton text="Ready." onPress={() => setCurrentPhase(2)} delay={3000} />
-              </>
-            )}
-            {currentPhase === 2.5 && (
-              <>
-                <HauntedText text="Prepare for the final phase." startDelay={0} blockStyle={styles.blockStyle} letterStyle={styles.letterStyle} />
-                <AnimatedButton text="Proceed." onPress={() => setCurrentPhase(3)} delay={3000} />
-              </>
-            )}
-          </>
-        )}
-        <TouchableOpacity style={{ backgroundColor: 'transparent', marginTop: 20 }} onPress={handleSkip}>
-          <Text style={{ color: 'gray' }}>Skip</Text>
-        </TouchableOpacity>
+
+        <View style={styles.content}>
+        {phase === 1 && (
+            <View>
+              <View style={{flex: 1}}/>
+              <Video
+              ref={videoRef}
+              source={require('../../../assets/video/ghost/TheBriefPartOne.mp4')}
+              rate={1.0}
+              volume={1.0}
+              isMuted={false}
+              resizeMode="cover"
+              shouldPlay
+              isLooping={false}
+              style={styles.video}
+              onPlaybackStatusUpdate={handleVideoEnd}
+            />
+            <View style={{flex: 1}}/>
+
+            <TouchableOpacity onPress={() => setPhase(1.5)} style={{backgroundColor: 'transparent',}}>
+            <Text style={{ color: 'gray', textAlign: 'center', }}>Skip</Text>
+            </TouchableOpacity>
+            </View>
+          )}
+
+{/* Phase 1.5 */}
+{phase === 1.5 && (
+  <View style={styles.phaseContainer}>
+    <View style={{flex: 1}}/>
+    <HauntedText 
+      text="There are two booths in the foyer. Take a seat in them... or nearby if someone else is haunting them." 
+      startDelay={0} 
+      blockStyle={styles.blockStyle} 
+      letterStyle={styles.letterStyle} 
+    />
+    <AnimatedButton 
+      text="I'm in position" 
+      onPress={() => setPhase(2)} 
+      delay={3000} // Button becomes interactive after 3 seconds
+    />
+    <View style={{flex: 1}}/>
+
+    <TouchableOpacity onPress={() => setPhase(2)} style={{backgroundColor: 'transparent',}}>
+    <Text style={{ color: 'gray', textAlign: 'center', }}>Skip</Text>
+    </TouchableOpacity>
+  </View>
+  
+)}
+
+{/* Phase 2.5 */}
+{phase === 2.5 && (
+  <View style={styles.phaseContainer}>
+    <View style={{flex: 1}}/>
+    <HauntedText 
+      text="Now find somewhere in the foyer that makes you feel a little uneasy." 
+      startDelay={0} 
+      blockStyle={styles.blockStyle} 
+      letterStyle={styles.letterStyle} 
+    />
+    <AnimatedButton 
+      text="I'm here but I don't like it" 
+      onPress={() => setPhase(3)} 
+      delay={3000} // Button becomes interactive after 3 seconds
+    />
+    <View style={{flex: 1}}/>
+
+    <TouchableOpacity onPress={() => setPhase(3)} style={{backgroundColor: 'transparent',}}>
+    <Text style={{ color: 'gray', textAlign: 'center', }}>Skip</Text>
+    </TouchableOpacity>
+  </View>
+)}
+
+
+          {phase === 2 && (
+            <View>
+            <View style={{flex: 1}}/>
+            <Video
+              ref={videoRef}
+              source={require('../../../assets/video/ghost/TheBriefingPartTwoStill.mp4')}
+              rate={1.0}
+              volume={1.0}
+              isMuted={false}
+              resizeMode="cover"
+              shouldPlay
+              isLooping={false}
+              style={styles.video}
+              onPlaybackStatusUpdate={handleVideoEnd}
+            />
+            <View style={{flex: 1}}/>
+
+            <TouchableOpacity onPress={() => setPhase(2.5)} style={{backgroundColor: 'transparent',}}>
+            <Text style={{ color: 'gray', textAlign: 'center', }}>Skip</Text>
+            </TouchableOpacity>            
+            </View>
+          )}
+
+          {phase === 3 && (
+            <View>
+            <View style={{flex: 1}}/>
+            <Video
+              ref={videoRef}
+              source={require('../../../assets/video/ghost/TheBriefingPartThree.mp4')}
+              rate={1.0}
+              volume={1.0}
+              isMuted={false}
+              resizeMode="cover"
+              shouldPlay
+              isLooping={false}
+              style={styles.video}
+              onPlaybackStatusUpdate={handleVideoEnd}
+            />
+            <View style={{flex: 1}}/>
+            <TouchableOpacity onPress={() => navigation.navigate('ChapterThree')} style={{backgroundColor: 'transparent',}}>
+              <Text style={{ color: 'gray', textAlign: 'center', }}>Skip</Text>
+            </TouchableOpacity>
+ 
+            </View>
+          )}
+        </View>
       </SafeAreaView>
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -196,14 +241,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  content: {
+    flex: 1,
+    paddingBottom: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   video: {
     width: 300,
     height: 300,
-},
-  blockStyle: {
-    marginTop: 20,
-    marginBottom: 10,
-    paddingHorizontal: 20,
   },
   letterStyle: {
     fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
@@ -211,17 +257,25 @@ const styles = StyleSheet.create({
     color: 'white',
     lineHeight: 30,
   },
-  continueButton: {
-    marginTop: 20,
-    paddingVertical: 15,
-    paddingHorizontal: 30,
+  textContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  instructionText: {
+    color: 'white',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  button: {
     backgroundColor: 'gray',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     borderRadius: 5,
   },
-  continueButtonText: {
-    color: 'black',
+  buttonText: {
+    color: 'white',
     textAlign: 'center',
-    fontSize: 16,
   },
 });
 

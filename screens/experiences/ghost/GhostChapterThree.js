@@ -77,6 +77,26 @@ const GhostChapterThree = () => {
   const isFocused = useIsFocused(); // Determines if the screen is focused
   const soundRef = useRef(null); // Reference to store the sound object
 
+  const beacondetectHaptic = async () => {
+    try {
+      // Start with a light vibration
+      await Haptics.selectionAsync();
+  
+      // Wait for a short duration
+      await new Promise(resolve => setTimeout(resolve, 100)); // Adjust duration as needed
+  
+      // Continue with a slightly stronger vibration
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  
+      // Wait for another short duration
+      await new Promise(resolve => setTimeout(resolve, 100)); // Adjust duration as needed
+  
+      // End with a heavier vibration
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    } catch (error) {
+      console.error('Error while generating tick-tock vibration:', error);
+    }
+  };
 
   const handleSkip = () => {
     clearAllTimers(); // Clear all active timers before navigating

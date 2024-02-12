@@ -12,7 +12,7 @@ export const devices = [
         name: 'Blue',
         rssi: -100,
         title: 'Ghost #2',
-        audioFile: require('../assets/audio/testAudio.mp3'),
+        audioFile: require('../assets/audio/MysteryTheme.wav'),
         subTitle: "I am Ghost #1",
         description: "This is Ghost #1",
         image: '../../assets/images.coin.jpeg'
@@ -30,7 +30,7 @@ export const devices = [
         name: 'Purple',
         rssi: -100,
         title: 'Ghost #4',
-        audioFile: require('../assets/audio/testAudio.mp3'),
+        audioFile: require('../assets/audio/MysteryTheme.wav'),
         subTitle: "I am Ghost #4",
         description: "This is Ghost #4",
         image: '../assets/images.coin.jpeg'

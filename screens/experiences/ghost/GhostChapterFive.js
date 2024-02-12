@@ -309,7 +309,7 @@ return (
               resizeMode="contain"
               style={{ width: '100%', height: undefined, aspectRatio: 1 }}
             />
-            <Text>Description: {activeDevice.description}</Text>
+            {/* <Text>Description: {activeDevice.description}</Text> */}
           </ScrollView>
         </>
       </View>

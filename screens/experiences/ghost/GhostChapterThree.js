@@ -266,7 +266,7 @@ const GhostChapterThree = () => {
   <View style={{flex: 2}}/>
     
     <View  style={{flex: 3}}>
-    <Text style={styles.letterStyle}>Traces have small white lights near them. Hold this device close to the lights to collect.</Text>
+    <Text style={styles.letterStyle}>Six small white lights are located in the foyer. Hold this device close to the lights to collect.</Text>
     {/* <BackgroundAudioPlayer audioFile={audioFile} play={isFocused} fadeOut={!isFocused} /> */}
 
     </View>
@@ -312,7 +312,7 @@ const GhostChapterThree = () => {
               resizeMode="contain"
               style={{ width: '100%', height: undefined, aspectRatio: 1 }}
             />
-            <Text>Description: {activeDevice.description}</Text>
+            {/* <Text>Description: {activeDevice.description}</Text> */}
           </ScrollView>
         </>
       </View>

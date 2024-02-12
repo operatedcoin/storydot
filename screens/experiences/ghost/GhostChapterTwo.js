@@ -41,6 +41,26 @@ const GhostChapterTwo = () => {
       }
     };
   
+    audioRef.current.setOnPlaybackStatusUpdate((status) => {
+      if (status.didJustFinish) {
+        if (currentPhase === 1) {
+          setCurrentPhase(1.5); // Transition to intermediate phase 1.5 after phase 1 audio
+        } else if (currentPhase === 1.5) {
+          setShowTextAndButtons(false);
+          setCurrentPhase(2); // Transition to phase 2 after intermediate 1.5's audio
+        } else if (currentPhase === 2) {
+          setCurrentPhase(2.5); // Transition to intermediate phase 2.5 after phase 2 audio
+        } else if (currentPhase === 2.5) {
+          setShowTextAndButtons(false);
+          setCurrentPhase(3); // Transition to phase 3 after intermediate 2.5's audio
+        } else if (currentPhase === 3) {
+          // This is the new condition to check if the current phase is 3 and the audio has just finished.
+          // If true, navigate to ChapterThree.
+          finishPhaseThree(); // Call the function to navigate to ChapterThree
+        }
+      }
+    });
+  
     // Logic to handle phase-specific audio playback
     if (currentPhase === 1) {
       loadAndPlayAudio(0); // Play audio for phase 1
@@ -55,23 +75,6 @@ const GhostChapterTwo = () => {
     } else if (currentPhase === 3) {
       loadAndPlayAudio(4); // Play audio for phase 3, after 2.5's audio has been played
     }
-  
-    // Listener for audio playback status update
-    audioRef.current.setOnPlaybackStatusUpdate((status) => {
-      if (status.didJustFinish) {
-        if (currentPhase === 1) {
-          setCurrentPhase(1.5); // Transition to intermediate phase 1.5 after phase 1 audio
-        } else if (currentPhase === 1.5) {
-          setShowTextAndButtons(false);
-          setCurrentPhase(2); // Transition to phase 2 after intermediate 1.5's audio
-        } else if (currentPhase === 2) {
-          setCurrentPhase(2.5); // Transition to intermediate phase 2.5 after phase 2 audio
-        } else if (currentPhase === 2.5) {
-          setShowTextAndButtons(false);
-          setCurrentPhase(3); // Transition to phase 3 after intermediate 2.5's audio
-        }
-      }
-    });
   
     return () => {
       audioRef.current.setOnPlaybackStatusUpdate(null);
@@ -109,6 +112,7 @@ const GhostChapterTwo = () => {
     }
   };
 
+  
 
   useFocusEffect(
     React.useCallback(() => {

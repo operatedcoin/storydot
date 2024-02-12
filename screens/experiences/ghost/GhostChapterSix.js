@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Animated, View, TouchableOpacity, Text, StyleSheet, Platform, Alert } from 'react-native';
-import twentyMinutes from '../../../components/timers/twentyMinutes';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -37,21 +36,7 @@ useFocusEffect(
       };
   }, [])
 );
-  
 
-  // useEffect(() => {
-  //   navigation.setOptions({
-  //     title: '',
-  //     headerStyle: { backgroundColor: 'black' },
-  //     headerTintColor: 'white',
-  //     headerBackTitleVisible: false,
-  //   });
-
-  //   return () => {
-  //     twentyMinutes.pauseTimer();
-  //     clearTimeout(timer);
-  //   };
-  // }, []);
 
   return (
     <View style={{flex:1, backgroundColor: 'black'}}>

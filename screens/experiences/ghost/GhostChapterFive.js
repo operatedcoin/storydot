@@ -95,7 +95,6 @@ const handleButtonPress = () => {
 const handleSkip = () => {
   // clearAllTimers(); // Clear all active timers
   // Define what should happen when the button is pressed
-  clearAllTimers(); // Clear all active timers before navigating
   navigation.navigate('ChapterSix');
   console.log("Button Pressed");
 };
@@ -104,11 +103,11 @@ const navigateToStart = () => {
   navigation.navigate('Details', { experienceId: 'ghost' });
 };
 
-const timerRefs = useRef([]);
-const clearAllTimers = () => {
-  timerRefs.current.forEach(timer => clearTimeout(timer));
-  timerRefs.current = []; // Clear the refs array after clearing the timers
-};
+// const timerRefs = useRef([]);
+// const clearAllTimers = () => {
+//   timerRefs.current.forEach(timer => clearTimeout(timer));
+//   timerRefs.current = []; // Clear the refs array after clearing the timers
+// };
 
 const closeModal = async () => {
   console.log('Closing Modal'); // Debugging line

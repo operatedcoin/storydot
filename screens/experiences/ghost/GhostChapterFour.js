@@ -1,80 +1,46 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Animated, View, ScrollView, TouchableOpacity, Text, StyleSheet, Platform, Alert } from 'react-native';
-import GhostHeader from '../../../components/modules/GhostHeader';
-import HauntedText from '../../../components/text/HauntedText';
-import twentyMinutes from '../../../components/timers/twentyMinutes';
-import AudioPlayerComponent from '../../../components/audioPlayers/AudioPlayerComponent';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Animated, View, TouchableOpacity, Text, StyleSheet, Platform, Alert } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Video } from 'expo-av';
 import { StatusBar } from 'react-native';
 
 const GhostChapterFour = () => {
-
-const [showContinue, setShowContinue] = useState(false);
   const fadeAnim = useState(new Animated.Value(0))[0];
   const navigation = useNavigation();
-  const [isPlaying, setIsPlaying] = useState(true); // Control playback
+  const videoRef = useRef(null); // Create a ref for the video component
 
   const handleSkip = async () => {
-    await stopAudio(); // Stop audio if playing
     navigation.navigate('ChapterFive');
   };
 
-  const navigateToStart = async () => {
-    await stopAudio(); // Stop audio if playing
+  const navigateToStart = () => {
     navigation.navigate('Details', { experienceId: 'ghost' });
   };
 
-  const navigateToChapterThree = () => {
-    navigation.navigate('ChapterFive');
-  };
+  const handleVideoEnd = (status) => {
+    if (status.didJustFinish) {
+        navigation.navigate('ChapterFive');
+    }
+};
 
-  const stopAudio = () => {
-    setIsPlaying(false); // This should trigger the AudioPlayerComponent to stop playback
-  };
+useFocusEffect(
+  React.useCallback(() => {
+      // This function is called when the screen comes into focus
+      return () => {
+          // This function is called when the screen goes out of focus
+          if (videoRef.current) {
+              videoRef.current.stopAsync(); // Stop the video when navigating away
+          }
+      };
+  }, [])
+);
   
-  useFocusEffect(
-    useCallback(() => {
-      return () => stopAudio(); // Stops audio when navigating away
-    }, [])
-  );
-  
 
-  useEffect(() => {
-    navigation.setOptions({
-      title: '',
-      headerStyle: { backgroundColor: 'black' },
-      headerTintColor: 'white',
-      headerBackTitleVisible: false,
-    });
-
-    const timer = setTimeout(() => {
-      setShowContinue(true);
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }).start();
-    }, 11000);
-
-    return () => {
-      twentyMinutes.pauseTimer();
-      clearTimeout(timer);
-    };
-  }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      // Do something when the screen comes into focus
-      
-      return () => stopAudio(); // Ensure audio is stopped when navigating away
-    }, [])
-  );
 
   return (
     <View style={{flex:1, backgroundColor: 'black'}}>
-      <StatusBar backgroundColor="black" barStyle="light-content" />
 
 <ExitExperienceButton onPress={() => {
     Alert.alert(
@@ -92,26 +58,34 @@ const [showContinue, setShowContinue] = useState(false);
       ],
       { cancelable: true }
     );
-  }} /> 
-      <AudioPlayerComponent
-  audioFile={require('../../../assets/audio/ghost/Sc5.mp3')}
-  volume={1.0}
-  autoPlay={true}
-  isPlaying={isPlaying}
-  onEnd={navigateToChapterThree}
-/>
-<SafeAreaView style={styles.container}>
+  }} />      
+
+    <SafeAreaView style={styles.container}>
+    <StatusBar backgroundColor="black" barStyle="light-content" />
+
     <View>
         <View style={{flex: 1}}/>
         
-        <View style={{width: 100, height: 100, backgroundColor: 'green', borderRadius: 50}} />
+        <Video
+                ref={videoRef}
+                source={require('../../../assets/video/ghost/Sc5.mp4')}
+                rate={1.0}
+                volume={1.0}
+                isMuted={false}
+                resizeMode="cover"
+                shouldPlay
+                isLooping={false}
+                style={styles.video}
+                onPlaybackStatusUpdate={handleVideoEnd}
+            />
         
         <View style={{flex: 1}}/>
 
         <TouchableOpacity onPress={handleSkip} style={{backgroundColor: 'transparent',}}>
         <Text style={{ color: 'gray', textAlign: 'center', }}>Skip</Text>
         </TouchableOpacity>
-        </View>
+
+      </View>
       </SafeAreaView>
     </View>
   );
@@ -127,14 +101,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  contentContainer: {
-    paddingTop: Platform.OS === 'ios' ? 44 : 56,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  content: {
-    alignItems: 'center',
-  },
+  video: {
+    width: 300,
+    height: 300,
+},
   blockStyle: {
     marginTop: 20,
     marginBottom: 10,
@@ -159,4 +129,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+
 export default GhostChapterFour;

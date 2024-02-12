@@ -99,7 +99,7 @@ const GhostChapterThree = () => {
   };
 
   const handleSkip = () => {
-    clearAllTimers(); // Clear all active timers before navigating
+    // clearAllTimers(); 
     navigation.navigate('ChapterFour');
     console.log("Button Pressed");
   };
@@ -108,11 +108,11 @@ const GhostChapterThree = () => {
     navigation.navigate('Details', { experienceId: 'ghost' });
   };
 
-  const timerRefs = useRef([]);
-  const clearAllTimers = () => {
-    timerRefs.current.forEach(timer => clearTimeout(timer));
-    timerRefs.current = []; // Clear the refs array after clearing the timers
-  };
+  // const timerRefs = useRef([]);
+  // const clearAllTimers = () => {
+  //   timerRefs.current.forEach(timer => clearTimeout(timer));
+  //   timerRefs.current = []; // Clear the refs array after clearing the timers
+  // };
 
   const closeModal = async () => {
     console.log('Closing Modal'); // Debugging line

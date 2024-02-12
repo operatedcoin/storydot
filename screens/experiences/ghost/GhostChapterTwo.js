@@ -86,12 +86,6 @@ const GhostChapterTwo = () => {
     }
   }, [phase]);
 
-  // Function to move to the next phase manually, used by button taps
-  const advancePhase = () => {
-    const nextPhase = phase + 0.5;
-    setPhase(nextPhase);
-  };
-
   return (
     <View style={{flex:1, backgroundColor: 'black'}}>
       <ExitExperienceButton onPress={() => {

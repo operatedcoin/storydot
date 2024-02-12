@@ -10,7 +10,6 @@ import { Ionicons } from '@expo/vector-icons';
 import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ghostBeaconDevices, processDevices } from '../../../utils/ghostBeacons';
-import BackgroundAudioPlayer from '../../../components/audioPlayers/BackgroundAudioPlayer';
 
 import * as Haptics from 'expo-haptics';
 import { StatusBar } from 'react-native';
@@ -75,6 +74,9 @@ const GhostChapterThree = () => {
     navigation.navigate('ChapterFour');
     console.log("Button Pressed");
   };
+  const isFocused = useIsFocused(); // Determines if the screen is focused
+  const soundRef = useRef(null); // Reference to store the sound object
+
 
   const handleSkip = () => {
     clearAllTimers(); // Clear all active timers before navigating
@@ -104,6 +106,31 @@ const GhostChapterThree = () => {
       if (allCollected) {
         navigation.navigate('ChapterFour');  }
    };
+
+   const playLoopingAudio = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+      require('../../../assets/audio/drone.mp3'), // Replace with your actual audio file
+      {
+        shouldPlay: true,
+        isLooping: true,
+      }
+    );
+    soundRef.current = sound; // Store the sound object in the ref
+  };
+
+  useEffect(() => {
+    if (isFocused) {
+      playLoopingAudio(); // Play audio when the screen is focused
+    } else {
+      soundRef.current?.stopAsync(); // Stop audio when the screen is not focused
+    }
+
+    // Cleanup function to unload the sound when the component unmounts
+    return () => {
+      soundRef.current?.unloadAsync();
+    };
+  }, [isFocused]);
+
 
   useEffect(() => {
     const newStayPink = { ...stayPink }; // Start with the current state
@@ -229,7 +256,7 @@ const GhostChapterThree = () => {
 
       <View style={{flex: 1}}>
     <Text style={{color: 'white'}}>{beaconsCollectedCount} out of 6 Traces Found.</Text>
-          {allCollected && <Text>All Traces have been found.!</Text>}
+          {allCollected && <Text>All Traces have been found.</Text>}
     </View>
       <View style={{flex: 2}}/>
   <TouchableOpacity

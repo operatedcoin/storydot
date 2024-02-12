@@ -97,8 +97,26 @@ const GhostChapterTwo = () => {
   };
   
   const finishPhaseThree = () => navigation.navigate('ChapterThree');
-
   const handleSkip = async () => {
+    try {
+      // Attempt to stop the primary audio if it's loaded
+      if (audioRef.current) {
+        await audioRef.current.stopAsync();
+      }
+    } catch (error) {
+      console.log("Error stopping primary audio:", error);
+    }
+  
+    try {
+      // Attempt to stop the secondary audio if it's loaded and being used
+      if (secondaryAudioRef.current) {
+        await secondaryAudioRef.current.stopAsync();
+      }
+    } catch (error) {
+      console.log("Error stopping secondary audio:", error);
+    }
+  
+    // Navigate to the next chapter after attempting to stop any playing audio
     navigation.navigate('ChapterThree');
   };
 

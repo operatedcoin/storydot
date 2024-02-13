@@ -206,12 +206,20 @@ const GhostChapterThree = () => {
           try {
             const status = await sound.getStatusAsync();
             if (status.isLoaded && device.rssi < 0 && device.rssi > -50 && !status.isPlaying) {
-              await sound.playAsync().catch(() => {/* Handle error */});
+              // Set up the playback status update callback
+              sound.setOnPlaybackStatusUpdate(async playbackStatus => {
+                if (playbackStatus.didJustFinish) {
+                  // Audio finished playing
+                  sound.setOnPlaybackStatusUpdate(null); // Remove the callback
+                  beacondetectHaptic(); // Optional: Trigger haptic feedback here if it makes sense in your app flow
+                  startScanCycle(); // Resume BLE scanning after audio finishes
+                }
+              });
+  
+              await sound.playAsync();
               setPlayedAudios(prev => ({ ...prev, [device.name]: true }));
               setStayPink(prev => ({ ...prev, [device.name]: true }));
-              beacondetectHaptic();
-              //setActiveDevice(device); // Show the modal for this device
-              stopScanCycle(); // Stop scanning when a device is in range
+              stopScanCycle(); // Stop scanning while the device's audio is playing
             }
           } catch (error) {
             console.error(`Error with sound for device ${device.name}:`, error);
@@ -222,6 +230,7 @@ const GhostChapterThree = () => {
   
     handleDevices();
   }, [devices, shownModals, playedAudios, soundObjectsRef, startScanCycle, stopScanCycle]);
+  
   
 
   useEffect(() => {
@@ -288,8 +297,8 @@ const GhostChapterThree = () => {
   <Text style={{ color: 'gray' }}>Skip</Text>
 </TouchableOpacity>
       </SafeAreaView>
-{/* 
-      <Modal
+
+      {/* <Modal
   animationType="slide"
   transparent={true}
   visible={activeDevice !== null}

@@ -5,7 +5,7 @@ PODS:
   - DoubleConversion (1.1.6)
   - EXApplication (5.3.1):
     - ExpoModulesCore
-  - EXAV (13.6.0):
+  - EXAV (13.5.0):
     - ExpoModulesCore
     - ReactCommon/turbomodule/core
   - EXConstants (14.4.2):
@@ -833,7 +833,7 @@ SPEC CHECKSUMS:
   BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   EXApplication: 042aa2e3f05258a16962ea1a9914bf288db9c9a1
-  EXAV: 523cd6969ca53b3b2762f18fb5450b76f84df44f
+  EXAV: 0f6f47ecd4d4aff93f486be494e28f8bdb3c9514
   EXConstants: ce5bbea779da8031ac818c36bea41b10e14d04e1
   EXFileSystem: f8b838a880254de42a5a7da20ed5ce12e2697c1b
   EXFont: 738c44c390953ebcbab075a4848bfbef025fd9ee
@@ -913,6 +913,6 @@ SPEC CHECKSUMS:
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: b76f1acfda8212aa16b7e26bcce3983230c82603
 
-PODFILE CHECKSUM: 55aa8c8a8d57d6de403491a30b14351df240847a
+PODFILE CHECKSUM: 13298284f4fb2f771fdfc8104d1677dc2a4bf79f
 
-COCOAPODS: 1.12.0
+COCOAPODS: 1.14.3

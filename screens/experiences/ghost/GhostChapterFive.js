@@ -195,7 +195,7 @@ useEffect(() => {
           try {
             const status = await sound.getStatusAsync();
             // Ensure the sound is loaded and the device is within the desired RSSI range
-            if (status.isLoaded && device.rssi < 0 && device.rssi > -45) {
+            if (status.isLoaded && device.rssi < 0 && device.rssi > -50) {
               // Check if the collected device is 'MsgSix'
               if (device.name === 'MsgSix') {
                 // Navigate to the next screen directly
@@ -213,7 +213,7 @@ useEffect(() => {
               setStayPink(prev => ({ ...prev, [device.name]: true }));
               beacondetectHaptic();
               // Set the active device to show the modal for this device
-              setActiveDevice(device);
+              //setActiveDevice(device);
               // Stop scanning when a device is in range to avoid detecting multiple devices simultaneously
               stopScanCycle();
             }

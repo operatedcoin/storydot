@@ -1,3 +1,6 @@
+project 'Voxstep.xcodeproj'
+
+
 use_modular_headers!
 
 

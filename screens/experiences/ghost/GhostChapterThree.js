@@ -205,12 +205,12 @@ const GhostChapterThree = () => {
         if (sound && !playedAudios[device.name]) {
           try {
             const status = await sound.getStatusAsync();
-            if (status.isLoaded && device.rssi < 0 && device.rssi > -45 && !status.isPlaying) {
+            if (status.isLoaded && device.rssi < 0 && device.rssi > -50 && !status.isPlaying) {
               await sound.playAsync().catch(() => {/* Handle error */});
               setPlayedAudios(prev => ({ ...prev, [device.name]: true }));
               setStayPink(prev => ({ ...prev, [device.name]: true }));
               beacondetectHaptic();
-              setActiveDevice(device); // Show the modal for this device
+              //setActiveDevice(device); // Show the modal for this device
               stopScanCycle(); // Stop scanning when a device is in range
             }
           } catch (error) {
@@ -288,7 +288,7 @@ const GhostChapterThree = () => {
   <Text style={{ color: 'gray' }}>Skip</Text>
 </TouchableOpacity>
       </SafeAreaView>
-
+{/* 
       <Modal
   animationType="slide"
   transparent={true}
@@ -312,13 +312,13 @@ const GhostChapterThree = () => {
               resizeMode="contain"
               style={{ width: '100%', height: undefined, aspectRatio: 1 }}
             />
-            {/* <Text>Description: {activeDevice.description}</Text> */}
+            <Text>Description: {activeDevice.description}</Text>
           </ScrollView>
         </>
       </View>
     </View>
   )}
-</Modal>
+</Modal> */}
 
     </View>
   );

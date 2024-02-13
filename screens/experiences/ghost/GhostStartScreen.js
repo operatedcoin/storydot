@@ -185,7 +185,7 @@ const GhostStartScreen = ({ navigation, route }) => {
     if (phase === 9) {
       const timer = setTimeout(() => {
         setPhase(10);
-      }, 10000); // 10 seconds delay
+      }, 8000); // 10 seconds delay
       return () => clearTimeout(timer);
     }
   }, [phase]);
@@ -196,7 +196,7 @@ const GhostStartScreen = ({ navigation, route }) => {
       
       setTimeout(() => {
         navigation.navigate('ChapterOne', { userSelection });
-        }, 10000); // Adjust the delay as needed, ensuring it's enough time for the audio to stop
+        }, 8000); // Adjust the delay as needed, ensuring it's enough time for the audio to stop
     }
 }, [phase, navigation, userSelection]);
 

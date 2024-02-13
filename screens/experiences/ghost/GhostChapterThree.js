@@ -197,6 +197,19 @@ const GhostChapterThree = () => {
     }, [])
   );
 
+  useEffect(() => {
+    // Check if all devices have been collected
+    const allDevicesCollected = Object.values(stayPink).length === devices.length && Object.values(stayPink).every(status => status);
+  
+    // Check if all audio files have been played
+    const allAudiosPlayed = devices.length > 0 && devices.every(device => playedAudios[device.name]);
+  
+    // If both conditions are met, navigate to the next chapter
+    if (allDevicesCollected && allAudiosPlayed) {
+      navigation.navigate('ChapterFour');
+    }
+  }, [stayPink, playedAudios, devices, navigation]);
+
   
   useEffect(() => {
     const handleDevices = async () => {

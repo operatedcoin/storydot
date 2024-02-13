@@ -15,22 +15,22 @@ export default {
   ghost: {
     navigator: "GhostNavigator",
     title: "Ghost",
-    description: "Description for Ghost",
-    duration: "XX-XX mins",
+    description: "Strange voices have been heard in The Joan’s foyers. Sometimes they’re voices. Sometimes they’re full on conversations.",
+    duration: "15-20 mins",
     suburb: "Penrith",
     address: 'Joan Sutherland Performing Arts Centre',
     image: require('./ghost/ghostHero.jpg'),
-    credits: "Credits for Ghost",
+    credits: "Producer: Operated Coin, Director: Nick Atkins, Composer: Peter Kennard, Creative Technologist: Robert Polmear, Associate Artist: Jacob Hedges",
     supporters: [
       require('../../assets/images/supporters/qTheatre.png'),
       require('../../assets/images/supporters/nswGov.png'),
     ], 
   },
-  demo: {
-    navigator: "DemoNavigator",
-    title: "Demo",
-    description: "Description for Demo",
-    image: require('../../assets/images/placeholder.png'),
-    credits: "Credits for Demo"
-  },
+  // demo: {
+  //   navigator: "DemoNavigator",
+  //   title: "Demo",
+  //   description: "Description for Demo",
+  //   image: require('../../assets/images/placeholder.png'),
+  //   credits: "Producer: Operated Coin, Director: Nick Atkins, Composer: Peter Kennard, Creative Technologist: Robert Polmear, Associate Artist: Jacob Hedges"
+  // },
 };

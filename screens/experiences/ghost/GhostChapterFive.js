@@ -65,6 +65,51 @@ const GhostChapterFive = () => {
   const [activeDevice, setActiveDevice] = useState(null); // State to track the active device for the pop-up  
   const [shownModals, setShownModals] = useState({});
   const navigation = useNavigation();
+  const sound = useRef(new Audio.Sound());
+
+  const playAudio = async () => {
+    try {
+      await sound.current.unloadAsync(); // Ensure the sound is unloaded before loading a new instance
+      await sound.current.loadAsync(require('../../../assets/audio/drone.mp3')); // Adjust the path as necessary
+      await sound.current.setIsLoopingAsync(true); // Enable looping
+      await sound.current.playAsync(); // Play the audio
+    } catch (error) {
+      console.error("Failed to load and play audio:", error);
+    }
+  };
+
+   // Function to stop and unload the audio
+   const stopAudio = async () => {
+    try {
+      await sound.current.stopAsync();
+      await sound.current.unloadAsync();
+    } catch (error) {
+      console.error("Failed to stop and unload audio:", error);
+    }
+  };
+
+  // Play audio when the component mounts and loop it
+  useEffect(() => {
+    playAudio();
+
+    // Cleanup function to stop and unload the audio when the component unmounts
+    return () => {
+      stopAudio();
+    };
+  }, []);
+
+  // Use focus effect to handle audio play/stop when navigating in/out of the screen
+  useFocusEffect(
+    React.useCallback(() => {
+      playAudio(); // Play audio when the screen is focused
+
+      return () => {
+        stopAudio(); // Stop audio when the screen is blurred (navigated away)
+      };
+    }, [])
+  );
+
+
 
   const beacondetectHaptic = async () => {
     try {
@@ -278,7 +323,7 @@ return (
       { cancelable: true }
     );
   }} /> 
-    <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} />
+    {/* <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} /> */}
 
   <SafeAreaView style={styles.container}>
   <View style={{flex: 2}}/>

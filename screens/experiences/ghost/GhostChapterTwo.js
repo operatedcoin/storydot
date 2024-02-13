@@ -56,13 +56,25 @@ const GhostChapterTwo = () => {
   useEffect(() => {
     // Play audio in specific phases and stop when leaving those phases
     const manageAudioPlayback = async () => {
+      const status = await audioRef.current.getStatusAsync();
       if (phase === 1.5 || phase === 2.5) {
-        await audioRef.current.playAsync();
+        if (!status.isLoaded) {
+          // Load the audio if not already loaded
+          await audioRef.current.loadAsync(require('../../../assets/audio/ghost/presenceLoop.mp3'), { shouldPlay: true, isLooping: true });
+        } else if (!status.isPlaying) {
+          // Start playing and ensure it's looping if it's not already playing
+          await audioRef.current.setIsLoopingAsync(true);
+          await audioRef.current.playAsync();
+        }
       } else {
-        await audioRef.current.stopAsync();
+        if (status.isLoaded && status.isPlaying) {
+          // Stop and unload the audio if we're leaving the phases that require audio playback
+          await audioRef.current.stopAsync();
+          await audioRef.current.unloadAsync();
+        }
       }
     };
-
+  
     manageAudioPlayback();
   }, [phase]); // Depend on phase
 

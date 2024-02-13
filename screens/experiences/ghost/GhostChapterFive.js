@@ -44,7 +44,7 @@ const CircleLayout = ({ devices, stayPink }) => {
           <DeviceCircle
             key={device.title}
             device={device}
-            inRange={device.rssi > -45}
+            inRange={device.rssi > -50}
             stayPink={stayPink[device.name]}
             x={x}
             y={y}
@@ -144,7 +144,7 @@ useEffect(() => {
   devices.forEach(device => {
     // Only consider devices with RSSI less than 0 and greater than -45
     // and only update devices that haven't been set to pink yet
-    if (device.rssi < 0 && device.rssi > -45 && !newStayPink[device.name]) {
+    if (device.rssi < 0 && device.rssi > -50 && !newStayPink[device.name]) {
       newStayPink[device.name] = true;
     }
   });
@@ -184,36 +184,51 @@ useFocusEffect(
   }, [])
 );
 
-
 useEffect(() => {
   const handleDevices = async () => {
     for (const device of devices) {
-      // Check if the device has not been collected yet according to stayPink state
       if (!stayPink[device.name]) {
         const sound = soundObjectsRef.current[device.name];
         if (sound && !playedAudios[device.name]) {
           try {
             const status = await sound.getStatusAsync();
-            // Ensure the sound is loaded and the device is within the desired RSSI range
             if (status.isLoaded && device.rssi < 0 && device.rssi > -50) {
-              // Check if the collected device is 'MsgSix'
+              // Special handling for MsgSix
               if (device.name === 'MsgSix') {
-                // Navigate to the next screen directly
-                beacondetectHaptic();
+                // Directly navigate to ChapterSix without playing audio
                 navigation.navigate('ChapterSix');
-                return; // Exit the function early to prevent further execution
+                // Optionally, mark MsgSix as collected if needed
+                setStayPink(prev => ({ ...prev, [device.name]: true }));
+                beacondetectHaptic();
+                stopScanCycle();
+                return; // Prevent further execution
               }
-              // Play audio for the device
-              await sound.playAsync().catch((error) => {
-                console.error(`Error playing sound for device ${device.name}:`, error);
-              });
+
+              // Check if the device is 'Blue' and handle playback finish
+              if (device.name === 'Blue') {
+                await sound.playAsync();
+                sound.setOnPlaybackStatusUpdate(async playbackStatus => {
+                  if (playbackStatus.didJustFinish) {
+                    // Logic for when 'Blue' audio finishes
+                    setStayPink(prevState => ({
+                      ...prevState,
+                      Blue: true, // Mark 'Blue' as finished
+                      // Assuming you want to highlight 'MsgSix' next, adjust as needed
+                      MsgSix: false,
+                    }));
+                    startScanCycle(); // Resume scanning
+                  }
+                });
+              } else {
+                // For all other devices, just play the audio
+                await sound.playAsync();
+              }
+              
               // Update the playedAudios state to prevent replaying the audio
               setPlayedAudios(prev => ({ ...prev, [device.name]: true }));
               // Update the stayPink state to mark the device as collected
               setStayPink(prev => ({ ...prev, [device.name]: true }));
               beacondetectHaptic();
-              // Set the active device to show the modal for this device
-              //setActiveDevice(device);
               // Stop scanning when a device is in range to avoid detecting multiple devices simultaneously
               stopScanCycle();
             }
@@ -224,7 +239,7 @@ useEffect(() => {
       }
     }
   };
-  
+
   handleDevices();
 }, [devices, stayPink, playedAudios, soundObjectsRef, navigation, stopScanCycle]);
 

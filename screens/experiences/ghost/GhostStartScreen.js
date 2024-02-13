@@ -1,5 +1,5 @@
-import { Animated, View, ScrollView, TouchableOpacity, Text, StyleSheet, Platform, Alert} from 'react-native';
-import React, { useState, useEffect, useRef } from 'react';
+import { Animated, View, TouchableOpacity, Text, StyleSheet, Platform, Alert} from 'react-native';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import HauntedText from '../../../components/text/HauntedText';
 import { useNavigation } from '@react-navigation/native';
 import twentyMinutes from '../../../components/timers/twentyMinutes';
@@ -8,20 +8,27 @@ import AnimatedButton from '../../../components/text/AnimatedButton';
 import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'react-native';
+import { useGhostContext } from './GhostContext';
 
-
-const GhostStartScreen = () => {
+const GhostStartScreen = ({ navigation, route }) => {
   const [audioKey, setAudioKey] = useState('introLoop'); // Use 'introLoop' or 'trace' as the key
   const [playAudio, setPlayAudio] = useState(true);
   const [phase, setPhase] = useState(1); 
   const [timerSeconds, setTimerSeconds] = useState(60);
   const [showContinue, setShowContinue] = useState(false);
   const fadeAnim = useState(new Animated.Value(0))[0];
-  const navigation = useNavigation();
-  const [buttonsFadeAnim] = useState(new Animated.Value(0)); // For fading in the buttons
-  const handleAnswer = (nextPhase) => {
+  const [buttonsFadeAnim] = useState(new Animated.Value(0));
+
+  const [userSelection, setUserSelection] = useState(null);
+
+  const handleAnswer = (nextPhase, selection) => {
+    if (nextPhase === 9) {
+      setUserSelection(selection); // Record the selection only for phase 8
+      console.log('User selection recorded:', selection);
+    }
     setPhase(nextPhase);
   };
+
   const timersRef = useRef([]);
   const setSafeTimeout = (callback, delay) => {
     const id = setTimeout(() => {
@@ -42,7 +49,7 @@ const GhostStartScreen = () => {
 
   const handleSkip = () => {
     clearAllTimers(); // Clear all active timers if necessary
-
+    handleAnswer(9, 'Still');
   
     // Check if not in the last phase before skipping to prevent going beyond your defined phases
     if (phase < 10) {
@@ -188,10 +195,10 @@ const GhostStartScreen = () => {
       setFadeOut(true);
       
       setTimeout(() => {
-            navigation.navigate('ChapterOne'); // Continue with navigation
+        navigation.navigate('ChapterOne', { userSelection });
         }, 10000); // Adjust the delay as needed, ensuring it's enough time for the audio to stop
     }
-}, [phase, navigation]);
+}, [phase, navigation, userSelection]);
 
 
   return (
@@ -303,13 +310,13 @@ const GhostStartScreen = () => {
         {phase === 8 && (
            <>
            <HauntedText
-                     text="Would you descibe yourself as still or stuck?"
+                     text="Would you describe yourself as still or stuck?"
                      startDelay={1000}
                      blockStyle={styles.blockStyle}
                      letterStyle={styles.letterStyle}
                    />
-                   <AnimatedButton text="Still." onPress={() => handleAnswer(9)}delay={5000} />
-                   <AnimatedButton text="Stuck." onPress={() => handleAnswer(9)} delay={6000}/>
+                  <AnimatedButton text="Still." onPress={() => handleAnswer(9, 'Still')} delay={5000} />
+                  <AnimatedButton text="Stuck." onPress={() => handleAnswer(9, 'Stuck')} delay={6000} />
 
                    </>
 

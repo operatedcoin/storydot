@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, Platform, Alert, SafeAreaView, StatusBar } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import HauntedText from '../../../components/text/HauntedText';
 import AnimatedButton from '../../../components/text/AnimatedButton';
 import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
@@ -8,9 +8,11 @@ import { Audio, Video } from 'expo-av';
 
 const GhostChapterTwo = () => {
   const [phase, setPhase] = useState(1); // Initial phase
-  const navigation = useNavigation();
   const videoRef = useRef(null);
   const audioRef = useRef(new Audio.Sound());
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { userSelection } = route.params;
 
   const handleVideoEnd = useCallback((status) => {
     if (status.didJustFinish) {
@@ -85,6 +87,38 @@ const GhostChapterTwo = () => {
       // if (videoRef.current) videoRef.current.playAsync();
     }
   }, [phase]);
+
+  const renderSVideo = () => {
+    if (userSelection === 'Still') {
+      return (
+        <Video
+          source={require('../../../assets/video/ghost/TheBriefingPartTwoStill.mp4')}
+          rate={1.0}
+          volume={1.0}
+          isMuted={false}
+          resizeMode="cover"
+          shouldPlay
+          isLooping={false}
+          style={styles.video}
+          onPlaybackStatusUpdate={handleVideoEnd}
+        />
+      );
+    } else if (userSelection === 'Stuck') {
+      return (
+        <Video
+          source={require('../../../assets/video/ghost/TheBriefingPartTwoStuck.mp4')}
+          rate={1.0}
+          volume={1.0}
+          isMuted={false}
+          resizeMode="cover"
+          shouldPlay
+          isLooping={false}
+          style={styles.video}
+          onPlaybackStatusUpdate={handleVideoEnd}
+        />
+      );
+    }
+  };
 
   return (
     <View style={{flex:1, backgroundColor: 'black'}}>
@@ -178,18 +212,7 @@ const GhostChapterTwo = () => {
           {phase === 2 && (
             <View>
             <View style={{flex: 1}}/>
-            <Video
-              ref={videoRef}
-              source={require('../../../assets/video/ghost/TheBriefingPartTwoStill.mp4')}
-              rate={1.0}
-              volume={1.0}
-              isMuted={false}
-              resizeMode="cover"
-              shouldPlay
-              isLooping={false}
-              style={styles.video}
-              onPlaybackStatusUpdate={handleVideoEnd}
-            />
+            {renderSVideo()}
             <View style={{flex: 1}}/>
 
             <TouchableOpacity onPress={() => setPhase(2.5)} style={{backgroundColor: 'transparent',}}>

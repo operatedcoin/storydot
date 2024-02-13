@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Animated, View, ScrollView, Text, StyleSheet, Platform, Vibration, TouchableOpacity, Alert } from 'react-native';
+import { Animated, View, Text, StyleSheet, Platform, Vibration, TouchableOpacity, Alert } from 'react-native';
 import HauntedText from '../../../components/text/HauntedText';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
 import gyroAudioFile from '../../../assets/audio/drone.mp3';
 import AnimatedButton from '../../../components/text/AnimatedButton';
@@ -10,16 +10,18 @@ import { useIsFocused } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
 import { StatusBar } from 'react-native';
-
+import { useGhostContext } from './GhostContext';
 
 const GhostChapterOne = () => {
   const [hauntedText, setHauntedText] = useState(""); 
   const [showButton, setShowButton] = useState(false); 
-  const navigation = useNavigation();
   const [phase, setPhase] = useState(1);
   const textOpacityAnim = useRef(new Animated.Value(1)).current; // For fading text
   const isFocused = useIsFocused();
   const [shouldPlayCompassAudio, setShouldPlayCompassAudio] = useState(false);
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { userSelection } = route.params;
 
   useEffect(() => {
     // Set shouldPlayAudio based on both navigation focus and current phase
@@ -30,13 +32,13 @@ const GhostChapterOne = () => {
 
   const handleButtonPress = () => {
     // Define what should happen when the button is pressed
-    navigation.navigate('ChapterTwo');
+    navigation.navigate('ChapterTwo', { userSelection });
     console.log("Button Pressed");
   };
   const handleSkip = () => {
     setShouldPlayCompassAudio(false);
     clearAllTimers(); // Clear all active timers before navigating
-    navigation.navigate('ChapterTwo');
+    navigation.navigate('ChapterTwo', { userSelection });
     console.log("Button Pressed");
   };
   const navigateToStart = () => {

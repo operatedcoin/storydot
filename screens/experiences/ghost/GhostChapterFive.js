@@ -223,7 +223,7 @@ useEffect(() => {
           try {
             const status = await sound.getStatusAsync();
             // Ensure the sound is loaded and the device is within the desired RSSI range
-            if (status.isLoaded && device.rssi < 0 && device.rssi > -50) {
+            if (status.isLoaded && device.rssi < 0 && device.rssi > -52) {
               // Check if the collected device is 'MsgSix'
               if (device.name === 'MsgSix') {
                 // Navigate to the next screen directly
@@ -297,7 +297,7 @@ return (
   <View style={{flex: 2}}/>
     
     <View  style={{flex: 3}}>
-    <Text style={styles.letterStyle}>Revisit the highlighted beacon</Text>
+    <Text style={styles.letterStyle}>Revisit the highlighted trace</Text>
     </View>
 
       <CircleLayout devices={devices} stayPink={stayPink} />
@@ -440,7 +440,7 @@ lightPink: {
     padding: 30,
     borderTopLeftRadius: 10, // Optional, for rounded corners at the top
     borderTopRightRadius: 10, // Optional, for rounded corners at the top
-    height: '80%', // Adjust this value as needed
+    height: '25%', // Adjust this value as needed
     // You can also use a specific value like height: 300
   },
 });

@@ -205,7 +205,7 @@ const GhostChapterThree = () => {
         if (sound && !playedAudios[device.name]) {
           try {
             const status = await sound.getStatusAsync();
-            if (status.isLoaded && device.rssi < 0 && device.rssi > -50 && !status.isPlaying) {
+            if (status.isLoaded && device.rssi < 0 && device.rssi > -52 && !status.isPlaying) {
               await sound.playAsync().catch(() => {/* Handle error */});
               setPlayedAudios(prev => ({ ...prev, [device.name]: true }));
               setStayPink(prev => ({ ...prev, [device.name]: true }));
@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
       padding: 30,
       borderTopLeftRadius: 10, // Optional, for rounded corners at the top
       borderTopRightRadius: 10, // Optional, for rounded corners at the top
-      height: '80%', // Adjust this value as needed
+      height: '25%', // Adjust this value as needed
       // You can also use a specific value like height: 300
     },
 });

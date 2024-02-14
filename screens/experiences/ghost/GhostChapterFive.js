@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { Animated, View, ScrollView, Text, StyleSheet, Platform, Vibration, TouchableOpacity, Image, Modal, Alert } from 'react-native';
 import { Audio } from 'expo-av';
 import GhostHeader from '../../../components/modules/GhostHeader';
@@ -65,50 +65,8 @@ const GhostChapterFive = () => {
   const [activeDevice, setActiveDevice] = useState(null); // State to track the active device for the pop-up  
   const [shownModals, setShownModals] = useState({});
   const navigation = useNavigation();
-  const sound = useRef(new Audio.Sound());
-
-  const playAudio = async () => {
-    try {
-      await sound.current.unloadAsync(); // Ensure the sound is unloaded before loading a new instance
-      await sound.current.loadAsync(require('../../../assets/audio/drone.mp3')); // Adjust the path as necessary
-      await sound.current.setIsLoopingAsync(true); // Enable looping
-      await sound.current.playAsync(); // Play the audio
-    } catch (error) {
-      console.error("Failed to load and play audio:", error);
-    }
-  };
-
-   // Function to stop and unload the audio
-   const stopAudio = async () => {
-    try {
-      await sound.current.stopAsync();
-      await sound.current.unloadAsync();
-    } catch (error) {
-      console.error("Failed to stop and unload audio:", error);
-    }
-  };
-
-  // Play audio when the component mounts and loop it
-  useEffect(() => {
-    playAudio();
-
-    // Cleanup function to stop and unload the audio when the component unmounts
-    return () => {
-      stopAudio();
-    };
-  }, []);
-
-  // Use focus effect to handle audio play/stop when navigating in/out of the screen
-  useFocusEffect(
-    React.useCallback(() => {
-      playAudio(); // Play audio when the screen is focused
-
-      return () => {
-        stopAudio(); // Stop audio when the screen is blurred (navigated away)
-      };
-    }, [])
-  );
-
+  const isFocused = useIsFocused(); // Determines if the screen is focused
+  const soundRef = useRef(null); // Reference to store the sound object
 
 
   const beacondetectHaptic = async () => {
@@ -131,6 +89,31 @@ const GhostChapterFive = () => {
       console.error('Error while generating tick-tock vibration:', error);
     }
   };
+
+  const playLoopingAudio = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+      require('../../../assets/audio/drone.mp3'), // Replace with your actual audio file
+      {
+        shouldPlay: true,
+        isLooping: true,
+      }
+    );
+    soundRef.current = sound; // Store the sound object in the ref
+  };
+
+  useEffect(() => {
+    if (isFocused) {
+      playLoopingAudio(); // Play audio when the screen is focused
+    } else {
+      soundRef.current?.stopAsync(); // Stop audio when the screen is not focused
+    }
+
+    // Cleanup function to unload the sound when the component unmounts
+    return () => {
+      soundRef.current?.unloadAsync();
+    };
+  }, [isFocused]);
+
 
 const handleButtonPress = () => {
   // Define what should happen when the button is pressed
@@ -187,7 +170,7 @@ const closeModal = async () => {
 useEffect(() => {
   const newStayPink = { ...stayPink }; // Start with the current state
   devices.forEach(device => {
-    // Only consider devices with RSSI less than 0 and greater than -45
+    // Only consider devices with RSSI less than 0 and greater than -50
     // and only update devices that haven't been set to pink yet
     if (device.rssi < 0 && device.rssi > -50 && !newStayPink[device.name]) {
       newStayPink[device.name] = true;
@@ -229,51 +212,36 @@ useFocusEffect(
   }, [])
 );
 
+
 useEffect(() => {
   const handleDevices = async () => {
     for (const device of devices) {
+      // Check if the device has not been collected yet according to stayPink state
       if (!stayPink[device.name]) {
         const sound = soundObjectsRef.current[device.name];
         if (sound && !playedAudios[device.name]) {
           try {
             const status = await sound.getStatusAsync();
+            // Ensure the sound is loaded and the device is within the desired RSSI range
             if (status.isLoaded && device.rssi < 0 && device.rssi > -50) {
-              // Special handling for MsgSix
+              // Check if the collected device is 'MsgSix'
               if (device.name === 'MsgSix') {
-                // Directly navigate to ChapterSix without playing audio
-                navigation.navigate('ChapterSix');
-                // Optionally, mark MsgSix as collected if needed
-                setStayPink(prev => ({ ...prev, [device.name]: true }));
+                // Navigate to the next screen directly
                 beacondetectHaptic();
-                stopScanCycle();
-                return; // Prevent further execution
+                navigation.navigate('ChapterSix');
+                return; // Exit the function early to prevent further execution
               }
-
-              // Check if the device is 'Blue' and handle playback finish
-              if (device.name === 'Blue') {
-                await sound.playAsync();
-                sound.setOnPlaybackStatusUpdate(async playbackStatus => {
-                  if (playbackStatus.didJustFinish) {
-                    // Logic for when 'Blue' audio finishes
-                    setStayPink(prevState => ({
-                      ...prevState,
-                      Blue: true, // Mark 'Blue' as finished
-                      // Assuming you want to highlight 'MsgSix' next, adjust as needed
-                      MsgSix: false,
-                    }));
-                    startScanCycle(); // Resume scanning
-                  }
-                });
-              } else {
-                // For all other devices, just play the audio
-                await sound.playAsync();
-              }
-              
+              // Play audio for the device
+              await sound.playAsync().catch((error) => {
+                console.error(`Error playing sound for device ${device.name}:`, error);
+              });
               // Update the playedAudios state to prevent replaying the audio
               setPlayedAudios(prev => ({ ...prev, [device.name]: true }));
               // Update the stayPink state to mark the device as collected
               setStayPink(prev => ({ ...prev, [device.name]: true }));
               beacondetectHaptic();
+              // Set the active device to show the modal for this device
+              setActiveDevice(device);
               // Stop scanning when a device is in range to avoid detecting multiple devices simultaneously
               stopScanCycle();
             }
@@ -284,7 +252,7 @@ useEffect(() => {
       }
     }
   };
-
+  
   handleDevices();
 }, [devices, stayPink, playedAudios, soundObjectsRef, navigation, stopScanCycle]);
 

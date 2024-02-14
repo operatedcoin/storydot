@@ -197,19 +197,6 @@ const GhostChapterThree = () => {
     }, [])
   );
 
-  useEffect(() => {
-    // Check if all devices have been collected
-    const allDevicesCollected = Object.values(stayPink).length === devices.length && Object.values(stayPink).every(status => status);
-  
-    // Check if all audio files have been played
-    const allAudiosPlayed = devices.length > 0 && devices.every(device => playedAudios[device.name]);
-  
-    // If both conditions are met, navigate to the next chapter
-    if (allDevicesCollected && allAudiosPlayed) {
-      navigation.navigate('ChapterFour');
-    }
-  }, [stayPink, playedAudios, devices, navigation]);
-
   
   useEffect(() => {
     const handleDevices = async () => {
@@ -219,20 +206,12 @@ const GhostChapterThree = () => {
           try {
             const status = await sound.getStatusAsync();
             if (status.isLoaded && device.rssi < 0 && device.rssi > -50 && !status.isPlaying) {
-              // Set up the playback status update callback
-              sound.setOnPlaybackStatusUpdate(async playbackStatus => {
-                if (playbackStatus.didJustFinish) {
-                  // Audio finished playing
-                  sound.setOnPlaybackStatusUpdate(null); // Remove the callback
-                  beacondetectHaptic(); // Optional: Trigger haptic feedback here if it makes sense in your app flow
-                  startScanCycle(); // Resume BLE scanning after audio finishes
-                }
-              });
-  
-              await sound.playAsync();
+              await sound.playAsync().catch(() => {/* Handle error */});
               setPlayedAudios(prev => ({ ...prev, [device.name]: true }));
               setStayPink(prev => ({ ...prev, [device.name]: true }));
-              stopScanCycle(); // Stop scanning while the device's audio is playing
+              beacondetectHaptic();
+              setActiveDevice(device); // Show the modal for this device
+              stopScanCycle(); // Stop scanning when a device is in range
             }
           } catch (error) {
             console.error(`Error with sound for device ${device.name}:`, error);
@@ -243,7 +222,6 @@ const GhostChapterThree = () => {
   
     handleDevices();
   }, [devices, shownModals, playedAudios, soundObjectsRef, startScanCycle, stopScanCycle]);
-  
   
 
   useEffect(() => {
@@ -310,8 +288,9 @@ const GhostChapterThree = () => {
   <Text style={{ color: 'gray' }}>Skip</Text>
 </TouchableOpacity>
       </SafeAreaView>
-
-      {/* <Modal
+{
+ 
+      <Modal
   animationType="slide"
   transparent={true}
   visible={activeDevice !== null}
@@ -334,13 +313,14 @@ const GhostChapterThree = () => {
               resizeMode="contain"
               style={{ width: '100%', height: undefined, aspectRatio: 1 }}
             />
-            <Text>Description: {activeDevice.description}</Text>
+            {/* <Text>Description: {activeDevice.description}</Text> */}
           </ScrollView>
         </>
       </View>
     </View>
   )}
-</Modal> */}
+</Modal> 
+}
 
     </View>
   );

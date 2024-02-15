@@ -10,7 +10,6 @@ import { Ionicons } from '@expo/vector-icons';
 import ExitExperienceButton from '../../../components/visual/exitExperienceButton';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ghostBeaconDevices, processDevices } from '../../../utils/ghostBeacons';
-
 import * as Haptics from 'expo-haptics';
 import { StatusBar } from 'react-native';
 
@@ -44,7 +43,7 @@ const CircleLayout = ({ devices, stayPink }) => {
           <DeviceCircle
             key={device.title}
             device={device}
-            inRange={device.rssi > -45}
+            inRange={device.rssi > -55}
             stayPink={stayPink[device.name]}
             x={x}
             y={y}
@@ -157,7 +156,7 @@ const GhostChapterThree = () => {
     devices.forEach(device => {
       // Only consider devices with RSSI less than 0 and greater than -45
       // and only update devices that haven't been set to pink yet
-      if (device.rssi < 0 && device.rssi > -50 && !newStayPink[device.name]) {
+      if (device.rssi < 0 && device.rssi > -55 && !newStayPink[device.name]) {
         newStayPink[device.name] = true;
       }
     });
@@ -205,13 +204,21 @@ const GhostChapterThree = () => {
         if (sound && !playedAudios[device.name]) {
           try {
             const status = await sound.getStatusAsync();
-            if (status.isLoaded && device.rssi < 0 && device.rssi > -52 && !status.isPlaying) {
+            if (status.isLoaded && device.rssi < 0 && device.rssi > -55 && !status.isPlaying) {
               await sound.playAsync().catch(() => {/* Handle error */});
               setPlayedAudios(prev => ({ ...prev, [device.name]: true }));
               setStayPink(prev => ({ ...prev, [device.name]: true }));
               beacondetectHaptic();
               setActiveDevice(device); // Show the modal for this device
               stopScanCycle(); // Stop scanning when a device is in range
+              
+              // Set a playback status update listener
+              sound.setOnPlaybackStatusUpdate(async (status) => {
+                if (status.didJustFinish) {
+                  // If playback just finished, close the modal
+                  await closeModal();
+                }
+              });
             }
           } catch (error) {
             console.error(`Error with sound for device ${device.name}:`, error);
@@ -222,6 +229,7 @@ const GhostChapterThree = () => {
   
     handleDevices();
   }, [devices, shownModals, playedAudios, soundObjectsRef, startScanCycle, stopScanCycle]);
+  
   
 
   useEffect(() => {
@@ -290,35 +298,33 @@ const GhostChapterThree = () => {
       </SafeAreaView>
 {
  
-      <Modal
-  animationType="slide"
-  transparent={true}
-  visible={activeDevice !== null}
+ <Modal
+ animationType="slide"
+ transparent={true}
+ visible={activeDevice !== null}
 >
-  {activeDevice && (
-    <View style={styles.modalContainer}>
-      <View style={styles.modalView}>
-        <>
-          <View className="flex-row justify-between items-center">
-            <Text className="text-2xl font-bold pb-4">{activeDevice.title}</Text>
-            <TouchableOpacity onPress={closeModal} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingBottom: 8 }}>
-              <Ionicons name="close-sharp" size={20} color={'black'} />
-              <Text style={{color: 'black', fontWeight: 700 }}>Close</Text>
-            </TouchableOpacity>
-          </View>
-          <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-            <Image
-              className="rounded-lg mb-4"
-              source={activeDevice.image}
-              resizeMode="contain"
-              style={{ width: '100%', height: undefined, aspectRatio: 1 }}
-            />
-            {/* <Text>Description: {activeDevice.description}</Text> */}
-          </ScrollView>
-        </>
-      </View>
-    </View>
-  )}
+ {activeDevice && (
+   <View style={styles.modalContainer}>
+     <View style={styles.modalView}>
+       <>
+         <View className="flex-row justify-between">
+           <View>
+               <View className="flex-row">
+               <Ionicons name="play" size={12} color="black" style={{marginTop: 2, marginRight: 4}} />
+               <Text className="text-xs uppercase">Now Playing</Text>
+               </View>
+             <Text className="text-3xl font-bold pb-4">{activeDevice.title}</Text>
+           </View>
+           <View>
+           <TouchableOpacity onPress={closeModal} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingBottom: 8, }}>
+             <Text style={{color: 'grey', fontWeight: 700, fontSize: 12 }}>Skip</Text>
+           </TouchableOpacity>
+           </View>
+         </View>
+       </>
+     </View>
+   </View>
+ )}
 </Modal> 
 }
 

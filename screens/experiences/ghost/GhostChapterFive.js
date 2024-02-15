@@ -44,7 +44,7 @@ const CircleLayout = ({ devices, stayPink }) => {
           <DeviceCircle
             key={device.title}
             device={device}
-            inRange={device.rssi > -50}
+            inRange={device.rssi > -55}
             stayPink={stayPink[device.name]}
             x={x}
             y={y}
@@ -67,7 +67,7 @@ const GhostChapterFive = () => {
   const navigation = useNavigation();
   const isFocused = useIsFocused(); // Determines if the screen is focused
   const soundRef = useRef(null); // Reference to store the sound object
-
+  const [blueAudioFinished, setBlueAudioFinished] = useState(false);
 
   const beacondetectHaptic = async () => {
     try {
@@ -131,11 +131,14 @@ const navigateToStart = () => {
   navigation.navigate('Details', { experienceId: 'ghost' });
 };
 
-// const timerRefs = useRef([]);
-// const clearAllTimers = () => {
-//   timerRefs.current.forEach(timer => clearTimeout(timer));
-//   timerRefs.current = []; // Clear the refs array after clearing the timers
-// };
+useEffect(() => {
+  // When blueAudioFinished becomes true, close the modal and update the state accordingly
+  if (blueAudioFinished) {
+    closeModal(); // Close the modal
+    // Update the state to mark devices as collected (except 'MsgSix')
+    setStayPink(prev => ({ ...prev, Red: true, Blue: true, MsgSix: true, Yellow: true, Green: true, Purple: true }));
+  }
+}, [blueAudioFinished]);
 
 const closeModal = async () => {
   console.log('Closing Modal'); // Debugging line
@@ -172,7 +175,7 @@ useEffect(() => {
   devices.forEach(device => {
     // Only consider devices with RSSI less than 0 and greater than -50
     // and only update devices that haven't been set to pink yet
-    if (device.rssi < 0 && device.rssi > -50 && !newStayPink[device.name]) {
+    if (device.rssi < 0 && device.rssi > -55 && !newStayPink[device.name]) {
       newStayPink[device.name] = true;
     }
   });
@@ -223,7 +226,7 @@ useEffect(() => {
           try {
             const status = await sound.getStatusAsync();
             // Ensure the sound is loaded and the device is within the desired RSSI range
-            if (status.isLoaded && device.rssi < 0 && device.rssi > -52) {
+            if (status.isLoaded && device.rssi < 0 && device.rssi > -55) {
               // Check if the collected device is 'MsgSix'
               if (device.name === 'MsgSix') {
                 // Navigate to the next screen directly
@@ -244,6 +247,16 @@ useEffect(() => {
               setActiveDevice(device);
               // Stop scanning when a device is in range to avoid detecting multiple devices simultaneously
               stopScanCycle();
+
+              // Add listener to the 'blue' device's sound object
+              if (device.name === 'Blue') {
+                sound.setOnPlaybackStatusUpdate(async (status) => {
+                  if (status.didJustFinish) {
+                    // When the audio finishes playing, update the state variable
+                    setBlueAudioFinished(true);
+                  }
+                });
+              }
             }
           } catch (error) {
             console.error(`Error with sound for device ${device.name}:`, error);
@@ -255,6 +268,7 @@ useEffect(() => {
   
   handleDevices();
 }, [devices, stayPink, playedAudios, soundObjectsRef, navigation, stopScanCycle]);
+
 
 
 
@@ -323,22 +337,20 @@ return (
     <View style={styles.modalContainer}>
       <View style={styles.modalView}>
         <>
-          <View className="flex-row justify-between items-center">
-            <Text className="text-2xl font-bold pb-4">{activeDevice.title}</Text>
-            <TouchableOpacity onPress={closeModal} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingBottom: 8 }}>
-              <Ionicons name="close-sharp" size={20} color={'black'} />
-              <Text style={{color: 'black', fontWeight: 700 }}>Close</Text>
-            </TouchableOpacity>
-          </View>
-          <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-            <Image
-              className="rounded-lg mb-4"
-              source={activeDevice.image}
-              resizeMode="contain"
-              style={{ width: '100%', height: undefined, aspectRatio: 1 }}
-            />
-            {/* <Text>Description: {activeDevice.description}</Text> */}
-          </ScrollView>
+        <View className="flex-row justify-between">
+           <View>
+               <View className="flex-row">
+               <Ionicons name="play" size={12} color="black" style={{marginTop: 2, marginRight: 4}} />
+               <Text className="text-xs uppercase">Now Playing</Text>
+               </View>
+             <Text className="text-3xl font-bold pb-4">{activeDevice.title}</Text>
+           </View>
+           <View>
+           <TouchableOpacity onPress={closeModal} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingBottom: 8, }}>
+             <Text style={{color: 'grey', fontWeight: 700, fontSize: 12 }}>Skip</Text>
+           </TouchableOpacity>
+           </View>
+         </View>
         </>
       </View>
     </View>

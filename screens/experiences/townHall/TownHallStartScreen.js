@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, Button, Modal, Image, TouchableOpacity, ImageBackground, Alert } from 'react-native';
 import { Audio } from 'expo-av';
-import gyroAudioFile from '../../../assets/audio/townHall/loststoriesAmbient.mp3';
-import GyroAudioPlayerComponentBasic from '../../../components/audioPlayers/GyroAudioPlayerComponentBasic';
 import useBleRssiScannerTownHall from '../../../hooks/useBleRssiScannerTownHall';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { BlurView } from '@react-native-community/blur';
 import { Ionicons } from '@expo/vector-icons';
 import ScanIndicator from '../../../components/visual/scanIndicator';
 import LinearGradient from 'react-native-linear-gradient';
@@ -16,7 +13,7 @@ import * as Haptics from 'expo-haptics';
 
 const townhallColor = '#EFD803';
 
-const IntroSection = ( ) => {
+const IntroSection = ({ onAudioFinish }) => {
   const navigation = useNavigation();
   const soundRef = useRef(null);
 
@@ -27,6 +24,12 @@ const IntroSection = ( ) => {
         { shouldPlay: true }
       );
       soundRef.current = sound;
+
+      sound.setOnPlaybackStatusUpdate(status => {
+        if (status.didJustFinish) {
+          onAudioFinish(); // Call the provided callback when the audio finishes
+        }
+      });
 
       return () => {
         soundRef.current?.unloadAsync();
@@ -127,14 +130,13 @@ const TownHallStartScreen = ({ navigation }) => {
     }
   };
 
-  useEffect(() => {
-    // Hide intro and show main content after 10 seconds
-    const timer = setTimeout(() => {
-      setShowIntro(false);
-    }, 10000);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setShowIntro(false);
+  //   }, 10000);
 
-    return () => clearTimeout(timer);
-  }, []);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
   const closeModal = async () => {
     console.log('Closing Modal'); // Debugging line
@@ -147,10 +149,12 @@ const TownHallStartScreen = ({ navigation }) => {
   // New logic to trigger CreditsSection after last beacon's modal is closed
       if (allCollected) {
         setShowCredits(true);
+        
         setTimeout(() => {
           setShowCredits(false);
+          stopScanCycle();
           navigation.goBack();
-        }, 10000);
+        }, 15000);
         setAllBeaconsCollected(false); // Reset this flag
       }
    };
@@ -160,7 +164,7 @@ const TownHallStartScreen = ({ navigation }) => {
     devices.forEach(device => {
       // Only consider devices with RSSI less than 0 and greater than -45
       // and only update devices that haven't been set to pink yet
-      if (device.rssi < 0 && device.rssi > -45 && !newStayPink[device.name]) {
+      if (device.rssi < 0 && device.rssi > -55 && !newStayPink[device.name]) {
         newStayPink[device.name] = true;
       }
     });
@@ -191,11 +195,15 @@ const TownHallStartScreen = ({ navigation }) => {
     };
   }, []);
 
-  useEffect(() => {
-    startScanCycle();
-    return () => stopScanCycle(); // Stop scanning when component unmounts
-  }, []);
+  // useEffect(() => {
+  //   startScanCycle();
+  //   return () => stopScanCycle(); // Stop scanning when component unmounts
+  // }, []);
 
+  const handleIntroAudioFinish = () => {
+    setShowIntro(false); // Hide the intro section
+    startScanCycle(); // Start the scan cycle after the intro audio finishes
+  };
   
   useEffect(() => {
     const handleDevices = async () => {
@@ -204,20 +212,27 @@ const TownHallStartScreen = ({ navigation }) => {
         if (sound && !playedAudios[device.name]) {
           try {
             const status = await sound.getStatusAsync();
-            if (status.isLoaded && device.rssi < 0 && device.rssi > -45 && !status.isPlaying) {
+            if (status.isLoaded && device.rssi < 0 && device.rssi > -55 && !status.isPlaying) {
               await sound.playAsync().catch(() => {/* Handle error */});
               setPlayedAudios(prev => ({ ...prev, [device.name]: true }));
               setStayPink(prev => ({ ...prev, [device.name]: true }));
               beacondetectHaptic();
               setActiveDevice(device); // Show the modal for this device
               stopScanCycle(); // Stop scanning when a device is in range
-            }
-          } catch (error) {
-            console.error(`Error with sound for device ${device.name}:`, error);
+             // Set a playback status update listener
+             sound.setOnPlaybackStatusUpdate(async (status) => {
+              if (status.didJustFinish) {
+                // If playback just finished, close the modal
+                await closeModal();
+              }
+            });
           }
+        } catch (error) {
+          console.error(`Error with sound for device ${device.name}:`, error);
         }
       }
-    };
+    }
+  };
   
     handleDevices();
   }, [devices, shownModals, playedAudios, soundObjectsRef, startScanCycle, stopScanCycle]);
@@ -226,7 +241,7 @@ const TownHallStartScreen = ({ navigation }) => {
   return (
     <View style={{flex: 1}}>
       <StatusBar style="light" />
-      {showIntro && <IntroSection />}
+      {showIntro && <IntroSection onAudioFinish={handleIntroAudioFinish} />}
       {!showIntro && !showCredits && (
       <ImageBackground 
         source={require('../townHall/townHall_bg.jpg')} 
@@ -271,35 +286,27 @@ const TownHallStartScreen = ({ navigation }) => {
       <View style={{flex: 1}}/>
       
       <View style={styles.scanTopbarWrapper}>
-        <BlurView 
-          style={styles.scanTopbar}
-          blurType='dark'
-          blurAmount={20}>
+        <View style={styles.scanTopbar}>
             <ScanIndicator/>
-        </BlurView>
+        </View>
       </View>
 
       <View style={styles.scanBoxWrapper}>
-        <BlurView 
-          style={styles.scanBox}
-          blurType='dark'
-          blurAmount={20}>
+        <View style={styles.scanBox}>
           <Text style={{ textAlign: 'center', paddingVertical: 20, color: townhallColor }}>{beaconsCollectedCount} out of 5 Lost Stories Found.</Text>
-          {allCollected && <Text>All stories have been found.!</Text>}
           <View style={styles.rowContainer}>
             {devices.map((device) => (
               <DeviceCircle
                 key={device.title}
                 device={device}
-                inRange={device.rssi > -45}
+                inRange={device.rssi > -55}
                 stayPink={stayPink[device.name]}
               />
             ))}
           </View>
-        </BlurView>
+        </View>
       </View>
 
-      {/* <GyroAudioPlayerComponentBasic gyroAudioFile={gyroAudioFile} /> */}
 
       
       
@@ -312,22 +319,23 @@ const TownHallStartScreen = ({ navigation }) => {
     <View style={styles.modalContainer}>
       <View style={styles.modalView}>
         <>
-          <View className="flex-row justify-between items-center">
-            <Text className="text-2xl font-bold pb-4">{activeDevice.title}</Text>
-            <TouchableOpacity onPress={closeModal} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingBottom: 8 }}>
-              <Ionicons name="close-sharp" size={20} color={townhallColor} />
-              <Text style={{color: townhallColor, fontWeight: 700 }}>Close</Text>
-            </TouchableOpacity>
-          </View>
-          <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-            {/* <Image
-              className="rounded-lg mb-4"
-              source={activeDevice.image}
-              resizeMode="contain"
-              style={{ width: '100%', height: undefined, aspectRatio: 1 }}
-            /> */}
-            <Text>{activeDevice.description}</Text>
-          </ScrollView>
+        <View className="flex-row justify-between">
+           <View>
+               <View className="flex-row">
+               <Ionicons name="play" size={12} color="black" style={{marginTop: 2, marginRight: 4}} />
+               <Text className="text-xs uppercase">Now Playing</Text>
+               </View>
+             <Text className="text-3xl font-bold pb-4">{activeDevice.title}</Text>
+           </View>
+           <View>
+           <TouchableOpacity onPress={closeModal} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingBottom: 8, color: townhallColor }}>
+             <Text style={{color: 'grey', fontWeight: 700, fontSize: 12, color: townhallColor }}>Skip</Text>
+           </TouchableOpacity>
+           </View>
+         </View>
+         <View>
+           <Text>{activeDevice.description}</Text>
+         </View>
         </>
       </View>
     </View>
@@ -373,6 +381,7 @@ const styles = StyleSheet.create({
     padding: 10,
     alignItems: 'center', 
     justifyContent: 'center',
+    backgroundColor: "#534d19",
   },
   scanBoxWrapper: {
     borderBottomRightRadius: 20,
@@ -382,6 +391,8 @@ const styles = StyleSheet.create({
   scanBox: {
     paddingTop: 10,
     paddingBottom: 20,
+    paddingHorizontal: 20,
+    backgroundColor: "#534d19",
     },
   rowContainer: {
     flexDirection: 'row',
@@ -420,7 +431,7 @@ const styles = StyleSheet.create({
       padding: 30,
       borderTopLeftRadius: 10, // Optional, for rounded corners at the top
       borderTopRightRadius: 10, // Optional, for rounded corners at the top
-      height: '80%', // Adjust this value as needed
+      height: 'auto', // Adjust this value as needed
       // You can also use a specific value like height: 300
     },
     heroTitle: {

@@ -9,6 +9,11 @@ const useBleRssiScannerTownHall = () => {
   const scanPauseTimeoutRef = useRef();
 
   const updateDeviceRssi = (device) => {
+  // Log RSSI value of device named 'MsgSix'
+  if (device.localName === 'MsgSix') {
+    console.log(`RSSI value of device 'MsgSix': ${device.rssi}`);
+  }
+
     setDevices((currentDevices) => {
       const deviceIndex = currentDevices.findIndex(d => d.name === device.localName);
       if (deviceIndex !== -1 && currentDevices[deviceIndex].rssi !== device.rssi) {

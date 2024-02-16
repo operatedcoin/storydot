@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Animated, View, Text, Alert, Image, SafeAreaView, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import ParallaxScrollView from '../../components/visual/ParallaxScrollView';
 import experiencesData from '../experiences/experiencesData';
@@ -6,6 +6,7 @@ import { globalStyles } from '../../themes/globalStyles';
 import { BlurView } from "@react-native-community/blur";
 import LinearGradient from 'react-native-linear-gradient';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
+import { requestLocationPermission } from '../../hooks/locationPermissions';
 
 const ios = Platform.OS === 'ios';
 
@@ -30,6 +31,21 @@ const DetailsScreen = ({ route, navigation }) => {
   const experience = experiencesData[experienceId];
   const creditsArray = parseCredits(experience.credits);
   const hasSupporters = experience.supporters && experience.supporters.length > 0;
+
+  // Function to request location permission
+  const handlePermissionRequest = async () => {
+    const permissionGranted = await requestLocationPermission();
+    if (!permissionGranted) {
+      // Handle the case where permission is denied
+      // You can show an error message or take appropriate action
+    }
+  };
+
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      handlePermissionRequest();
+    }
+  }, []);
 
   // Calculate the height of the SafeAreaView based on the device
   const safeAreaHeight = ios ? -35 : -10; // Adjust this value based on your SafeAreaView configuration

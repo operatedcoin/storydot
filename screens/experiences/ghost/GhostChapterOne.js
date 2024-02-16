@@ -155,7 +155,7 @@ const GhostChapterOne = () => {
               letterStyle={styles.letterStyle}
             />
             <HauntedText
-              text="Move your hand around gently. See what you can hear."
+              text="Move your device around gently. See what you can hear."
               startDelay={4000}
               blockStyle={styles.blockStyle}
               letterStyle={styles.letterStyle}

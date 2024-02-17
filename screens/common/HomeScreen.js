@@ -110,11 +110,16 @@ const heroImg = require('../../assets/images/voxstepHero.jpeg');
           <View style={Styles.content}>
             <Text style={Styles.sectionTitle}>Experience a show</Text>
             <FlatList
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{paddingHorizontal: 10}}             
-              data={Object.keys(experiencesData)}
-              renderItem={({ item }) => (
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 10 }}
+            data={Object.keys(experiencesData)}
+            renderItem={({ item }) => {
+              // Skip rendering if item is 'Ghost' and Platform is Android
+              if (Platform.OS === 'android' && item === 'ghost') {
+                return null;
+              }
+              return (
                 <TouchableOpacity
                   onPress={() => navigation.navigate('Details', { experienceId: item })}
                   style={Styles.cardContainer}
@@ -136,11 +141,11 @@ const heroImg = require('../../assets/images/voxstepHero.jpeg');
                         )}
                       </View>
                     </View>
-
                   </ImageBackground>
                 </TouchableOpacity>
-              )}
-              keyExtractor={item => item}
+              );
+            }}
+            keyExtractor={item => item}
             />
           </View>
         </SafeAreaView>

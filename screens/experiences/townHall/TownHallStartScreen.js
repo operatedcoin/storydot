@@ -20,7 +20,7 @@ const IntroSection = ({ onAudioFinish }) => {
   useEffect(() => {
     const loadAndPlayAudio = async () => {
       const { sound } = await Audio.Sound.createAsync(
-        require('../../../assets/audio/townHall/acknowledgement.mp3'), 
+        require('../../../assets/audio/townHall/welcome.mp3'), 
         { shouldPlay: true }
       );
       soundRef.current = sound;
@@ -62,10 +62,14 @@ const IntroSection = ({ onAudioFinish }) => {
       { cancelable: true }
     );
   }} />
-    <View style={{ flex: 1, paddingHorizontal: 20, justifyContent: 'center', alignItems: 'center'}}>
+    <View style={{ flex: 1, paddingHorizontal: 20, paddingBottom: 20, justifyContent: 'center', alignItems: 'center'}}>
+    <View style={{flex:1}}/>
      <Image source={require('../townHall/lostStories_logo.png')} tintColor={'white'} resizeMode="contain" style={{width: '80%', height: undefined, aspectRatio: 2 }}/>
-      <Text style={{color:'white', textAlign: 'center', marginBottom: 20, fontSize: 18, fontWeight: 600,}}>Acknowledgement of Country.</Text>
-      <Text style={{color:'white', textAlign: 'center'}}>We acknowledge the traditional custodians of the land on which we gather, the Darug people. We pay our respects to their elders past and present, and acknowledge their deep and ongoing connection to the land, waters and culture. As you step into this experience and connect with stories of place, we ask you to take a moment to acknowledge that sovereignty was never ceded, and that this land always was, and always will be, Aboriginal land. </Text>
+      <Text style={{color:'white', textAlign: 'center', marginBottom: 20, fontSize: 18, fontWeight: 600,}}>Welcome to Country.</Text>
+      <View style={{flex:1}}/>
+      <TouchableOpacity onPress={ onAudioFinish }>
+      <Text style={{ color: 'rgb(23 23 23);' }}>Skip</Text>
+      </TouchableOpacity>
     </View>
     </View>
 );
@@ -92,7 +96,6 @@ const DeviceCircle = ({ device, inRange, stayPink }) => {
   return (
     <View style={[styles.circle, circleColor]}>
       <Text style={{color: circleText, textAlign: 'center'}}>{device.title}</Text>
-      {/* <Text style={{color: circleText}}>{device.rssi}</Text> */}
     </View>
   );
 };
@@ -129,14 +132,6 @@ const TownHallStartScreen = ({ navigation }) => {
       console.error('Error while generating tick-tock vibration:', error);
     }
   };
-
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     setShowIntro(false);
-  //   }, 10000);
-
-  //   return () => clearTimeout(timer);
-  // }, []);
 
   const closeModal = async () => {
     console.log('Closing Modal'); // Debugging line
@@ -195,10 +190,10 @@ const TownHallStartScreen = ({ navigation }) => {
     };
   }, []);
 
-  // useEffect(() => {
-  //   startScanCycle();
-  //   return () => stopScanCycle(); // Stop scanning when component unmounts
-  // }, []);
+  const leaveShow = () => {
+    stopScanCycle();
+    navigation.goBack();
+  };
 
   const handleIntroAudioFinish = () => {
     setShowIntro(false); // Hide the intro section
@@ -235,13 +230,13 @@ const TownHallStartScreen = ({ navigation }) => {
   };
   
     handleDevices();
-  }, [devices, shownModals, playedAudios, soundObjectsRef, startScanCycle, stopScanCycle]);
+  }, [devices, shownModals, playedAudios, soundObjectsRef, stopScanCycle]);
   
 
   return (
     <View style={{flex: 1}}>
       <StatusBar style="light" />
-      {showIntro && <IntroSection onAudioFinish={handleIntroAudioFinish} />}
+      {showIntro && <IntroSection onAudioFinish={handleIntroAudioFinish}/>}
       {!showIntro && !showCredits && (
       <ImageBackground 
         source={require('../townHall/townHall_bg.jpg')} 
@@ -265,7 +260,7 @@ const TownHallStartScreen = ({ navigation }) => {
         },
         {
           text: 'Leave',
-          onPress: navigation.goBack,
+          onPress: leaveShow,
         },
       ],
       { cancelable: true }

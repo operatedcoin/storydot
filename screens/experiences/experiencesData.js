@@ -20,7 +20,7 @@ export default {
     suburb: "Penrith",
     address: 'Joan Sutherland Performing Arts Centre',
     image: require('./ghost/ghostHero.jpg'),
-    credits: "Producer: Operated Coin, Director: Nick Atkins, Composer: Peter Kennard, Creative Technologist: Robert Polmear, Associate Artist: Jacob Hedges",
+    credits: "Producer: Operated Coin, Director: Nick Atkins, Cast: Kate Worsley, Composer: Peter Kennard, Creative Technologist: Robert Polmear, Associate Artist: Jacob Hedges",
     supporters: [
       require('../../assets/images/supporters/qTheatre.png'),
       require('../../assets/images/supporters/nswGov.png'),

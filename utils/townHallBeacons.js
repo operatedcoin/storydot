@@ -11,7 +11,7 @@ export const devices = [
   {
     name: 'Blue',
     rssi: -100,
-    title: 'Apron',
+    title: 'Deli',
     audioFile: require('../assets/audio/townHall/2_baltiaDelicatessen.mp3'),
     subTitle: "I am Ghost #1",
     description: "In the years 1956 to 1961, this quaint establishment became a beacon of cultural exchange and culinary delight in the heart of the Parramatta city.",
